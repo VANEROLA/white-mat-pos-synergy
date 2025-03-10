@@ -188,8 +188,11 @@ const Index: React.FC = () => {
       }
     });
     
-    // Show toast notification
-    toast.success(`${product.name}をカートに追加しました`);
+    // Show toast notification with shorter duration
+    toast.success(`${product.name}をカートに追加しました`, {
+      duration: 1500,
+      position: "top-right"
+    });
     
     // Add log entry
     addLogEntry({

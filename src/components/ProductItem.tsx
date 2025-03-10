@@ -54,6 +54,7 @@ const ProductItem: React.FC<ProductItemProps> = ({ product, onAddToCart }) => {
               "bg-white text-primary rounded-full p-2 shadow-md transform transition-all duration-300",
               isHovering ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
             )}
+            aria-label="カートに追加"
           >
             <Plus size={20} />
           </button>
