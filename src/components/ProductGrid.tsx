@@ -29,12 +29,12 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
   return (
     <Tab.Group>
-      <Tab.List className="flex space-x-1 rounded-lg bg-muted/50 p-1 mb-6">
+      <Tab.List className="flex space-x-1 overflow-x-auto rounded-lg bg-muted/50 p-1 mb-6 scrollbar-hide">
         <Tab
           key="all"
           className={({ selected }) =>
             cn(
-              "w-full rounded-md py-2 text-sm font-medium leading-5 transition-all",
+              "w-full rounded-md py-2 text-sm font-medium leading-5 transition-all flex-shrink-0",
               "ring-white ring-opacity-60 ring-offset-2 focus:outline-none",
               selected
                 ? "bg-white text-primary shadow"
@@ -50,7 +50,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
             key={category}
             className={({ selected }) =>
               cn(
-                "w-full rounded-md py-2 text-sm font-medium leading-5 transition-all",
+                "w-full rounded-md py-2 text-sm font-medium leading-5 transition-all flex-shrink-0",
                 "ring-white ring-opacity-60 ring-offset-2 focus:outline-none",
                 selected
                   ? "bg-white text-primary shadow"
