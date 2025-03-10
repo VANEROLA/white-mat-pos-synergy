@@ -34,7 +34,7 @@ export const ItemSelectionList: React.FC<ItemSelectionListProps> = ({
     return selectedItem ? selectedItem.freeQuantity : 0;
   };
 
-  const handleToggleItem = (item: CartItem, index: number) => {
+  const handleToggleItem = (item: CartItem) => {
     const isSelected = isItemSelected(item);
     
     if (isSelected) {
@@ -50,12 +50,12 @@ export const ItemSelectionList: React.FC<ItemSelectionListProps> = ({
       ]);
     }
     
-    // Update selectAll state based on whether all items would be selected
-    const newSelectedCount = isSelected ? 
-      selectedItemsWithQuantity.length - 1 : 
-      selectedItemsWithQuantity.length + 1;
-    
-    setSelectAll(newSelectedCount === cartItems.length);
+    // Update selectAll state based on whether all items would be selected after this toggle
+    const updatedSelectionCount = isSelected 
+      ? selectedItemsWithQuantity.length - 1 
+      : selectedItemsWithQuantity.length + 1;
+      
+    setSelectAll(updatedSelectionCount === cartItems.length);
   };
 
   const handleToggleAll = () => {
@@ -125,7 +125,7 @@ export const ItemSelectionList: React.FC<ItemSelectionListProps> = ({
             <Checkbox 
               id={`item-${item.id}-${index}`} 
               checked={isItemSelected(item)}
-              onCheckedChange={() => handleToggleItem(item, index)}
+              onCheckedChange={() => handleToggleItem(item)}
             />
             <label 
               htmlFor={`item-${item.id}-${index}`} 

@@ -12,6 +12,44 @@ interface FreeItemRecord {
 }
 
 export const useFreeItems = () => {
+  const getFreeItems = useCallback((): FreeItemRecord[] => {
+    try {
+      return JSON.parse(localStorage.getItem("freeItems") || "[]");
+    } catch (error) {
+      console.error("Error retrieving free items:", error);
+      
+      addLogEntry({
+        action: "free_items_retrieval_error",
+        details: `Failed to retrieve free items: ${error}`,
+      });
+      
+      return [];
+    }
+  }, []);
+
+  const clearOldFreeItems = useCallback(() => {
+    try {
+      const existingItems = JSON.parse(localStorage.getItem("freeItems") || "[]");
+      
+      // Keep only items from the last 30 days
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      
+      const filteredItems = existingItems.filter((item: FreeItemRecord) => {
+        const itemDate = new Date(item.timestamp);
+        return itemDate > thirtyDaysAgo;
+      });
+      
+      // Save filtered items
+      localStorage.setItem("freeItems", JSON.stringify(filteredItems));
+      
+      return true;
+    } catch (error) {
+      console.error("Error clearing old free items:", error);
+      return false;
+    }
+  }, []);
+
   const saveFreeItems = useCallback((item: FreeItemRecord) => {
     try {
       // Get existing records
@@ -91,44 +129,6 @@ export const useFreeItems = () => {
       });
       
       throw error;
-    }
-  }, []);
-
-  const getFreeItems = useCallback((): FreeItemRecord[] => {
-    try {
-      return JSON.parse(localStorage.getItem("freeItems") || "[]");
-    } catch (error) {
-      console.error("Error retrieving free items:", error);
-      
-      addLogEntry({
-        action: "free_items_retrieval_error",
-        details: `Failed to retrieve free items: ${error}`,
-      });
-      
-      return [];
-    }
-  }, []);
-
-  const clearOldFreeItems = useCallback(() => {
-    try {
-      const existingItems = JSON.parse(localStorage.getItem("freeItems") || "[]");
-      
-      // Keep only items from the last 30 days
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      
-      const filteredItems = existingItems.filter((item: FreeItemRecord) => {
-        const itemDate = new Date(item.timestamp);
-        return itemDate > thirtyDaysAgo;
-      });
-      
-      // Save filtered items
-      localStorage.setItem("freeItems", JSON.stringify(filteredItems));
-      
-      return true;
-    } catch (error) {
-      console.error("Error clearing old free items:", error);
-      return false;
     }
   }, []);
 
