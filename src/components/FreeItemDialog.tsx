@@ -10,17 +10,20 @@ import ReasonSelector from "./freeItem/ReasonSelector";
 import AddReasonForm from "./freeItem/AddReasonForm";
 import EditReasonForm from "./freeItem/EditReasonForm";
 import { FreeItemReason, loadSavedReasons } from "@/utils/freeItemReasons";
+import { CartItem } from "@/types";
 
 interface FreeItemDialogProps {
   open: boolean;
   onClose: () => void;
   onApprove: (staffName: string, reason: string, notes?: string) => void;
+  cartItems: CartItem[];
 }
 
 const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
   open,
   onClose,
   onApprove,
+  cartItems,
 }) => {
   const [staffName, setStaffName] = useState("");
   const [notes, setNotes] = useState("");
@@ -54,7 +57,8 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
       staffName,
       reason: reasonText,
       notes: notes || "",
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      products: cartItems, // Store the cart items with the free order record
     });
     localStorage.setItem("freeItems", JSON.stringify(freeItems));
 
