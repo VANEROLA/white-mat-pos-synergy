@@ -1,7 +1,6 @@
 
 import React from "react";
 import { CalendarDays, Clock } from "lucide-react";
-import ConnectionStatus from "./ConnectionStatus";
 
 const POSHeader: React.FC = () => {
   const [currentTime, setCurrentTime] = React.useState(new Date());
@@ -38,9 +37,7 @@ const POSHeader: React.FC = () => {
         <p className="text-muted-foreground text-sm">白を基調としたマットなデザイン</p>
       </div>
       
-      <div className="flex flex-col md:flex-row gap-3 md:gap-6">
-        <ConnectionStatus />
-        
+      <div className="flex gap-6">
         <div className="flex items-center gap-2 text-muted-foreground">
           <CalendarDays size={18} className="text-primary/70" />
           <span className="text-sm font-medium">{formatDate(currentTime)}</span>

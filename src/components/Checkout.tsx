@@ -3,11 +3,10 @@ import React from "react";
 import { CartState, InventoryUpdatePayload, Product } from "@/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Loader2, AlertTriangle, BadgePercent, WifiOff } from "lucide-react";
+import { CheckCircle, Loader2, AlertTriangle, BadgePercent } from "lucide-react";
 import { updateInventory, generateOrderId } from "@/utils/api";
 import { toast } from "sonner";
 import { useTax } from "@/contexts/TaxContext";
-import { useConnection } from "@/contexts/ConnectionContext";
 
 interface CheckoutProps {
   open: boolean;
@@ -22,40 +21,23 @@ const Checkout: React.FC<CheckoutProps> = ({
   onClose,
   onComplete,
 }) => {
-  const [status, setStatus] = React.useState<"initial" | "processing" | "success" | "failed" | "offline">("initial");
+  const [status, setStatus] = React.useState<"initial" | "processing" | "success" | "failed">("initial");
   const [orderId, setOrderId] = React.useState<string>("");
   const { taxRate } = useTax();
-  const { status: connectionStatus, isOnlineMode } = useConnection();
   
   // チェックアウトダイアログが開かれたときの初期状態
   React.useEffect(() => {
     if (open) {
-      // オフラインモードの場合は、初期状態をオフラインに設定
-      if (!isOnlineMode || connectionStatus !== 'connected') {
-        setStatus("offline");
-      } else {
-        setStatus("initial");
-      }
+      setStatus("initial");
       setOrderId(generateOrderId());
     }
-  }, [open, isOnlineMode, connectionStatus]);
+  }, [open]);
   
   const taxAmount = Math.round(cart.total * (taxRate / 100));
   const totalWithTax = cart.total + taxAmount;
   
   const handleProcessOrder = async () => {
     if (cart.items.length === 0) return;
-    
-    // オフラインモードの場合
-    if (!isOnlineMode || connectionStatus !== 'connected') {
-      setStatus("offline");
-      // 親コンポーネントのhandleCompleteCheckoutが自動的にオフラインモードの処理を行う
-      setTimeout(() => {
-        onComplete();
-        onClose();
-      }, 1500);
-      return;
-    }
     
     setStatus("processing");
     
@@ -94,8 +76,8 @@ const Checkout: React.FC<CheckoutProps> = ({
     if (status !== "processing") {
       onClose();
       
-      // チェックアウトが成功した場合、またはオフラインモードの場合
-      if (status === "success" || status === "offline") {
+      // チェックアウトが成功した場合
+      if (status === "success") {
         onComplete();
       }
     }
@@ -111,24 +93,16 @@ const Checkout: React.FC<CheckoutProps> = ({
             {status === "processing" && "処理中..."}
             {status === "success" && "注文が完了しました"}
             {status === "failed" && "処理に失敗しました"}
-            {status === "offline" && "オフラインモードで注文を保存します"}
           </DialogDescription>
         </DialogHeader>
         
         <div className="py-6">
-          {(status === "initial" || status === "offline") && (
+          {status === "initial" && (
             <div className="animate-fade-in space-y-4">
               <div className="rounded-lg bg-secondary p-4">
                 <h3 className="text-sm font-medium mb-2">注文情報</h3>
                 <p className="text-xs text-muted-foreground mb-1">注文ID: {orderId}</p>
                 <p className="text-xs text-muted-foreground">商品点数: {cart.items.length}点</p>
-                
-                {status === "offline" && (
-                  <div className="mt-2 flex items-center gap-1.5 text-orange-600 text-xs">
-                    <WifiOff size={14} />
-                    <span>オフラインモード: データは後で同期されます</span>
-                  </div>
-                )}
               </div>
               
               <div className="space-y-1">
@@ -175,16 +149,6 @@ const Checkout: React.FC<CheckoutProps> = ({
               </p>
             </div>
           )}
-          
-          {status === "offline" && (
-            <div className="flex flex-col items-center justify-center py-5 animate-fade-in">
-              <WifiOff size={40} className="text-orange-500 mb-3" />
-              <p className="text-center">オフラインモードで注文を処理します</p>
-              <p className="text-sm text-muted-foreground text-center mt-1">
-                オンラインに接続したときに自動的に同期されます
-              </p>
-            </div>
-          )}
         </div>
         
         <div className="flex justify-end gap-2">
@@ -195,17 +159,6 @@ const Checkout: React.FC<CheckoutProps> = ({
               </Button>
               <Button onClick={handleProcessOrder}>
                 確定する
-              </Button>
-            </>
-          )}
-          
-          {status === "offline" && (
-            <>
-              <Button variant="outline" onClick={handleClose}>
-                キャンセル
-              </Button>
-              <Button onClick={handleProcessOrder} variant="default" className="bg-orange-500 hover:bg-orange-600">
-                オフラインで確定する
               </Button>
             </>
           )}
