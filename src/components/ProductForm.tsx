@@ -217,18 +217,26 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
               </div>
             )}
             
-            {/* File input button */}
-            <div className={`flex flex-col items-center justify-center p-4 border-2 ${errors.imageUrl ? 'border-red-500' : 'border-gray-300'} border-dashed rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors`}>
-              <Upload size={24} className="text-gray-500 mb-2" />
-              <p className="text-sm text-gray-600 mb-2">クリックして画像をアップロード</p>
-              <p className="text-xs text-gray-500">JPG, PNG, GIF (最大5MB)</p>
-              <input 
-                type="file" 
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
-                onChange={handleFileChange}
-                accept="image/*"
-              />
+            {/* Improved file upload area */}
+            <div className={`relative border-2 ${errors.imageUrl ? 'border-red-500' : 'border-gray-300'} border-dashed rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors`}>
+              <div className="flex flex-col items-center justify-center py-5 px-4">
+                <Upload size={24} className="text-gray-500 mb-2" />
+                <p className="text-sm text-gray-600 mb-2">クリックして画像をアップロード</p>
+                <p className="text-xs text-gray-500">JPG, PNG, GIF (最大5MB)</p>
+              </div>
+              
+              {/* This is the actual file input, but with a better, more precise hit area */}
+              <label className="absolute inset-0 cursor-pointer flex items-center justify-center">
+                <input 
+                  type="file" 
+                  className="sr-only" 
+                  onChange={handleFileChange}
+                  accept="image/*"
+                />
+                <span className="sr-only">ファイルを選択</span>
+              </label>
             </div>
+            
             {errors.imageUrl && <p className="text-red-500 text-sm mt-1">{errors.imageUrl}</p>}
           </div>
         </div>
