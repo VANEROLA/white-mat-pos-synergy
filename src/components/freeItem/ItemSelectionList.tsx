@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Plus, Minus } from "lucide-react";
@@ -25,6 +25,11 @@ export const ItemSelectionList: React.FC<ItemSelectionListProps> = ({
   selectAll,
   setSelectAll,
 }) => {
+  // Effect to update selectAll state when all items are selected or deselected
+  useEffect(() => {
+    setSelectAll(selectedItemsWithQuantity.length === cartItems.length);
+  }, [selectedItemsWithQuantity, cartItems, setSelectAll]);
+
   const isItemSelected = (item: CartItem) => {
     return selectedItemsWithQuantity.some(selected => selected.item.id === item.id);
   };
@@ -49,13 +54,6 @@ export const ItemSelectionList: React.FC<ItemSelectionListProps> = ({
         { item, freeQuantity: 1 }
       ]);
     }
-    
-    // Update selectAll state based on whether all items would be selected after this toggle
-    const updatedSelectionCount = isSelected 
-      ? selectedItemsWithQuantity.length - 1 
-      : selectedItemsWithQuantity.length + 1;
-      
-    setSelectAll(updatedSelectionCount === cartItems.length);
   };
 
   const handleToggleAll = () => {
@@ -70,7 +68,6 @@ export const ItemSelectionList: React.FC<ItemSelectionListProps> = ({
       }));
       setSelectedItemsWithQuantity(allItems);
     }
-    setSelectAll(!selectAll);
   };
 
   const handleIncrementFreeQuantity = (item: CartItem) => {
