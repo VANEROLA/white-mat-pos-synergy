@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { CartItem } from "@/types";
 import { FreeItemReason, loadSavedReasons } from "@/utils/freeItemReasons";
@@ -45,19 +45,21 @@ export const useFreeItemForm = (cartItems: CartItem[]): UseFreeItemFormResult =>
   const [selectAll, setSelectAll] = useState(false);
   const { saveFreeItems } = useFreeItems();
 
+  // Load reasons once at initialization
   useEffect(() => {
-    setReasons(loadSavedReasons());
+    const savedReasons = loadSavedReasons();
+    setReasons(savedReasons);
   }, []);
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setSelectedItemsWithQuantity([]);
     setSelectAll(false);
     setStaffName("");
     setNotes("");
     setSelectedReasonId("");
-  };
+  }, []);
 
-  const handleSubmit = (
+  const handleSubmit = useCallback((
     onApprove: (staffName: string, reason: string, notes?: string, selectedItems?: CartItem[]) => void, 
     onClose: () => void
   ) => {
@@ -106,7 +108,7 @@ export const useFreeItemForm = (cartItems: CartItem[]): UseFreeItemFormResult =>
       console.error("Failed to save free items:", error);
       toast.error("保存中にエラーが発生しました。スペースに空きがありません");
     }
-  };
+  }, [staffName, selectedReasonId, selectedItemsWithQuantity, notes, reasons, saveFreeItems, resetForm]);
 
   return {
     staffName,

@@ -27,7 +27,14 @@ export const ItemSelectionList: React.FC<ItemSelectionListProps> = ({
 }) => {
   // Effect to update selectAll state when all items are selected or deselected
   useEffect(() => {
-    setSelectAll(selectedItemsWithQuantity.length === cartItems.length);
+    if (cartItems.length > 0) {
+      const allSelected = cartItems.every(item => 
+        selectedItemsWithQuantity.some(selected => selected.item.id === item.id)
+      );
+      setSelectAll(allSelected);
+    } else {
+      setSelectAll(false);
+    }
   }, [selectedItemsWithQuantity, cartItems, setSelectAll]);
 
   const isItemSelected = (item: CartItem) => {
@@ -49,7 +56,8 @@ export const ItemSelectionList: React.FC<ItemSelectionListProps> = ({
       );
     } else {
       // Add item with default free quantity of 1
-      setSelectedItemsWithQuantity(prevItems => [...prevItems, { item, freeQuantity: 1 }]);
+      const newItem = { item, freeQuantity: 1 };
+      setSelectedItemsWithQuantity(prevItems => [...prevItems, newItem]);
     }
   };
 
@@ -135,7 +143,11 @@ export const ItemSelectionList: React.FC<ItemSelectionListProps> = ({
               <div className="flex items-center space-x-2 ml-2">
                 <button
                   type="button"
-                  onClick={() => handleDecrementFreeQuantity(item)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleDecrementFreeQuantity(item);
+                  }}
                   className="rounded-full p-1 bg-gray-100 hover:bg-gray-200"
                   disabled={getFreeQuantityForItem(item) <= 1}
                 >
@@ -146,7 +158,11 @@ export const ItemSelectionList: React.FC<ItemSelectionListProps> = ({
                 </span>
                 <button
                   type="button"
-                  onClick={() => handleIncrementFreeQuantity(item)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleIncrementFreeQuantity(item);
+                  }}
                   className="rounded-full p-1 bg-gray-100 hover:bg-gray-200"
                   disabled={getFreeQuantityForItem(item) >= item.quantity}
                 >
