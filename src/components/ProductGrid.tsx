@@ -34,7 +34,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
           key="all"
           className={({ selected }) =>
             cn(
-              "px-4 py-2 rounded-full text-sm font-medium transition-all flex-shrink-0 border",
+              "px-4 py-2 rounded-full text-sm font-medium transition-all flex-shrink-0 border whitespace-nowrap",
               selected
                 ? "bg-primary text-white border-transparent"
                 : "bg-white text-foreground hover:bg-secondary border-muted"
@@ -49,7 +49,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
             key={category}
             className={({ selected }) =>
               cn(
-                "px-4 py-2 rounded-full text-sm font-medium transition-all flex-shrink-0 border",
+                "px-4 py-2 rounded-full text-sm font-medium transition-all flex-shrink-0 border whitespace-nowrap",
                 selected
                   ? "bg-primary text-white border-transparent"
                   : "bg-white text-foreground hover:bg-secondary border-muted"
@@ -63,7 +63,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       
       <Tab.Panels>
         <Tab.Panel key="all">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
             {filteredProducts.map((product) => (
               <ProductItem
                 key={product.id}
@@ -76,7 +76,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         
         {categoryNames.map((category) => (
           <Tab.Panel key={category}>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
               {categories[category].map((product) => (
                 <ProductItem
                   key={product.id}
