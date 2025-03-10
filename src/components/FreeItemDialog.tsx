@@ -42,11 +42,14 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
 
   useEffect(() => {
     if (open) {
-      // Reset selections when dialog opens
+      // Reset form values when dialog opens
       setSelectedItems([]);
       setSelectAll(false);
+      setStaffName("");
+      setNotes("");
+      setSelectedReasonId("");
     }
-  }, [open, cartItems]);
+  }, [open]);
 
   const handleSubmit = () => {
     if (!staffName.trim()) {
@@ -79,30 +82,29 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
     localStorage.setItem("freeItems", JSON.stringify(freeItems));
 
     onApprove(staffName, reasonText, notes, selectedItems);
-    onClose();
     setStaffName("");
     setNotes("");
     setSelectedReasonId("");
+    setSelectedItems([]);
+    setSelectAll(false);
+    onClose();
     toast.success("無料処理が承認されました");
   };
 
   const handleToggleItem = (item: CartItem) => {
-    // Check if this specific item instance is already selected
-    const isSelected = selectedItems.some(selectedItem => 
-      selectedItem === item // Compare by reference to handle same product with different instances
-    );
+    const isSelected = selectedItems.includes(item);
     
     if (isSelected) {
-      setSelectedItems(selectedItems.filter(selectedItem => selectedItem !== item));
+      setSelectedItems(selectedItems.filter(i => i !== item));
     } else {
       setSelectedItems([...selectedItems, item]);
     }
     
-    // Update selectAll state based on current selection
-    const allItemsSelected = cartItems.every(item => 
-      selectedItems.some(selectedItem => selectedItem === item)
+    // Update selectAll state
+    const willSelectAll = cartItems.every(item => 
+      selectedItems.includes(item) || item === cartItems.find(i => i === item && !selectedItems.includes(i))
     );
-    setSelectAll(allItemsSelected);
+    setSelectAll(willSelectAll && cartItems.length > 0);
   };
 
   const handleToggleAll = () => {
