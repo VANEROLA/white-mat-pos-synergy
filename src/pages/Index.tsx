@@ -1,17 +1,20 @@
-
 import React, { useState, useEffect } from "react";
 import { Tab } from "@headlessui/react";
 import { Product, CartState, CartItem } from "@/types";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 import POSHeader from "@/components/POSHeader";
 import ProductItem from "@/components/ProductItem";
 import Cart from "@/components/Cart";
 import Checkout from "@/components/Checkout";
+import HamburgerMenu from "@/components/HamburgerMenu";
+import SidebarMenu from "@/components/SidebarMenu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search } from "lucide-react";
 import { toast } from "sonner";
+import { addLogEntry } from "@/utils/api";
 
 // Mock products data
 const SAMPLE_PRODUCTS: Product[] = [
@@ -136,6 +139,9 @@ const Index: React.FC = () => {
   
   const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
   const [isAddProductOpen, setIsAddProductOpen] = useState<boolean>(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+  
+  const navigate = useNavigate();
   
   // Filter products when search query changes
   useEffect(() => {
@@ -184,6 +190,12 @@ const Index: React.FC = () => {
     
     // Show toast notification
     toast.success(`${product.name}をカートに追加しました`);
+    
+    // Add log entry
+    addLogEntry({
+      action: "add_to_cart",
+      details: `Added ${product.name} to cart`
+    });
   };
   
   const handleUpdateQuantity = (id: string, quantity: number) => {
@@ -195,6 +207,12 @@ const Index: React.FC = () => {
       const newTotal = calculateTotal(updatedItems);
       return { items: updatedItems, total: newTotal };
     });
+    
+    // Add log entry
+    addLogEntry({
+      action: "update_quantity",
+      details: `Updated quantity for product ${id} to ${quantity}`
+    });
   };
   
   const handleRemoveFromCart = (id: string) => {
@@ -202,6 +220,12 @@ const Index: React.FC = () => {
       const updatedItems = prev.items.filter(item => item.id !== id);
       const newTotal = calculateTotal(updatedItems);
       return { items: updatedItems, total: newTotal };
+    });
+    
+    // Add log entry
+    addLogEntry({
+      action: "remove_from_cart",
+      details: `Removed product ${id} from cart`
     });
   };
   
@@ -220,12 +244,37 @@ const Index: React.FC = () => {
   
   const handleCompleteCheckout = () => {
     setCart({ items: [], total: 0 });
+    
+    // Add log entry
+    addLogEntry({
+      action: "checkout_complete",
+      details: `Completed checkout with ${cart.items.length} items`
+    });
+  };
+  
+  const handleNavigate = (route: string) => {
+    navigate(route);
+    setIsSidebarOpen(false);
   };
   
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-[1400px] mx-auto p-4 md:p-6 lg:p-8">
-        <POSHeader />
+        <div className="flex items-center justify-between mb-6">
+          <HamburgerMenu 
+            isOpen={isSidebarOpen}
+            toggleMenu={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="mr-4"
+          />
+          <POSHeader />
+        </div>
+        
+        <SidebarMenu 
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+          onNavigate={handleNavigate}
+          currentRoute="/"
+        />
         
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Product Section - 3/4 Width */}

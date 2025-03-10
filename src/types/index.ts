@@ -34,3 +34,21 @@ export interface ApiResponse {
   message: string;
   data?: any;
 }
+
+// Order history related types
+export interface Order {
+  id: string;
+  items: CartItem[];
+  total: number;
+  timestamp: string;
+  status: 'completed' | 'canceled' | 'processing';
+}
+
+// Log related types
+export interface LogEntry {
+  id: string;
+  action: string;
+  details: string;
+  timestamp: string;
+  userId?: string;
+}
