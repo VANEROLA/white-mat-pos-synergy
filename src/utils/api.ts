@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import { ApiResponse, InventoryUpdatePayload, Order, LogEntry, Product } from "@/types";
 
@@ -66,47 +65,70 @@ const updateProductStockCounts = (payload: InventoryUpdatePayload): void => {
     const productsJson = localStorage.getItem('products') || '[]';
     let products: Product[] = JSON.parse(productsJson);
     
-    // Get the sample products from localStorage or default sample
+    // Get the sample products from localStorage or use default sample products
     const sampleProductsJson = localStorage.getItem('sampleProducts');
-    const sampleProducts: Product[] = sampleProductsJson 
-      ? JSON.parse(sampleProductsJson) 
-      : [];
+    let sampleProducts: Product[] = [];
     
-    // Combine both product lists
-    const allProducts = [...products, ...sampleProducts];
+    if (sampleProductsJson) {
+      sampleProducts = JSON.parse(sampleProductsJson);
+    } else {
+      // Save SAMPLE_PRODUCTS to localStorage if they don't exist yet
+      const SAMPLE_PRODUCTS = [
+        {
+          id: "1",
+          name: "カフェラテ",
+          price: 480,
+          imageUrl: "https://images.unsplash.com/photo-1541167760496-1628856ab772?w=500&auto=format&fit=crop&q=80",
+          category: "コーヒー",
+          stockCount: 100
+        },
+        // ... other sample products
+      ];
+      localStorage.setItem('sampleProducts', JSON.stringify(SAMPLE_PRODUCTS));
+      sampleProducts = SAMPLE_PRODUCTS;
+    }
     
-    // Create a map of products by ID for easier access
+    // Create a map for faster lookups
     const productMap = new Map<string, Product>();
-    allProducts.forEach(product => {
-      if (!productMap.has(product.id)) {
-        productMap.set(product.id, product);
-      }
+    
+    // Add all products to the map
+    [...products, ...sampleProducts].forEach(product => {
+      productMap.set(product.id, { ...product });
     });
     
-    // Update stock counts
+    // Update stock counts for each product in the order
     payload.products.forEach(item => {
       const product = productMap.get(item.id);
-      if (product && typeof product.stockCount !== 'undefined') {
+      if (product) {
+        // Initialize stockCount if undefined
+        if (typeof product.stockCount === 'undefined') {
+          product.stockCount = 100; // Default initial stock
+        }
+        
         // Decrease stock by the ordered quantity
         product.stockCount = Math.max(0, product.stockCount - item.quantity);
+        
+        // Update the map
         productMap.set(item.id, product);
       }
     });
     
-    // Update products in localStorage
-    const updatedProducts = Array.from(productMap.values());
-    
-    // Filter out sample products
-    const customProducts = updatedProducts.filter(product => {
-      // Products added by the user typically have numeric IDs
-      return !sampleProducts.some(sampleProduct => sampleProduct.id === product.id);
+    // Update both collections
+    const updatedSampleProducts = sampleProducts.map(product => {
+      const updatedProduct = productMap.get(product.id);
+      return updatedProduct || product;
     });
     
-    // Update sample products separately
-    localStorage.setItem('sampleProducts', JSON.stringify(sampleProducts));
+    const updatedProducts = products.map(product => {
+      const updatedProduct = productMap.get(product.id);
+      return updatedProduct || product;
+    });
     
-    // Update user-added products
-    localStorage.setItem('products', JSON.stringify(customProducts));
+    // Save back to localStorage
+    localStorage.setItem('sampleProducts', JSON.stringify(updatedSampleProducts));
+    localStorage.setItem('products', JSON.stringify(updatedProducts));
+    
+    console.log("Updated stock counts:", { updatedSampleProducts, updatedProducts });
     
     // Log the stock update
     addLogEntry({
