@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Badge, BadgePercent, Check } from "lucide-react";
+import { BadgePercent, Check } from "lucide-react";
 import { useTax } from "@/contexts/TaxContext";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -24,7 +24,7 @@ const TaxRateSettings: React.FC = () => {
             variant={rate === taxRate ? "default" : "outline"}
             size="sm"
             className={cn(
-              "flex items-center gap-1 min-w-[50px]",
+              "flex items-center justify-center gap-1 w-16 h-9",
               rate === taxRate ? "bg-primary text-primary-foreground" : ""
             )}
             onClick={() => setTaxRate(rate)}

@@ -80,8 +80,10 @@ const Cart: React.FC<CartProps> = ({
                       key={rate}
                       onClick={() => setTaxRate(rate)}
                       className={cn(
-                        "text-xs px-1.5 py-0.5 rounded transition-colors",
-                        rate === taxRate ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted"
+                        "flex items-center justify-center w-10 h-6 text-xs rounded transition-colors",
+                        rate === taxRate ? 
+                          "bg-primary/10 text-primary font-medium border border-primary/30" : 
+                          "hover:bg-muted border border-transparent"
                       )}
                     >
                       {rate}%
