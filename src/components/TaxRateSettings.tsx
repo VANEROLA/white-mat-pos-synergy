@@ -24,13 +24,13 @@ const TaxRateSettings: React.FC = () => {
             variant={rate === taxRate ? "default" : "outline"}
             size="sm"
             className={cn(
-              "flex items-center justify-center gap-1 w-16 h-9",
+              "h-9 min-w-[50px] font-medium",
               rate === taxRate ? "bg-primary text-primary-foreground" : ""
             )}
             onClick={() => setTaxRate(rate)}
           >
             {rate}%
-            {rate === taxRate && <Check size={14} />}
+            {rate === taxRate && <Check size={14} className="ml-1" />}
           </Button>
         ))}
       </div>

@@ -68,32 +68,36 @@ const Cart: React.FC<CartProps> = ({
               <span className="text-muted-foreground">小計:</span>
               <span>¥{cart.total.toLocaleString()}</span>
             </div>
-            <div className="flex justify-between text-sm mb-1">
-              <div className="flex items-center gap-1">
-                <span className="text-muted-foreground flex items-center">
-                  <BadgePercent size={14} className="mr-1" />
-                  消費税 ({taxRate}%):
-                </span>
-                <div className="flex gap-1 ml-2">
-                  {taxOptions.map((rate) => (
-                    <button
-                      key={rate}
-                      onClick={() => setTaxRate(rate)}
-                      className={cn(
-                        "flex items-center justify-center w-10 h-6 text-xs rounded transition-colors",
-                        rate === taxRate ? 
-                          "bg-primary/10 text-primary font-medium border border-primary/30" : 
-                          "hover:bg-muted border border-transparent"
-                      )}
-                    >
-                      {rate}%
-                    </button>
-                  ))}
-                </div>
-              </div>
+            <div className="flex justify-between items-center text-sm mb-3">
+              <span className="text-muted-foreground flex items-center">
+                <BadgePercent size={14} className="mr-1" />
+                消費税 ({taxRate}%):
+              </span>
               <span>¥{taxAmount.toLocaleString()}</span>
             </div>
-            <div className="flex justify-between font-semibold mb-6">
+            
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex gap-2">
+                {taxOptions.map((rate) => (
+                  <Button
+                    key={rate}
+                    variant={rate === taxRate ? "default" : "outline"}
+                    size="sm"
+                    className={cn(
+                      "h-8 min-w-[40px] text-xs px-2",
+                      rate === taxRate 
+                        ? "bg-primary text-primary-foreground" 
+                        : "border border-input hover:bg-accent hover:text-accent-foreground"
+                    )}
+                    onClick={() => setTaxRate(rate)}
+                  >
+                    {rate}%
+                  </Button>
+                ))}
+              </div>
+            </div>
+            
+            <div className="flex justify-between font-semibold mb-6 bg-muted/20 p-2 rounded-md">
               <span>合計:</span>
               <span className="text-lg">¥{totalWithTax.toLocaleString()}</span>
             </div>

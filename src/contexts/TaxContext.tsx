@@ -27,7 +27,7 @@ export const TaxProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('taxRate', rate.toString());
   };
 
-  // Save to localStorage when taxRate changes
+  // Ensure the tax rate is saved to localStorage when changed
   useEffect(() => {
     localStorage.setItem('taxRate', taxRate.toString());
   }, [taxRate]);
