@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { CartItem, CartState } from "@/types";
 import { Trash2, Minus, Plus, ShoppingCart, BadgePercent, Gift } from "lucide-react";
@@ -31,18 +30,14 @@ const Cart: React.FC<CartProps> = ({
   const totalWithTax = cart.total + taxAmount;
   
   const handleFreeItemApproved = (staffName: string, reason: string, notes?: string) => {
-    // Set tax rate to 0
     setTaxRate(0);
     
-    // Log the free item approval
     addLogEntry({
       action: "apply_free_item",
       details: `Staff member ${staffName} approved free item: ${reason}${notes ? ` (Notes: ${notes})` : ''}`,
       userId: staffName
     });
     
-    // Force cart total to 0 (handled in parent component via useCart hook)
-    // This triggers a UI update showing 0 yen total
     cart.total = 0;
   };
   
@@ -149,6 +144,7 @@ const Cart: React.FC<CartProps> = ({
         open={isFreeItemDialogOpen}
         onClose={() => setIsFreeItemDialogOpen(false)}
         onApprove={handleFreeItemApproved}
+        cartItems={cart.items}
       />
     </div>
   );
