@@ -34,7 +34,9 @@ const Index: React.FC = () => {
     handleUpdateQuantity, 
     handleRemoveFromCart, 
     handleCheckout, 
-    handleCompleteCheckout 
+    handleCompleteCheckout,
+    setOrderToFree,
+    isFreeOrder
   } = useCart();
   
   const handleNavigate = (route: string) => {
@@ -49,6 +51,11 @@ const Index: React.FC = () => {
   const onCompleteCheckout = () => {
     handleCompleteCheckout();
     loadProducts();
+  };
+
+  const handleFreeItemApproved = (staffName: string, reason: string, notes?: string) => {
+    setOrderToFree();
+    // FreeItemDialog component will log this to localStorage
   };
   
   return (
@@ -102,6 +109,7 @@ const Index: React.FC = () => {
         cart={cart}
         onClose={() => setIsCheckoutOpen(false)}
         onComplete={onCompleteCheckout}
+        isFreeOrder={isFreeOrder}
       />
     </div>
   );

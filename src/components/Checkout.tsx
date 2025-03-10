@@ -3,7 +3,7 @@ import React from "react";
 import { CartState, InventoryUpdatePayload, Product } from "@/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Loader2, AlertTriangle, BadgePercent } from "lucide-react";
+import { CheckCircle, Loader2, AlertTriangle, BadgePercent, Gift } from "lucide-react";
 import { updateInventory, generateOrderId } from "@/utils/api";
 import { toast } from "sonner";
 import { useTax } from "@/contexts/TaxContext";
@@ -13,6 +13,7 @@ interface CheckoutProps {
   cart: CartState;
   onClose: () => void;
   onComplete: () => void;
+  isFreeOrder?: boolean;
 }
 
 const Checkout: React.FC<CheckoutProps> = ({
@@ -20,6 +21,7 @@ const Checkout: React.FC<CheckoutProps> = ({
   cart,
   onClose,
   onComplete,
+  isFreeOrder = false,
 }) => {
   const [status, setStatus] = React.useState<"initial" | "processing" | "success" | "failed">("initial");
   const [orderId, setOrderId] = React.useState<string>("");
@@ -33,8 +35,8 @@ const Checkout: React.FC<CheckoutProps> = ({
     }
   }, [open]);
   
-  const taxAmount = Math.round(cart.total * (taxRate / 100));
-  const totalWithTax = cart.total + taxAmount;
+  const taxAmount = isFreeOrder ? 0 : Math.round(cart.total * (taxRate / 100));
+  const totalWithTax = isFreeOrder ? 0 : cart.total + taxAmount;
   
   const handleProcessOrder = async () => {
     if (cart.items.length === 0) return;
@@ -46,12 +48,13 @@ const Checkout: React.FC<CheckoutProps> = ({
         id: item.id,
         quantity: item.quantity,
         name: item.name,
-        price: item.price,
+        price: isFreeOrder ? 0 : item.price,
         imageUrl: item.imageUrl,
         category: item.category,
       })),
       orderId,
       timestamp: new Date().toISOString(),
+      isFreeOrder,
     };
     
     try {
@@ -87,7 +90,9 @@ const Checkout: React.FC<CheckoutProps> = ({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md glass border border-white/50">
         <DialogHeader>
-          <DialogTitle className="text-center">注文を確定する</DialogTitle>
+          <DialogTitle className="text-center">
+            {isFreeOrder ? "無料注文を確定する" : "注文を確定する"}
+          </DialogTitle>
           <DialogDescription className="text-center">
             {status === "initial" && "在庫管理システムと連携します"}
             {status === "processing" && "処理中..."}
@@ -103,17 +108,22 @@ const Checkout: React.FC<CheckoutProps> = ({
                 <h3 className="text-sm font-medium mb-2">注文情報</h3>
                 <p className="text-xs text-muted-foreground mb-1">注文ID: {orderId}</p>
                 <p className="text-xs text-muted-foreground">商品点数: {cart.items.length}点</p>
+                {isFreeOrder && (
+                  <div className="mt-2 flex items-center text-green-500 text-xs font-medium">
+                    <Gift size={14} className="mr-1" /> 無料処理が適用されています
+                  </div>
+                )}
               </div>
               
               <div className="space-y-1">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">小計:</span>
-                  <span>¥{cart.total.toLocaleString()}</span>
+                  <span>{isFreeOrder ? "¥0" : `¥${cart.total.toLocaleString()}`}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground flex items-center">
                     <BadgePercent size={14} className="mr-1" />
-                    消費税 ({taxRate}%):
+                    消費税 ({isFreeOrder ? "0" : taxRate}%):
                   </span>
                   <span>¥{taxAmount.toLocaleString()}</span>
                 </div>

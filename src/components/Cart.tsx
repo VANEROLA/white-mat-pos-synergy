@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { CartItem, CartState } from "@/types";
 import { Trash2, Minus, Plus, ShoppingCart, BadgePercent, Gift } from "lucide-react";
@@ -30,12 +31,19 @@ const Cart: React.FC<CartProps> = ({
   const totalWithTax = cart.total + taxAmount;
   
   const handleFreeItemApproved = (staffName: string, reason: string, notes?: string) => {
+    // Set tax rate to 0
     setTaxRate(0);
+    
+    // Log the free item approval
     addLogEntry({
       action: "apply_free_item",
       details: `Staff member ${staffName} approved free item: ${reason}${notes ? ` (Notes: ${notes})` : ''}`,
       userId: staffName
     });
+    
+    // Force cart total to 0 (handled in parent component via useCart hook)
+    // This triggers a UI update showing 0 yen total
+    cart.total = 0;
   };
   
   return (
@@ -106,9 +114,14 @@ const Cart: React.FC<CartProps> = ({
                   </Button>
                 ))}
                 <Button
-                  variant="outline"
+                  variant={cart.total === 0 ? "default" : "outline"}
                   size="sm"
-                  className="h-8 text-xs px-2 border border-input hover:bg-accent hover:text-accent-foreground"
+                  className={cn(
+                    "h-8 text-xs px-2 border",
+                    cart.total === 0 
+                      ? "bg-green-500 text-white border-green-500" 
+                      : "border-input hover:bg-accent hover:text-accent-foreground"
+                  )}
                   onClick={() => setIsFreeItemDialogOpen(true)}
                 >
                   <Gift className="mr-1 h-3 w-3" />

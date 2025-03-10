@@ -11,6 +11,7 @@ export const useCart = () => {
   });
   
   const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
+  const [isFreeOrder, setIsFreeOrder] = useState<boolean>(false);
 
   const handleAddToCart = (product: Product) => {
     setCart(prev => {
@@ -52,7 +53,7 @@ export const useCart = () => {
         item.id === id ? { ...item, quantity } : item
       );
       
-      const newTotal = calculateTotal(updatedItems);
+      const newTotal = isFreeOrder ? 0 : calculateTotal(updatedItems);
       return { items: updatedItems, total: newTotal };
     });
     
@@ -66,7 +67,7 @@ export const useCart = () => {
   const handleRemoveFromCart = (id: string) => {
     setCart(prev => {
       const updatedItems = prev.items.filter(item => item.id !== id);
-      const newTotal = calculateTotal(updatedItems);
+      const newTotal = isFreeOrder ? 0 : calculateTotal(updatedItems);
       return { items: updatedItems, total: newTotal };
     });
     
@@ -78,6 +79,7 @@ export const useCart = () => {
   };
   
   const calculateTotal = (items: CartItem[]): number => {
+    if (isFreeOrder) return 0;
     return items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   };
   
@@ -92,12 +94,18 @@ export const useCart = () => {
   
   const handleCompleteCheckout = async () => {
     setCart({ items: [], total: 0 });
+    setIsFreeOrder(false);
     
     addLogEntry({
       action: "checkout_complete",
       details: `Completed checkout with ${cart.items.length} items`,
       userId: ""
     });
+  };
+
+  const setOrderToFree = () => {
+    setIsFreeOrder(true);
+    setCart(prev => ({ ...prev, total: 0 }));
   };
 
   return {
@@ -108,6 +116,8 @@ export const useCart = () => {
     handleUpdateQuantity,
     handleRemoveFromCart,
     handleCheckout,
-    handleCompleteCheckout
+    handleCompleteCheckout,
+    setOrderToFree,
+    isFreeOrder
   };
 };
