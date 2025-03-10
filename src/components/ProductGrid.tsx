@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Tab } from "@headlessui/react";
 import { Product } from "@/types";
 import { cn } from "@/lib/utils";
@@ -18,6 +18,31 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   categoryNames,
   handleAddToCart,
 }) => {
+  // Function to determine optimal grid columns based on item count
+  const getOptimalGridClass = (itemCount: number) => {
+    if (itemCount <= 2) return "grid-cols-2";
+    if (itemCount <= 3) return "grid-cols-3";
+    if (itemCount <= 4) return "grid-cols-4";
+    return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5";
+  };
+
+  // Memoize the grid class for "all" products
+  const allProductsGridClass = useMemo(() => 
+    getOptimalGridClass(filteredProducts.length), 
+    [filteredProducts.length]
+  );
+
+  // Memoize grid classes for each category
+  const categoryGridClasses = useMemo(() => {
+    const classes: Record<string, string> = {};
+    
+    categoryNames.forEach(category => {
+      classes[category] = getOptimalGridClass(categories[category].length);
+    });
+    
+    return classes;
+  }, [categories, categoryNames]);
+
   if (categoryNames.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
@@ -63,7 +88,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       
       <Tab.Panels>
         <Tab.Panel key="all">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+          <div className={`grid gap-3 md:gap-4 ${allProductsGridClass}`}>
             {filteredProducts.map((product) => (
               <ProductItem
                 key={product.id}
@@ -76,7 +101,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         
         {categoryNames.map((category) => (
           <Tab.Panel key={category}>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+            <div className={`grid gap-3 md:gap-4 ${categoryGridClasses[category]}`}>
               {categories[category].map((product) => (
                 <ProductItem
                   key={product.id}
