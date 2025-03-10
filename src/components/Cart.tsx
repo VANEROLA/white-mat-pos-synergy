@@ -1,11 +1,12 @@
-
-import React from "react";
+import React, { useState } from "react";
 import { CartItem, CartState } from "@/types";
-import { Trash2, Minus, Plus, ShoppingCart, BadgePercent } from "lucide-react";
+import { Trash2, Minus, Plus, ShoppingCart, BadgePercent, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useTax } from "@/contexts/TaxContext";
+import FreeItemDialog from "@/components/FreeItemDialog";
+import { addLogEntry } from "@/utils/api";
 
 interface CartProps {
   cart: CartState;
@@ -21,11 +22,21 @@ const Cart: React.FC<CartProps> = ({
   onCheckout,
 }) => {
   const { taxRate, setTaxRate } = useTax();
+  const [isFreeItemDialogOpen, setIsFreeItemDialogOpen] = useState(false);
   
   const taxOptions = [0, 8, 10];
   
   const taxAmount = Math.round(cart.total * (taxRate / 100));
   const totalWithTax = cart.total + taxAmount;
+  
+  const handleFreeItemApproved = (staffName: string, reason: string) => {
+    setTaxRate(0);
+    addLogEntry({
+      action: "apply_free_item",
+      details: `Staff member ${staffName} approved free item: ${reason}`,
+      userId: staffName
+    });
+  };
   
   return (
     <div className="glass rounded-xl p-6 h-full flex flex-col animate-fade-in">
@@ -94,6 +105,15 @@ const Cart: React.FC<CartProps> = ({
                     {rate}%
                   </Button>
                 ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 text-xs px-2 border border-input hover:bg-accent hover:text-accent-foreground"
+                  onClick={() => setIsFreeItemDialogOpen(true)}
+                >
+                  <Gift className="mr-1 h-3 w-3" />
+                  無料
+                </Button>
               </div>
             </div>
             
@@ -111,6 +131,12 @@ const Cart: React.FC<CartProps> = ({
           </div>
         </>
       )}
+      
+      <FreeItemDialog 
+        open={isFreeItemDialogOpen}
+        onClose={() => setIsFreeItemDialogOpen(false)}
+        onApprove={handleFreeItemApproved}
+      />
     </div>
   );
 };
