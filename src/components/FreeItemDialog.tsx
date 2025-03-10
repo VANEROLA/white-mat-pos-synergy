@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -38,7 +37,6 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
     { id: "other", name: "その他" },
   ]);
 
-  // Load saved reasons from localStorage
   useEffect(() => {
     try {
       const savedReasons = localStorage.getItem("freeItemReasons");
@@ -70,24 +68,33 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
     setNewReasonName("");
     setShowAddReason(false);
 
-    // Save to localStorage
     localStorage.setItem("freeItemReasons", JSON.stringify(updatedReasons));
     toast.success("新しい理由が追加されました");
   };
 
   const handleSubmit = () => {
     if (!staffName.trim()) {
-      toast.error("担当者名を入力してください");
+      toast.error("担当者名は必須です");
       return;
     }
 
     if (!selectedReasonId) {
-      toast.error("理由を選択してください");
+      toast.error("理由の選択は必須です");
       return;
     }
 
     const selectedReason = reasons.find((r) => r.id === selectedReasonId);
     const reasonText = selectedReason ? selectedReason.name : "";
+
+    const freeItems = JSON.parse(localStorage.getItem("freeItems") || "[]");
+    freeItems.push({
+      id: Date.now().toString(),
+      staffName,
+      reason: reasonText,
+      notes: notes || "",
+      timestamp: new Date().toISOString()
+    });
+    localStorage.setItem("freeItems", JSON.stringify(freeItems));
 
     onApprove(staffName, reasonText, notes);
     onClose();
@@ -102,6 +109,9 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>無料処理の承認</DialogTitle>
+          <DialogDescription>
+            担当者名と理由は必須項目です。
+          </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">

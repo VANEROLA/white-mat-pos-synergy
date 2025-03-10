@@ -1,5 +1,6 @@
+
 import React from "react";
-import { X } from "lucide-react";
+import { X, Gift } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -33,6 +34,11 @@ const SidebarMenu: React.FC<SidebarMenuProps> = ({
     {
       path: "/order-history",
       name: "注文履歴",
+    },
+    {
+      path: "/free-items",
+      name: "無料処理履歴",
+      icon: Gift,
     },
     {
       path: "/system-logs",
