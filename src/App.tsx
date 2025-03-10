@@ -8,18 +8,21 @@ import SystemLogs from "@/pages/SystemLogs";
 import NotFound from "@/pages/NotFound";
 import "./App.css";
 import { TaxProvider } from "@/contexts/TaxContext";
+import { ConnectionProvider } from "@/contexts/ConnectionContext";
 
 function App() {
   return (
     <TaxProvider>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/add-product" element={<AddProduct />} />
-        <Route path="/order-history" element={<OrderHistory />} />
-        <Route path="/system-logs" element={<SystemLogs />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      <Toaster />
+      <ConnectionProvider>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/add-product" element={<AddProduct />} />
+          <Route path="/order-history" element={<OrderHistory />} />
+          <Route path="/system-logs" element={<SystemLogs />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <Toaster />
+      </ConnectionProvider>
     </TaxProvider>
   );
 }
