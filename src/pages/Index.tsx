@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -36,7 +35,8 @@ const Index: React.FC = () => {
     handleCheckout, 
     handleCompleteCheckout,
     setOrderToFree,
-    isFreeOrder
+    isFreeOrder,
+    handleApplyFreeItems
   } = useCart();
   
   const handleNavigate = (route: string) => {
@@ -94,6 +94,7 @@ const Index: React.FC = () => {
               onUpdateQuantity={handleUpdateQuantity}
               onRemoveItem={handleRemoveFromCart}
               onCheckout={handleCheckout}
+              onApplyFreeItems={handleApplyFreeItems}
             />
           </div>
         </div>
