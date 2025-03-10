@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 import {
   Table,
   TableBody,
@@ -9,6 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 interface FreeItem {
   id: string;
@@ -20,6 +23,7 @@ interface FreeItem {
 
 const FreeItems = () => {
   const [freeItems, setFreeItems] = React.useState<FreeItem[]>([]);
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     const items = JSON.parse(localStorage.getItem("freeItems") || "[]");
@@ -30,7 +34,19 @@ const FreeItems = () => {
 
   return (
     <div className="container mx-auto py-8">
-      <h1 className="text-2xl font-bold mb-6">無料処理履歴</h1>
+      <div className="flex items-center mb-6">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="mr-4"
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          戻る
+        </Button>
+        <h1 className="text-2xl font-bold">無料処理履歴</h1>
+      </div>
+
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -42,16 +58,24 @@ const FreeItems = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {freeItems.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>
-                  {format(new Date(item.timestamp), 'yyyy/MM/dd HH:mm')}
+            {freeItems.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
+                  履歴がありません
                 </TableCell>
-                <TableCell>{item.staffName}</TableCell>
-                <TableCell>{item.reason}</TableCell>
-                <TableCell>{item.notes || '-'}</TableCell>
               </TableRow>
-            ))}
+            ) : (
+              freeItems.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>
+                    {format(new Date(item.timestamp), 'yyyy/MM/dd HH:mm')}
+                  </TableCell>
+                  <TableCell>{item.staffName}</TableCell>
+                  <TableCell>{item.reason}</TableCell>
+                  <TableCell>{item.notes || '-'}</TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </div>
