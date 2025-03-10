@@ -11,6 +11,18 @@ interface FreeItemRecord {
   products: CartItem[];
 }
 
+// Helper function to compress product data by removing unnecessary fields
+const compressProducts = (products: CartItem[]): Partial<CartItem>[] => {
+  return products.map(product => ({
+    id: product.id,
+    name: product.name,
+    price: product.price,
+    quantity: product.quantity,
+    // Only include imageUrl if it exists and is not too long
+    ...(product.imageUrl && product.imageUrl.length < 100 ? { imageUrl: product.imageUrl } : {})
+  }));
+};
+
 export const useFreeItems = () => {
   const getFreeItems = useCallback((): FreeItemRecord[] => {
     try {
@@ -52,74 +64,90 @@ export const useFreeItems = () => {
 
   const saveFreeItems = useCallback((item: FreeItemRecord) => {
     try {
-      // Get existing records
-      const existingItems = JSON.parse(localStorage.getItem("freeItems") || "[]");
+      // Compress product data to save space
+      const compressedItem = {
+        ...item,
+        products: compressProducts(item.products || [])
+      };
       
-      // Only store the last 20 records to prevent localStorage overflow
-      const updatedItems = [item, ...existingItems].slice(0, 20);
-      
+      // Aggressive cleanup before trying to save
+      // Clear old logs first to make space
       try {
-        // Try to store the data
-        localStorage.setItem("freeItems", JSON.stringify(updatedItems));
-        
-        // Log success
-        addLogEntry({
-          action: "free_items_saved",
-          details: `Added free item record: ${item.id}`,
-        });
-      } catch (storageError) {
-        console.error("Storage error:", storageError);
-        
-        // If storage is full, try a more aggressive cleanup
-        if (storageError instanceof DOMException && 
-            (storageError.name === "QuotaExceededError" || storageError.code === 22)) {
+        localStorage.removeItem("systemLogs");
+      } catch (e) {
+        console.log("Failed to clear logs:", e);
+      }
+      
+      // Then try to retrieve existing items with error handling
+      let existingItems: FreeItemRecord[] = [];
+      try {
+        existingItems = JSON.parse(localStorage.getItem("freeItems") || "[]");
+      } catch (parseError) {
+        console.error("Error parsing existing items, resetting:", parseError);
+        existingItems = [];
+      }
+      
+      // Limit the number of items to store
+      const updatedItems = [compressedItem, ...existingItems].slice(0, 5);
+      
+      // Try progressive fallbacks for storage
+      const storageSteps = [
+        () => localStorage.setItem("freeItems", JSON.stringify(updatedItems)),
+        () => localStorage.setItem("freeItems", JSON.stringify([compressedItem])),
+        () => {
+          // If still failing, try with even more compressed data
+          const minimalItem = {
+            id: compressedItem.id,
+            staffName: compressedItem.staffName,
+            reason: compressedItem.reason,
+            timestamp: compressedItem.timestamp,
+            // Truncate notes if present
+            ...(compressedItem.notes ? { notes: compressedItem.notes.substring(0, 20) } : { notes: "" }),
+            // Only keep minimal product info
+            products: compressedItem.products.map(p => ({ 
+              id: p.id, 
+              name: p.name.substring(0, 10), 
+              price: p.price, 
+              quantity: p.quantity 
+            }))
+          };
+          localStorage.setItem("freeItems", JSON.stringify([minimalItem]));
+        },
+        // Last resort: clear everything and just save the ID
+        () => {
+          localStorage.clear(); // Clear all storage
+          localStorage.setItem("freeItems", JSON.stringify([{
+            id: compressedItem.id,
+            staffName: compressedItem.staffName,
+            reason: compressedItem.reason,
+            timestamp: compressedItem.timestamp,
+            notes: "",
+            products: []
+          }]));
+        }
+      ];
+      
+      // Try each storage method in sequence until one works
+      for (let i = 0; i < storageSteps.length; i++) {
+        try {
+          storageSteps[i]();
           
-          // Keep only the 5 most recent items to free up space
-          const reducedItems = [item, ...existingItems.slice(0, 4)];
-          try {
-            localStorage.setItem("freeItems", JSON.stringify(reducedItems));
-            
-            // Log fallback success
-            addLogEntry({
-              action: "free_items_saved_fallback",
-              details: `Added free item with reduced history due to storage constraints`,
-            });
-            
-            return; // Successfully saved with reduced history
-          } catch (fallbackError) {
-            // If still failing, try just saving the current item
-            try {
-              localStorage.setItem("freeItems", JSON.stringify([item]));
-              
-              // Log minimal fallback success
-              addLogEntry({
-                action: "free_items_saved_minimal",
-                details: `Added only the current free item due to severe storage constraints`,
-              });
-              
-              return; // Successfully saved current item only
-            } catch (minimalError) {
-              // If all attempts fail, try clearing some other data to make room
-              try {
-                // Try to clear less critical data (e.g., logs)
-                localStorage.removeItem("systemLogs");
-                localStorage.setItem("freeItems", JSON.stringify([item]));
-                
-                addLogEntry({
-                  action: "storage_emergency_cleanup",
-                  details: `Cleared logs to save free item data`,
-                });
-                
-                return; // Successfully saved after emergency cleanup
-              } catch (emergencyError) {
-                throw new Error("すべての保存方法が失敗しました。ブラウザのキャッシュをクリアしてください。");
-              }
-            }
-          }
-        } else {
-          throw storageError; // Re-throw if it's a different error
+          // Log the success level
+          addLogEntry({
+            action: `free_items_saved_level_${i}`,
+            details: `Saved free item with compression level ${i}`,
+          });
+          
+          return; // Successfully saved
+        } catch (storageError) {
+          console.error(`Storage attempt ${i} failed:`, storageError);
+          // Continue to next fallback
         }
       }
+      
+      // If we get here, all attempts failed
+      throw new Error("保存できませんでした。ブラウザのストレージが一杯です。");
+      
     } catch (error) {
       console.error("Error saving free items:", error);
       

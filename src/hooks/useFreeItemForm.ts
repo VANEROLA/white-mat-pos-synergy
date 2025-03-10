@@ -31,6 +31,8 @@ interface UseFreeItemFormResult {
   setSelectAll: (select: boolean) => void;
   resetForm: () => void;
   handleSubmit: (onApprove: (staffName: string, reason: string, notes?: string, selectedItems?: CartItem[]) => void, onClose: () => void) => void;
+  submitError: string | null;
+  setSubmitError: (error: string | null) => void;
 }
 
 export const useFreeItemForm = (cartItems: CartItem[]): UseFreeItemFormResult => {
@@ -46,6 +48,7 @@ export const useFreeItemForm = (cartItems: CartItem[]): UseFreeItemFormResult =>
   const [reasons, setReasons] = useState<FreeItemReason[]>([]);
   const [selectedItemsWithQuantity, setSelectedItemsWithQuantity] = useState<SelectedItemWithQuantity[]>([]);
   const [selectAll, setSelectAll] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const { saveFreeItems } = useFreeItems();
 
   // Load reasons once at initialization
@@ -69,6 +72,7 @@ export const useFreeItemForm = (cartItems: CartItem[]): UseFreeItemFormResult =>
     setStaffName("");
     setNotes("");
     setSelectedReasonId("");
+    setSubmitError(null);
   }, []);
 
   const handleSubmit = useCallback((
@@ -103,6 +107,8 @@ export const useFreeItemForm = (cartItems: CartItem[]): UseFreeItemFormResult =>
     });
 
     try {
+      setSubmitError(null); // Clear any previous errors
+      
       saveFreeItems({
         id: Date.now().toString(),
         staffName,
@@ -118,7 +124,14 @@ export const useFreeItemForm = (cartItems: CartItem[]): UseFreeItemFormResult =>
       toast.success("無料処理が承認されました");
     } catch (error) {
       console.error("Failed to save free items:", error);
-      toast.error("保存中にエラーが発生しました。スペースに空きがありません");
+      let errorMessage = "保存中にエラーが発生しました";
+      
+      if (error instanceof Error) {
+        errorMessage = error.message || errorMessage;
+      }
+      
+      setSubmitError(errorMessage);
+      toast.error(errorMessage);
     }
   }, [staffName, selectedReasonId, selectedItemsWithQuantity, notes, reasons, saveFreeItems, resetForm]);
 
@@ -142,6 +155,8 @@ export const useFreeItemForm = (cartItems: CartItem[]): UseFreeItemFormResult =>
     selectAll,
     setSelectAll,
     resetForm,
-    handleSubmit
+    handleSubmit,
+    submitError,
+    setSubmitError
   };
 };

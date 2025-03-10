@@ -10,6 +10,7 @@ import NotesSection from "./freeItem/NotesSection";
 import { ItemSelectionList } from "./freeItem/ItemSelectionList";
 import { CartItem } from "@/types";
 import { useFreeItemForm } from "@/hooks/useFreeItemForm";
+import { AlertCircle } from "lucide-react";
 
 interface FreeItemDialogProps {
   open: boolean;
@@ -44,20 +45,24 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
     selectAll,
     setSelectAll,
     resetForm,
-    handleSubmit
+    handleSubmit,
+    submitError,
+    setSubmitError
   } = useFreeItemForm(cartItems);
 
   // Memoize the close handler to prevent re-renders
   const handleClose = useCallback(() => {
+    setSubmitError(null); // Clear any errors when closing
     onClose();
-  }, [onClose]);
+  }, [onClose, setSubmitError]);
 
   // Only reset the form when the dialog opens
   useEffect(() => {
     if (open) {
       resetForm();
+      setSubmitError(null);
     }
-  }, [open, resetForm]);
+  }, [open, resetForm, setSubmitError]);
 
   // Memoize the submission handler
   const handleApproveSubmit = useCallback(() => {
@@ -75,6 +80,13 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
+          {submitError && (
+            <div className="bg-destructive/20 p-3 rounded-md text-sm flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 mt-0.5 text-destructive" />
+              <span className="text-destructive">{submitError}</span>
+            </div>
+          )}
+
           <StaffInfoSection 
             staffName={staffName} 
             setStaffName={setStaffName} 
