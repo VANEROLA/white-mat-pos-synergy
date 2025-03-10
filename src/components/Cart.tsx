@@ -13,6 +13,7 @@ interface CartProps {
   onUpdateQuantity: (id: string, quantity: number) => void;
   onRemoveItem: (id: string) => void;
   onCheckout: () => void;
+  onApplyFreeItems?: (items: CartItem[]) => void;
 }
 
 const Cart: React.FC<CartProps> = ({
@@ -20,6 +21,7 @@ const Cart: React.FC<CartProps> = ({
   onUpdateQuantity,
   onRemoveItem,
   onCheckout,
+  onApplyFreeItems,
 }) => {
   const { taxRate, setTaxRate } = useTax();
   const [isFreeItemDialogOpen, setIsFreeItemDialogOpen] = useState(false);
@@ -28,8 +30,13 @@ const Cart: React.FC<CartProps> = ({
   
   const calculateSubtotal = () => {
     return cart.items.reduce((sum, item) => {
-      const price = item.originalPrice !== undefined ? 0 : item.price;
-      return sum + (price * item.quantity);
+      if (item.originalPrice !== undefined) {
+        const freeQuantity = Math.min(item.quantity, item.freeQuantity || 0);
+        const paidQuantity = item.quantity - freeQuantity;
+        return sum + (item.originalPrice * paidQuantity);
+      } else {
+        return sum + (item.price * item.quantity);
+      }
     }, 0);
   };
   
@@ -46,18 +53,8 @@ const Cart: React.FC<CartProps> = ({
       userId: staffName
     });
     
-    if (selectedItems && selectedItems.length > 0) {
-      cart.items.forEach(item => {
-        if (item.originalPrice !== undefined) {
-          item.price = item.originalPrice;
-          delete item.originalPrice;
-        }
-        
-        if (selectedItems.includes(item)) {
-          item.originalPrice = item.price;
-          item.price = 0;
-        }
-      });
+    if (selectedItems && selectedItems.length > 0 && onApplyFreeItems) {
+      onApplyFreeItems(selectedItems);
     }
   };
   
@@ -177,8 +174,10 @@ const CartItemRow: React.FC<CartItemRowProps> = ({
   onRemoveItem,
 }) => {
   const isFree = item.originalPrice !== undefined;
-  const displayPrice = isFree ? 0 : item.price;
-  const subtotal = displayPrice * item.quantity;
+  const freeQuantity = isFree ? (item.freeQuantity || 0) : 0;
+  const paidQuantity = item.quantity - freeQuantity;
+  const displayPrice = isFree ? item.originalPrice : item.price;
+  const subtotal = displayPrice * paidQuantity;
   
   const handleIncrement = () => {
     onUpdateQuantity(item.id, item.quantity + 1);
@@ -207,14 +206,20 @@ const CartItemRow: React.FC<CartItemRowProps> = ({
         <div className="flex-grow min-w-0">
           <h4 className="font-medium text-sm leading-tight truncate">
             {item.name}
-            {isFree && <span className="ml-1 text-green-500 text-xs">(無料)</span>}
+            {isFree && freeQuantity > 0 && (
+              <span className="ml-1 text-green-500 text-xs">
+                ({freeQuantity}/{item.quantity}個無料)
+              </span>
+            )}
           </h4>
           
           <p className="text-sm text-muted-foreground">
             {isFree ? (
               <>
-                <span className="line-through mr-1">¥{item.originalPrice.toLocaleString()}</span>
-                <span className="text-green-500">¥0</span>
+                <span>¥{displayPrice.toLocaleString()}</span>
+                {freeQuantity === item.quantity && (
+                  <span className="text-green-500 ml-1">すべて無料</span>
+                )}
               </>
             ) : (
               `¥${item.price.toLocaleString()}`
@@ -239,7 +244,7 @@ const CartItemRow: React.FC<CartItemRowProps> = ({
             </div>
             
             <div className="flex items-center gap-2">
-              <span className={cn("font-medium text-sm", isFree && "text-green-500")}>
+              <span className={cn("font-medium text-sm", isFree && freeQuantity === item.quantity && "text-green-500")}>
                 ¥{subtotal.toLocaleString()}
               </span>
               <button

@@ -11,7 +11,8 @@ export interface Product {
 // Cart related types
 export interface CartItem extends Product {
   quantity: number;
-  originalPrice?: number; // Add this to store original price when item is made free
+  originalPrice?: number; // Original price when item is made free
+  freeQuantity?: number;  // Number of items that are free
 }
 
 export interface CartState {

@@ -81,16 +81,11 @@ export const useCart = () => {
   const calculateTotal = (items: CartItem[]): number => {
     if (isFreeOrder) return 0;
     return items.reduce((sum, item) => {
-      // Use original price for calculation if the item has an originalPrice set
       if (item.originalPrice !== undefined) {
-        // Calculate the price for remaining non-free quantity
-        const freeQuantity = item.quantity;
-        const totalQuantity = item.quantity;
-        const nonFreeQuantity = totalQuantity - freeQuantity;
-        
-        return sum + (item.originalPrice * nonFreeQuantity);
+        const freeQuantity = Math.min(item.quantity, item.freeQuantity || 0);
+        const paidQuantity = item.quantity - freeQuantity;
+        return sum + (item.originalPrice * paidQuantity);
       } else {
-        // Normal price calculation for regular items
         return sum + (item.price * item.quantity);
       }
     }, 0);
@@ -111,6 +106,7 @@ export const useCart = () => {
       if (item.originalPrice !== undefined) {
         item.price = item.originalPrice;
         delete item.originalPrice;
+        delete item.freeQuantity;
       }
     });
     
@@ -129,6 +125,38 @@ export const useCart = () => {
     setCart(prev => ({ ...prev, total: 0 }));
   };
 
+  const handleApplyFreeItems = (items: CartItem[]) => {
+    setCart(prev => {
+      const updatedItems = prev.items.map(item => {
+        // Find if this item is in the free items list
+        const freeItem = items.find(fi => fi.id === item.id);
+        
+        if (freeItem) {
+          // If the item should be free
+          if (!item.originalPrice) {
+            // Save the original price if not already saved
+            return {
+              ...item,
+              originalPrice: item.price,
+              price: 0,
+              freeQuantity: freeItem.quantity
+            };
+          } else {
+            // Update free quantity if already marked as free
+            return {
+              ...item,
+              freeQuantity: freeItem.quantity
+            };
+          }
+        }
+        return item;
+      });
+      
+      const newTotal = calculateTotal(updatedItems);
+      return { items: updatedItems, total: newTotal };
+    });
+  };
+
   return {
     cart,
     isCheckoutOpen,
@@ -139,6 +167,7 @@ export const useCart = () => {
     handleCheckout,
     handleCompleteCheckout,
     setOrderToFree,
+    handleApplyFreeItems,
     isFreeOrder
   };
 };
