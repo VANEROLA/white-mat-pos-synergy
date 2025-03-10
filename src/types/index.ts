@@ -31,6 +31,7 @@ export interface InventoryUpdatePayload {
   }>;
   orderId: string;
   timestamp: string;
+  isFreeOrder?: boolean;
 }
 
 export interface ApiResponse {
