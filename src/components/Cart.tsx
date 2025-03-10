@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { CartItem, CartState } from "@/types";
 import { Trash2, Minus, Plus, ShoppingCart, BadgePercent, Gift } from "lucide-react";
@@ -29,7 +30,7 @@ const Cart: React.FC<CartProps> = ({
   const taxAmount = Math.round(cart.total * (taxRate / 100));
   const totalWithTax = cart.total + taxAmount;
   
-  const handleFreeItemApproved = (staffName: string, reason: string, notes?: string) => {
+  const handleFreeItemApproved = (staffName: string, reason: string, notes?: string, selectedItems?: CartItem[]) => {
     setTaxRate(0);
     
     addLogEntry({
@@ -38,7 +39,25 @@ const Cart: React.FC<CartProps> = ({
       userId: staffName
     });
     
-    cart.total = 0;
+    // If specific items were selected to be free
+    if (selectedItems && selectedItems.length > 0) {
+      // Update the cart to make selected items free
+      const selectedItemIds = selectedItems.map(item => item.id);
+      
+      // Make only the selected items free by setting their prices to 0 temporarily for display
+      cart.items.forEach(item => {
+        if (selectedItemIds.includes(item.id)) {
+          item.originalPrice = item.price;
+          item.price = 0;
+        }
+      });
+      
+      // Recalculate the total
+      cart.total = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    } else {
+      // Make the entire order free (legacy behavior)
+      cart.total = 0;
+    }
   };
   
   return (

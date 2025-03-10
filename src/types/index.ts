@@ -1,4 +1,3 @@
-
 // Product related types
 export interface Product {
   id: string;
@@ -12,6 +11,7 @@ export interface Product {
 // Cart related types
 export interface CartItem extends Product {
   quantity: number;
+  originalPrice?: number; // Add this to store original price when item is made free
 }
 
 export interface CartState {

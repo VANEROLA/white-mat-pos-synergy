@@ -53,7 +53,7 @@ export const useCart = () => {
         item.id === id ? { ...item, quantity } : item
       );
       
-      const newTotal = isFreeOrder ? 0 : calculateTotal(updatedItems);
+      const newTotal = calculateTotal(updatedItems);
       return { items: updatedItems, total: newTotal };
     });
     
@@ -67,7 +67,7 @@ export const useCart = () => {
   const handleRemoveFromCart = (id: string) => {
     setCart(prev => {
       const updatedItems = prev.items.filter(item => item.id !== id);
-      const newTotal = isFreeOrder ? 0 : calculateTotal(updatedItems);
+      const newTotal = calculateTotal(updatedItems);
       return { items: updatedItems, total: newTotal };
     });
     
@@ -93,6 +93,14 @@ export const useCart = () => {
   };
   
   const handleCompleteCheckout = async () => {
+    // Reset all cart items to their original prices if they were made free
+    cart.items.forEach(item => {
+      if (item.originalPrice !== undefined) {
+        item.price = item.originalPrice;
+        delete item.originalPrice;
+      }
+    });
+    
     setCart({ items: [], total: 0 });
     setIsFreeOrder(false);
     

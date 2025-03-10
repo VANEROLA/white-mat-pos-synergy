@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import ReasonSelector from "./freeItem/ReasonSelector";
 import AddReasonForm from "./freeItem/AddReasonForm";
@@ -15,7 +16,7 @@ import { CartItem } from "@/types";
 interface FreeItemDialogProps {
   open: boolean;
   onClose: () => void;
-  onApprove: (staffName: string, reason: string, notes?: string) => void;
+  onApprove: (staffName: string, reason: string, notes?: string, selectedItems?: CartItem[]) => void;
   cartItems: CartItem[];
 }
 
@@ -32,10 +33,19 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
   const [showEditReason, setShowEditReason] = useState(false);
   const [newReasonName, setNewReasonName] = useState("");
   const [reasons, setReasons] = useState<FreeItemReason[]>([]);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [selectAll, setSelectAll] = useState(true);
 
   useEffect(() => {
     setReasons(loadSavedReasons());
   }, []);
+
+  useEffect(() => {
+    if (open) {
+      setSelectAll(true);
+      setSelectedItems(cartItems.map(item => item.id));
+    }
+  }, [open, cartItems]);
 
   const handleSubmit = () => {
     if (!staffName.trim()) {
@@ -48,8 +58,16 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
       return;
     }
 
+    if (selectedItems.length === 0) {
+      toast.error("少なくとも1つの商品を選択してください");
+      return;
+    }
+
     const selectedReason = reasons.find((r) => r.id === selectedReasonId);
     const reasonText = selectedReason ? selectedReason.name : "";
+
+    // Get only the selected cart items
+    const selectedCartItems = cartItems.filter(item => selectedItems.includes(item.id));
 
     const freeItems = JSON.parse(localStorage.getItem("freeItems") || "[]");
     freeItems.push({
@@ -58,16 +76,38 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
       reason: reasonText,
       notes: notes || "",
       timestamp: new Date().toISOString(),
-      products: cartItems, // Store the cart items with the free order record
+      products: selectedCartItems,
     });
     localStorage.setItem("freeItems", JSON.stringify(freeItems));
 
-    onApprove(staffName, reasonText, notes);
+    onApprove(staffName, reasonText, notes, selectedCartItems);
     onClose();
     setStaffName("");
     setNotes("");
     setSelectedReasonId("");
     toast.success("無料処理が承認されました");
+  };
+
+  const handleToggleItem = (itemId: string) => {
+    if (selectedItems.includes(itemId)) {
+      setSelectedItems(selectedItems.filter(id => id !== itemId));
+      setSelectAll(false);
+    } else {
+      setSelectedItems([...selectedItems, itemId]);
+      if (selectedItems.length + 1 === cartItems.length) {
+        setSelectAll(true);
+      }
+    }
+  };
+
+  const handleToggleAll = () => {
+    if (selectAll) {
+      setSelectedItems([]);
+      setSelectAll(false);
+    } else {
+      setSelectedItems(cartItems.map(item => item.id));
+      setSelectAll(true);
+    }
   };
 
   return (
@@ -76,7 +116,7 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
         <DialogHeader>
           <DialogTitle>無料処理の承認</DialogTitle>
           <DialogDescription>
-            担当者名と理由は必須項目です。
+            担当者名と理由は必須項目です。無料にする商品を選択してください。
           </DialogDescription>
         </DialogHeader>
 
@@ -129,6 +169,44 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
               onComplete={() => setShowEditReason(false)}
             />
           )}
+
+          <div className="grid gap-2 mt-2">
+            <Label>無料にする商品を選択</Label>
+            <div className="border rounded-md p-2 max-h-[200px] overflow-y-auto">
+              <div className="flex items-center space-x-2 pb-2 mb-2 border-b">
+                <Checkbox 
+                  id="select-all" 
+                  checked={selectAll} 
+                  onCheckedChange={handleToggleAll}
+                />
+                <label 
+                  htmlFor="select-all" 
+                  className="text-sm font-medium leading-none cursor-pointer"
+                >
+                  すべて選択
+                </label>
+              </div>
+              
+              {cartItems.map((item) => (
+                <div key={item.id} className="flex items-center space-x-2 py-1.5">
+                  <Checkbox 
+                    id={`item-${item.id}`} 
+                    checked={selectedItems.includes(item.id)}
+                    onCheckedChange={() => handleToggleItem(item.id)}
+                  />
+                  <label 
+                    htmlFor={`item-${item.id}`} 
+                    className="flex justify-between w-full text-sm leading-none cursor-pointer"
+                  >
+                    <span className="truncate flex-grow">{item.name}</span>
+                    <span className="text-muted-foreground whitespace-nowrap">
+                      ¥{item.price.toLocaleString()} × {item.quantity}
+                    </span>
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
 
           <div className="grid gap-2">
             <Label htmlFor="notes">補足メモ (任意)</Label>
