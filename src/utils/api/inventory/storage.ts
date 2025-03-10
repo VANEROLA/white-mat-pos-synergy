@@ -1,4 +1,3 @@
-
 import { InventoryUpdatePayload, Product } from "@/types";
 import { addLogEntry } from "../logs";
 
@@ -20,8 +19,21 @@ export const updateProductStockCounts = (payload: InventoryUpdatePayload): void 
     } else {
       // Save SAMPLE_PRODUCTS to localStorage if they don't exist yet
       const SAMPLE_PRODUCTS = getSampleProducts();
-      localStorage.setItem('sampleProducts', JSON.stringify(SAMPLE_PRODUCTS));
-      sampleProducts = SAMPLE_PRODUCTS;
+      
+      try {
+        localStorage.setItem('sampleProducts', JSON.stringify(SAMPLE_PRODUCTS));
+        sampleProducts = SAMPLE_PRODUCTS;
+      } catch (storageError) {
+        // Handle storage error for sample products
+        console.error("Failed to save sample products:", storageError);
+        sampleProducts = SAMPLE_PRODUCTS; // Still use them in memory
+        
+        // Log the error
+        addLogEntry({
+          action: "sample_products_storage_error",
+          details: `Failed to save sample products due to storage limitations`
+        });
+      }
     }
     
     // Create a map for faster lookups
@@ -60,11 +72,53 @@ export const updateProductStockCounts = (payload: InventoryUpdatePayload): void 
       return updatedProduct || product;
     });
     
-    // Save back to localStorage
-    localStorage.setItem('sampleProducts', JSON.stringify(updatedSampleProducts));
-    localStorage.setItem('products', JSON.stringify(updatedProducts));
+    // Safe storage function with fallback
+    const safeStore = (key: string, data: any) => {
+      try {
+        localStorage.setItem(key, JSON.stringify(data));
+        return true;
+      } catch (error) {
+        console.error(`Failed to save ${key}:`, error);
+        
+        // If it's a storage quota issue, try to save a minimal version
+        if (error instanceof DOMException && 
+            (error.name === "QuotaExceededError" || error.code === 22)) {
+          
+          try {
+            // For products, limit to just the ones we modified
+            if (key === 'products' || key === 'sampleProducts') {
+              // Only keep the modified products to save space
+              const modifiedProductIds = new Set(payload.products.map(p => p.id));
+              const minimalProductList = data.filter((p: Product) => modifiedProductIds.has(p.id));
+              
+              localStorage.setItem(key, JSON.stringify(minimalProductList));
+              
+              addLogEntry({
+                action: "storage_minimal_save",
+                details: `Saved minimal version of ${key} due to storage limitations`
+              });
+              
+              return true;
+            }
+          } catch (fallbackError) {
+            console.error(`Failed minimal save for ${key}:`, fallbackError);
+            return false;
+          }
+        }
+        
+        return false;
+      }
+    };
     
-    console.log("Updated stock counts:", { updatedSampleProducts, updatedProducts });
+    // Try to save both collections
+    const sampleSaved = safeStore('sampleProducts', updatedSampleProducts);
+    const productsSaved = safeStore('products', updatedProducts);
+    
+    if (sampleSaved && productsSaved) {
+      console.log("Updated stock counts successfully");
+    } else {
+      console.warn("Partial or failed update of stock counts due to storage limitations");
+    }
     
     // Log the stock update
     addLogEntry({
