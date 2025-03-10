@@ -46,6 +46,15 @@ const SidebarMenu: React.FC<SidebarMenuProps> = ({
     },
   ];
   
+  const handleNavigation = (path: string) => {
+    if (path === "/free-items") {
+      navigate(path, { state: { fromSidebar: true } });
+    } else {
+      onNavigate(path);
+    }
+    onClose();
+  };
+  
   return (
     <>
       <div
@@ -76,7 +85,7 @@ const SidebarMenu: React.FC<SidebarMenuProps> = ({
             {routes.map((route) => (
               <div key={route.path} className="mb-2">
                 <button
-                  onClick={() => onNavigate(route.path)}
+                  onClick={() => handleNavigation(route.path)}
                   className={cn(
                     "flex items-center w-full p-2 rounded-md text-base font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
                     currentRoute === route.path ? "bg-accent text-accent-foreground" : "text-muted-foreground"

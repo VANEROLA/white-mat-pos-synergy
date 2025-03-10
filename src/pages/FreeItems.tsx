@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { format } from 'date-fns';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Table,
   TableBody,
@@ -24,6 +24,8 @@ interface FreeItem {
 const FreeItems = () => {
   const [freeItems, setFreeItems] = React.useState<FreeItem[]>([]);
   const navigate = useNavigate();
+  const location = useLocation();
+  const fromSidebar = location.state?.fromSidebar;
 
   React.useEffect(() => {
     const items = JSON.parse(localStorage.getItem("freeItems") || "[]");
@@ -39,7 +41,7 @@ const FreeItems = () => {
           variant="outline" 
           size="sm" 
           className="mr-4"
-          onClick={() => navigate(-1)}
+          onClick={() => fromSidebar ? navigate('/') : navigate(-1)}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           戻る

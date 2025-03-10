@@ -20,6 +20,16 @@ interface FreeItemReason {
   name: string;
 }
 
+const DEFAULT_REASONS = [
+  { id: "damaged", name: "商品の損傷" },
+  { id: "customer_service", name: "顧客サービス" },
+  { id: "promotion", name: "プロモーション" },
+  { id: "employee", name: "従業員購入" },
+  { id: "other", name: "その他" },
+];
+
+const isDefaultReason = (id: string): boolean => DEFAULT_REASONS.some(reason => reason.id === id);
+
 const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
   open,
   onClose,
@@ -31,13 +41,7 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
   const [showAddReason, setShowAddReason] = useState(false);
   const [showEditReason, setShowEditReason] = useState(false);
   const [newReasonName, setNewReasonName] = useState("");
-  const [reasons, setReasons] = useState<FreeItemReason[]>([
-    { id: "damaged", name: "商品の損傷" },
-    { id: "customer_service", name: "顧客サービス" },
-    { id: "promotion", name: "プロモーション" },
-    { id: "employee", name: "従業員購入" },
-    { id: "other", name: "その他" },
-  ]);
+  const [reasons, setReasons] = useState<FreeItemReason[]>(DEFAULT_REASONS);
 
   useEffect(() => {
     try {
@@ -85,8 +89,7 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
       return;
     }
 
-    const isDefaultReason = ["damaged", "customer_service", "promotion", "employee", "other"].includes(selectedReasonId);
-    if (isDefaultReason) {
+    if (isDefaultReason(selectedReasonId)) {
       toast.error("デフォルトの理由は編集できません");
       setShowEditReason(false);
       setNewReasonName("");
@@ -113,8 +116,7 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
       return;
     }
 
-    const isDefaultReason = ["damaged", "customer_service", "promotion", "employee", "other"].includes(selectedReasonId);
-    if (isDefaultReason) {
+    if (isDefaultReason(selectedReasonId)) {
       toast.error("デフォルトの理由は削除できません");
       return;
     }
@@ -203,7 +205,7 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
                   variant="outline" 
                   size="sm" 
                   className="h-7 px-2 text-xs"
-                  disabled={!selectedReasonId || ["damaged", "customer_service", "promotion", "employee", "other"].includes(selectedReasonId)}
+                  disabled={!selectedReasonId || isDefaultReason(selectedReasonId)}
                   onClick={() => {
                     if (selectedReasonId) {
                       const reason = reasons.find(r => r.id === selectedReasonId);
@@ -223,7 +225,7 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
                   variant="outline" 
                   size="sm" 
                   className="h-7 px-2 text-xs text-destructive hover:text-destructive"
-                  disabled={!selectedReasonId || ["damaged", "customer_service", "promotion", "employee", "other"].includes(selectedReasonId)}
+                  disabled={!selectedReasonId || isDefaultReason(selectedReasonId)}
                   onClick={handleDeleteReason}
                 >
                   <Trash className="h-3.5 w-3.5 mr-1" />
