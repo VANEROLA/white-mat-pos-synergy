@@ -1,5 +1,7 @@
 import { toast } from "sonner";
-import { ApiResponse, InventoryUpdatePayload, Order, LogEntry, Product } from "@/types";
+import { ApiResponse, InventoryUpdatePayload, Product } from "@/types";
+import { addLogEntry } from "./logs";
+import { saveOrderToHistory } from "./orders";
 
 // Simulated API endpoint for inventory system
 const API_ENDPOINT = "https://api.example.com/inventory";
@@ -82,7 +84,94 @@ const updateProductStockCounts = (payload: InventoryUpdatePayload): void => {
           category: "コーヒー",
           stockCount: 100
         },
-        // ... other sample products
+        {
+          id: "2",
+          name: "カプチーノ",
+          price: 450,
+          imageUrl: "https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=500&auto=format&fit=crop&q=80",
+          category: "コーヒー",
+          stockCount: 80
+        },
+        {
+          id: "3",
+          name: "エスプレッソ",
+          price: 380,
+          imageUrl: "https://images.unsplash.com/photo-1596952954288-16862d37405d?w=500&auto=format&fit=crop&q=80",
+          category: "コーヒー",
+          stockCount: 120
+        },
+        {
+          id: "4",
+          name: "抹茶ラテ",
+          price: 520,
+          imageUrl: "https://images.unsplash.com/photo-1582198684221-9eb29d335c33?w=500&auto=format&fit=crop&q=80",
+          category: "ティー",
+          stockCount: 75
+        },
+        {
+          id: "5",
+          name: "ミルクティー",
+          price: 420,
+          imageUrl: "https://images.unsplash.com/photo-1592429929785-ba94aea023b1?w=500&auto=format&fit=crop&q=80",
+          category: "ティー",
+          stockCount: 90
+        },
+        {
+          id: "6",
+          name: "フルーツティー",
+          price: 480,
+          imageUrl: "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=500&auto=format&fit=crop&q=80",
+          category: "ティー",
+          stockCount: 60
+        },
+        {
+          id: "7",
+          name: "チョコレートケーキ",
+          price: 580,
+          imageUrl: "https://images.unsplash.com/photo-1565808229224-264b35aa092b?w=500&auto=format&fit=crop&q=80",
+          category: "ケーキ",
+          stockCount: 40
+        },
+        {
+          id: "8",
+          name: "チーズケーキ",
+          price: 560,
+          imageUrl: "https://images.unsplash.com/photo-1571115177098-24ec42ed204d?w=500&auto=format&fit=crop&q=80",
+          category: "ケーキ",
+          stockCount: 35
+        },
+        {
+          id: "9",
+          name: "クロワッサン",
+          price: 280,
+          imageUrl: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=500&auto=format&fit=crop&q=80",
+          category: "ベーカリー",
+          stockCount: 50
+        },
+        {
+          id: "10",
+          name: "パニーニ",
+          price: 650,
+          imageUrl: "https://images.unsplash.com/photo-1509722747041-616f39b57569?w=500&auto=format&fit=crop&q=80",
+          category: "サンドイッチ",
+          stockCount: 30
+        },
+        {
+          id: "11",
+          name: "アボカドトースト",
+          price: 580,
+          imageUrl: "https://images.unsplash.com/photo-1603046891744-1f058b8a8739?w=500&auto=format&fit=crop&q=80",
+          category: "サンドイッチ",
+          stockCount: 25
+        },
+        {
+          id: "12",
+          name: "フルーツサンド",
+          price: 450,
+          imageUrl: "https://images.unsplash.com/photo-1628294895290-192f6f73860e?w=500&auto=format&fit=crop&q=80",
+          category: "サンドイッチ",
+          stockCount: 40
+        }
       ];
       localStorage.setItem('sampleProducts', JSON.stringify(SAMPLE_PRODUCTS));
       sampleProducts = SAMPLE_PRODUCTS;
@@ -150,122 +239,4 @@ const updateProductStockCounts = (payload: InventoryUpdatePayload): void => {
  */
 export const generateOrderId = (): string => {
   return `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-};
-
-/**
- * Save order to local history
- */
-const saveOrderToHistory = (payload: InventoryUpdatePayload): void => {
-  try {
-    // Get existing orders from localStorage
-    const existingOrdersJson = localStorage.getItem('orderHistory') || '[]';
-    const existingOrders: Order[] = JSON.parse(existingOrdersJson);
-    
-    // Calculate total
-    const total = payload.products.reduce((sum, product) => {
-      return sum + (product.price || 0) * product.quantity;
-    }, 0);
-    
-    // Create a mock order for the history
-    const order: Order = {
-      id: payload.orderId,
-      items: payload.products.map(p => ({
-        id: p.id,
-        name: p.name || `Product ${p.id}`,
-        price: p.price || 0,
-        quantity: p.quantity,
-        imageUrl: p.imageUrl || '',
-        category: p.category || ''
-      })),
-      total: total,
-      timestamp: payload.timestamp,
-      status: 'completed'
-    };
-    
-    // Add to existing orders
-    const updatedOrders = [order, ...existingOrders];
-    
-    // Save back to localStorage
-    localStorage.setItem('orderHistory', JSON.stringify(updatedOrders));
-  } catch (error) {
-    console.error("Failed to save order to history:", error);
-  }
-};
-
-/**
- * Get order history from localStorage
- */
-export const getOrderHistory = (): Order[] => {
-  try {
-    const ordersJson = localStorage.getItem('orderHistory') || '[]';
-    return JSON.parse(ordersJson);
-  } catch (error) {
-    console.error("Failed to retrieve order history:", error);
-    return [];
-  }
-};
-
-/**
- * Update an existing order
- */
-export const updateOrder = (updatedOrder: Order): boolean => {
-  try {
-    const existingOrdersJson = localStorage.getItem('orderHistory') || '[]';
-    const existingOrders: Order[] = JSON.parse(existingOrdersJson);
-    
-    const updatedOrders = existingOrders.map(order => 
-      order.id === updatedOrder.id ? updatedOrder : order
-    );
-    
-    localStorage.setItem('orderHistory', JSON.stringify(updatedOrders));
-    
-    // Log the action
-    addLogEntry({
-      action: "order_update",
-      details: `Updated order ${updatedOrder.id}`
-    });
-    
-    return true;
-  } catch (error) {
-    console.error("Failed to update order:", error);
-    return false;
-  }
-};
-
-/**
- * Add a log entry
- */
-export const addLogEntry = (entry: Pick<LogEntry, 'action' | 'details' | 'userId'>): void => {
-  try {
-    const existingLogsJson = localStorage.getItem('systemLogs') || '[]';
-    const existingLogs: LogEntry[] = JSON.parse(existingLogsJson);
-    
-    const newLog: LogEntry = {
-      id: `LOG-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-      timestamp: new Date().toISOString(),
-      ...entry
-    };
-    
-    const updatedLogs = [newLog, ...existingLogs];
-    
-    // Keep only the last 100 logs
-    const trimmedLogs = updatedLogs.slice(0, 100);
-    
-    localStorage.setItem('systemLogs', JSON.stringify(trimmedLogs));
-  } catch (error) {
-    console.error("Failed to add log entry:", error);
-  }
-};
-
-/**
- * Get system logs
- */
-export const getSystemLogs = (): LogEntry[] => {
-  try {
-    const logsJson = localStorage.getItem('systemLogs') || '[]';
-    return JSON.parse(logsJson);
-  } catch (error) {
-    console.error("Failed to retrieve system logs:", error);
-    return [];
-  }
 };
