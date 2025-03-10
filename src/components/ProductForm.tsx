@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,7 +18,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
     name: "",
     price: "",
     category: "",
-    imageUrl: "",
     stockCount: "",
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -112,20 +110,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
       return;
     }
 
-    // Process the image if a file was selected
-    let imageUrlToUse = formData.imageUrl;
-    
-    if (selectedFile) {
-      // In a real app, you would upload to a server or cloud storage
-      // For this demo, we'll use the data URL as the image source
-      imageUrlToUse = imagePreview || "";
-    }
+    // Use the image preview as the image URL if a file was selected
+    // Otherwise use a placeholder
+    const imageUrlToUse = imagePreview || "https://placehold.co/200x200?text=商品";
 
     const productData: Omit<Product, "id"> = {
       name: formData.name,
       price: Number(formData.price),
       category: formData.category,
-      imageUrl: imageUrlToUse || "https://placehold.co/200x200?text=商品",
+      imageUrl: imageUrlToUse,
       ...(formData.stockCount ? { stockCount: Number(formData.stockCount) } : {}),
     };
 
@@ -230,22 +223,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
                 accept="image/*"
               />
             </div>
-            
-            <div className="flex items-center">
-              <div className="flex-grow border-t border-gray-300"></div>
-              <span className="px-3 text-xs text-gray-500">または</span>
-              <div className="flex-grow border-t border-gray-300"></div>
-            </div>
-            
-            {/* URL input option */}
-            <Input
-              name="imageUrl"
-              value={formData.imageUrl}
-              onChange={handleChange}
-              placeholder="https://例.com/画像.jpg"
-              className="mt-2"
-            />
-            <p className="text-xs text-muted-foreground mt-1">※画像のURLを直接入力することもできます</p>
           </div>
         </div>
 
