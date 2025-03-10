@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -7,6 +7,7 @@ import { Product } from "@/types";
 import { addLogEntry } from "@/utils/api";
 import { Package, Image as ImageIcon, Tag, Check, ArrowLeft, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import CategoryManagement, { Category } from "./CategoryManagement";
 
 interface ProductFormProps {
   onSubmit: (product: Omit<Product, "id">) => void;
@@ -24,8 +25,17 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [categories, setCategories] = useState<Category[]>([]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Load categories from localStorage
+  useEffect(() => {
+    const storedCategories = localStorage.getItem("categories");
+    if (storedCategories) {
+      setCategories(JSON.parse(storedCategories));
+    }
+  }, []);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -139,16 +149,19 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto">
-      <div className="flex items-center mb-6">
-        <Button 
-          type="button" 
-          variant="ghost" 
-          onClick={() => navigate("/")}
-          className="mr-2"
-        >
-          <ArrowLeft size={18} />
-        </Button>
-        <h1 className="text-2xl font-semibold">新しい商品を追加</h1>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center">
+          <Button 
+            type="button" 
+            variant="ghost" 
+            onClick={() => navigate("/")}
+            className="mr-2"
+          >
+            <ArrowLeft size={18} />
+          </Button>
+          <h1 className="text-2xl font-semibold">新しい商品を追加</h1>
+        </div>
+        <CategoryManagement />
       </div>
 
       <div className="space-y-4">
@@ -189,13 +202,19 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
             <Tag size={16} className="mr-1.5" />
             カテゴリー <span className="text-red-500 ml-1">*</span>
           </label>
-          <Input
+          <select
             name="category"
             value={formData.category}
             onChange={handleChange}
-            placeholder="例: コーヒー"
-            className={errors.category ? "border-red-500" : ""}
-          />
+            className={`flex h-10 w-full rounded-md border ${errors.category ? 'border-red-500' : 'border-input'} bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm`}
+          >
+            <option value="">カテゴリーを選択</option>
+            {categories.map(category => (
+              <option key={category.id} value={category.name}>
+                {category.name}
+              </option>
+            ))}
+          </select>
           {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category}</p>}
         </div>
 
