@@ -1,16 +1,7 @@
-
-import React, { useState } from 'react';
-import { 
-  History, 
-  FileText, 
-  Home,
-  ChevronRight,
-  ChevronLeft,
-  X
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
+import React from "react";
+import { X } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 interface SidebarMenuProps {
   isOpen: boolean;
@@ -19,120 +10,85 @@ interface SidebarMenuProps {
   currentRoute: string;
 }
 
-const SidebarMenu: React.FC<SidebarMenuProps> = ({ 
-  isOpen, 
+import TaxRateSettings from "@/components/TaxRateSettings";
+
+const SidebarMenu: React.FC<SidebarMenuProps> = ({
+  isOpen,
   onClose,
   onNavigate,
-  currentRoute
+  currentRoute,
 }) => {
-  const [collapsed, setCollapsed] = useState(false);
-
-  const handleNavigate = (route: string) => {
-    onNavigate(route);
-    // Don't close the sidebar on navigation
-  };
-
-  const toggleCollapse = () => {
-    setCollapsed(!collapsed);
-  };
-
-  if (!isOpen) return null;
-
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  const routes = [
+    {
+      path: "/",
+      name: "POS",
+    },
+    {
+      path: "/add-product",
+      name: "商品追加",
+    },
+    {
+      path: "/order-history",
+      name: "注文履歴",
+    },
+    {
+      path: "/system-logs",
+      name: "システムログ",
+    },
+  ];
+  
   return (
     <>
-      {/* Backdrop for mobile */}
-      <div 
-        className="fixed inset-0 bg-black/30 z-40 md:hidden"
+      <div
+        className={cn(
+          "fixed inset-0 bg-black/50 z-40 transition-opacity duration-300",
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}
         onClick={onClose}
-      />
+      ></div>
       
-      {/* Sidebar */}
-      <div className={cn(
-        "fixed left-0 top-0 h-full z-50 transition-all duration-300 ease-in-out bg-white shadow-lg",
-        collapsed ? "w-16" : "w-64",
-        isOpen ? "translate-x-0" : "-translate-x-full"
-      )}>
-        <div className="h-full flex flex-col">
-          {/* Sidebar header */}
-          <div className="p-4 flex items-center justify-between border-b">
-            {!collapsed && (
-              <h2 className="font-semibold text-lg">メニュー</h2>
-            )}
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="ml-auto"
-              onClick={toggleCollapse}
-            >
-              {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-            </Button>
+      <aside
+        className={cn(
+          "fixed top-0 left-0 bottom-0 w-64 bg-background z-50 transform transition-transform duration-300 ease-in-out shadow-lg",
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <div className="flex flex-col h-full p-4">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold">メニュー</h2>
+            <button onClick={onClose} className="p-1 rounded-full hover:bg-muted">
+              <X size={20} />
+            </button>
           </div>
           
-          {/* Sidebar content */}
-          <div className="flex-1 overflow-y-auto">
-            <nav className="p-2">
-              <ul className="space-y-1">
-                <li>
-                  <Button
-                    variant={currentRoute === "/" ? "secondary" : "ghost"}
-                    className={cn(
-                      "w-full justify-start",
-                      collapsed && "justify-center px-2"
-                    )}
-                    onClick={() => handleNavigate("/")}
-                  >
-                    <Home className="mr-2 h-5 w-5" />
-                    {!collapsed && <span>ホーム</span>}
-                  </Button>
-                </li>
-                
-                <li>
-                  <Button
-                    variant={currentRoute === "/order-history" ? "secondary" : "ghost"}
-                    className={cn(
-                      "w-full justify-start",
-                      collapsed && "justify-center px-2"
-                    )}
-                    onClick={() => handleNavigate("/order-history")}
-                  >
-                    <History className="mr-2 h-5 w-5" />
-                    {!collapsed && <span>注文履歴</span>}
-                  </Button>
-                </li>
-                
-                <li>
-                  <Button
-                    variant={currentRoute === "/system-logs" ? "secondary" : "ghost"}
-                    className={cn(
-                      "w-full justify-start",
-                      collapsed && "justify-center px-2"
-                    )}
-                    onClick={() => handleNavigate("/system-logs")}
-                  >
-                    <FileText className="mr-2 h-5 w-5" />
-                    {!collapsed && <span>システムログ</span>}
-                  </Button>
-                </li>
-              </ul>
-            </nav>
-          </div>
+          <TaxRateSettings />
           
-          {/* Sidebar footer */}
-          <div className="p-4 border-t">
-            <Button
-              variant="outline"
-              className={cn(
-                "w-full", 
-                collapsed && "justify-center px-2"
-              )}
-              onClick={onClose}
-            >
-              <X className="mr-2 h-5 w-5" />
-              {!collapsed && <span>閉じる</span>}
-            </Button>
+          <nav className="mt-4">
+            {routes.map((route) => (
+              <div key={route.path} className="mb-2">
+                <button
+                  onClick={() => onNavigate(route.path)}
+                  className={cn(
+                    "flex items-center w-full p-2 rounded-md text-base font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
+                    currentRoute === route.path ? "bg-accent text-accent-foreground" : "text-muted-foreground"
+                  )}
+                >
+                  {route.name}
+                </button>
+              </div>
+            ))}
+          </nav>
+          
+          <div className="mt-auto pt-6 border-t border-border">
+            <p className="text-sm text-muted-foreground">
+              POS System v1.0
+            </p>
           </div>
         </div>
-      </div>
+      </aside>
     </>
   );
 };

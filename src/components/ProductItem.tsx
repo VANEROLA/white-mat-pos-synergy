@@ -37,10 +37,11 @@ const ProductItem: React.FC<ProductItemProps> = ({ product, onAddToCart }) => {
           src={product.imageUrl || 'https://placehold.co/200x200?text=商品'}
           alt={product.name}
           className={cn(
-            "object-cover w-full h-full transition-transform duration-700",
+            "object-cover w-full h-full transition-transform duration-700 cursor-pointer",
             isHovering && "scale-105"
           )}
           loading="lazy"
+          onClick={handleAddToCart}
         />
         <div 
           className={cn(

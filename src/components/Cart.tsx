@@ -1,10 +1,11 @@
 
 import React from "react";
 import { CartItem, CartState } from "@/types";
-import { Trash2, Minus, Plus, ShoppingCart } from "lucide-react";
+import { Trash2, Minus, Plus, ShoppingCart, BadgePercent } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { useTax } from "@/contexts/TaxContext";
 
 interface CartProps {
   cart: CartState;
@@ -19,6 +20,13 @@ const Cart: React.FC<CartProps> = ({
   onRemoveItem,
   onCheckout,
 }) => {
+  const { taxRate, setTaxRate } = useTax();
+  
+  const taxOptions = [0, 8, 10];
+  
+  const taxAmount = Math.round(cart.total * (taxRate / 100));
+  const totalWithTax = cart.total + taxAmount;
+  
   return (
     <div className="glass rounded-xl p-6 h-full flex flex-col animate-fade-in">
       <div className="flex items-center justify-between mb-4">
@@ -60,13 +68,32 @@ const Cart: React.FC<CartProps> = ({
               <span className="text-muted-foreground">小計:</span>
               <span>¥{cart.total.toLocaleString()}</span>
             </div>
-            <div className="flex justify-between text-sm mb-4">
-              <span className="text-muted-foreground">消費税 (10%):</span>
-              <span>¥{Math.round(cart.total * 0.1).toLocaleString()}</span>
+            <div className="flex justify-between text-sm mb-1">
+              <div className="flex items-center gap-1">
+                <span className="text-muted-foreground flex items-center">
+                  <BadgePercent size={14} className="mr-1" />
+                  消費税 ({taxRate}%):
+                </span>
+                <div className="flex gap-1 ml-2">
+                  {taxOptions.map((rate) => (
+                    <button
+                      key={rate}
+                      onClick={() => setTaxRate(rate)}
+                      className={cn(
+                        "text-xs px-1.5 py-0.5 rounded transition-colors",
+                        rate === taxRate ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted"
+                      )}
+                    >
+                      {rate}%
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <span>¥{taxAmount.toLocaleString()}</span>
             </div>
             <div className="flex justify-between font-semibold mb-6">
               <span>合計:</span>
-              <span className="text-lg">¥{Math.round(cart.total * 1.1).toLocaleString()}</span>
+              <span className="text-lg">¥{totalWithTax.toLocaleString()}</span>
             </div>
             
             <Button 

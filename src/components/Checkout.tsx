@@ -3,9 +3,10 @@ import React from "react";
 import { CartState, InventoryUpdatePayload, Product } from "@/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Loader2, AlertTriangle } from "lucide-react";
+import { CheckCircle, Loader2, AlertTriangle, BadgePercent } from "lucide-react";
 import { updateInventory, generateOrderId } from "@/utils/api";
 import { toast } from "sonner";
+import { useTax } from "@/contexts/TaxContext";
 
 interface CheckoutProps {
   open: boolean;
@@ -22,6 +23,7 @@ const Checkout: React.FC<CheckoutProps> = ({
 }) => {
   const [status, setStatus] = React.useState<"initial" | "processing" | "success" | "failed">("initial");
   const [orderId, setOrderId] = React.useState<string>("");
+  const { taxRate } = useTax();
   
   // Reset the state when the dialog opens
   React.useEffect(() => {
@@ -30,6 +32,9 @@ const Checkout: React.FC<CheckoutProps> = ({
       setOrderId(generateOrderId());
     }
   }, [open]);
+  
+  const taxAmount = Math.round(cart.total * (taxRate / 100));
+  const totalWithTax = cart.total + taxAmount;
   
   const handleProcessOrder = async () => {
     if (cart.items.length === 0) return;
@@ -106,12 +111,15 @@ const Checkout: React.FC<CheckoutProps> = ({
                   <span>¥{cart.total.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">消費税 (10%):</span>
-                  <span>¥{Math.round(cart.total * 0.1).toLocaleString()}</span>
+                  <span className="text-muted-foreground flex items-center">
+                    <BadgePercent size={14} className="mr-1" />
+                    消費税 ({taxRate}%):
+                  </span>
+                  <span>¥{taxAmount.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between font-medium text-lg pt-2">
                   <span>合計:</span>
-                  <span>¥{Math.round(cart.total * 1.1).toLocaleString()}</span>
+                  <span>¥{totalWithTax.toLocaleString()}</span>
                 </div>
               </div>
             </div>
