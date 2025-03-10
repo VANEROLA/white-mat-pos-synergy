@@ -81,9 +81,18 @@ export const useCart = () => {
   const calculateTotal = (items: CartItem[]): number => {
     if (isFreeOrder) return 0;
     return items.reduce((sum, item) => {
-      // Use original price for calculation if the item is marked as free
-      const price = item.originalPrice !== undefined ? 0 : item.price;
-      return sum + (price * item.quantity);
+      // Use original price for calculation if the item has an originalPrice set
+      if (item.originalPrice !== undefined) {
+        // Calculate the price for remaining non-free quantity
+        const freeQuantity = item.quantity;
+        const totalQuantity = item.quantity;
+        const nonFreeQuantity = totalQuantity - freeQuantity;
+        
+        return sum + (item.originalPrice * nonFreeQuantity);
+      } else {
+        // Normal price calculation for regular items
+        return sum + (item.price * item.quantity);
+      }
     }, 0);
   };
   
