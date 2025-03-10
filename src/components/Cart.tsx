@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { CartItem, CartState } from "@/types";
 import { Trash2, Minus, Plus, ShoppingCart, BadgePercent, Gift } from "lucide-react";
@@ -27,8 +26,16 @@ const Cart: React.FC<CartProps> = ({
   
   const taxOptions = [0, 8, 10];
   
-  const taxAmount = Math.round(cart.total * (taxRate / 100));
-  const totalWithTax = cart.total + taxAmount;
+  const calculateSubtotal = () => {
+    return cart.items.reduce((sum, item) => {
+      const price = item.originalPrice !== undefined ? 0 : item.price;
+      return sum + (price * item.quantity);
+    }, 0);
+  };
+  
+  const subtotal = calculateSubtotal();
+  const taxAmount = Math.round(subtotal * (taxRate / 100));
+  const totalWithTax = subtotal + taxAmount;
   
   const handleFreeItemApproved = (staffName: string, reason: string, notes?: string, selectedItems?: CartItem[]) => {
     setTaxRate(0);
@@ -39,24 +46,18 @@ const Cart: React.FC<CartProps> = ({
       userId: staffName
     });
     
-    // If specific items were selected to be free
     if (selectedItems && selectedItems.length > 0) {
-      // Update the cart to make selected items free
-      const selectedItemIds = selectedItems.map(item => item.id);
-      
-      // Make only the selected items free by setting their prices to 0 temporarily for display
       cart.items.forEach(item => {
-        if (selectedItemIds.includes(item.id)) {
+        if (item.originalPrice !== undefined) {
+          item.price = item.originalPrice;
+          delete item.originalPrice;
+        }
+        
+        if (selectedItems.includes(item)) {
           item.originalPrice = item.price;
           item.price = 0;
         }
       });
-      
-      // Recalculate the total
-      cart.total = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    } else {
-      // Make the entire order free (legacy behavior)
-      cart.total = 0;
     }
   };
   
@@ -99,7 +100,7 @@ const Cart: React.FC<CartProps> = ({
           <div className="mt-auto">
             <div className="flex justify-between text-sm mb-1">
               <span className="text-muted-foreground">小計:</span>
-              <span>¥{cart.total.toLocaleString()}</span>
+              <span>¥{subtotal.toLocaleString()}</span>
             </div>
             <div className="flex justify-between items-center text-sm mb-3">
               <span className="text-muted-foreground flex items-center">
@@ -128,14 +129,9 @@ const Cart: React.FC<CartProps> = ({
                   </Button>
                 ))}
                 <Button
-                  variant={cart.total === 0 ? "default" : "outline"}
+                  variant="outline"
                   size="sm"
-                  className={cn(
-                    "h-8 text-xs px-2 border",
-                    cart.total === 0 
-                      ? "bg-green-500 text-white border-green-500" 
-                      : "border-input hover:bg-accent hover:text-accent-foreground"
-                  )}
+                  className="h-8 text-xs px-2 border border-input hover:bg-accent hover:text-accent-foreground"
                   onClick={() => setIsFreeItemDialogOpen(true)}
                 >
                   <Gift className="mr-1 h-3 w-3" />
@@ -180,7 +176,9 @@ const CartItemRow: React.FC<CartItemRowProps> = ({
   onUpdateQuantity,
   onRemoveItem,
 }) => {
-  const subtotal = item.price * item.quantity;
+  const isFree = item.originalPrice !== undefined;
+  const displayPrice = isFree ? 0 : item.price;
+  const subtotal = displayPrice * item.quantity;
   
   const handleIncrement = () => {
     onUpdateQuantity(item.id, item.quantity + 1);
@@ -207,8 +205,21 @@ const CartItemRow: React.FC<CartItemRowProps> = ({
         </div>
         
         <div className="flex-grow min-w-0">
-          <h4 className="font-medium text-sm leading-tight truncate">{item.name}</h4>
-          <p className="text-sm text-muted-foreground">¥{item.price.toLocaleString()} × {item.quantity}</p>
+          <h4 className="font-medium text-sm leading-tight truncate">
+            {item.name}
+            {isFree && <span className="ml-1 text-green-500 text-xs">(無料)</span>}
+          </h4>
+          
+          <p className="text-sm text-muted-foreground">
+            {isFree ? (
+              <>
+                <span className="line-through mr-1">¥{item.originalPrice.toLocaleString()}</span>
+                <span className="text-green-500">¥0</span>
+              </>
+            ) : (
+              `¥${item.price.toLocaleString()}`
+            )} × {item.quantity}
+          </p>
           
           <div className="flex justify-between items-center mt-2">
             <div className="flex items-center">
@@ -228,7 +239,9 @@ const CartItemRow: React.FC<CartItemRowProps> = ({
             </div>
             
             <div className="flex items-center gap-2">
-              <span className="font-medium text-sm">¥{subtotal.toLocaleString()}</span>
+              <span className={cn("font-medium text-sm", isFree && "text-green-500")}>
+                ¥{subtotal.toLocaleString()}
+              </span>
               <button
                 onClick={() => onRemoveItem(item.id)}
                 className="text-muted-foreground hover:text-destructive transition-colors rounded-full p-1"

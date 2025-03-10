@@ -80,7 +80,11 @@ export const useCart = () => {
   
   const calculateTotal = (items: CartItem[]): number => {
     if (isFreeOrder) return 0;
-    return items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    return items.reduce((sum, item) => {
+      // Use original price for calculation if the item is marked as free
+      const price = item.originalPrice !== undefined ? 0 : item.price;
+      return sum + (price * item.quantity);
+    }, 0);
   };
   
   const handleCheckout = () => {

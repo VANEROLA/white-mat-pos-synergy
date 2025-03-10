@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -50,11 +51,6 @@ const Index: React.FC = () => {
   const onCompleteCheckout = () => {
     handleCompleteCheckout();
     loadProducts();
-  };
-
-  const handleFreeItemApproved = (staffName: string, reason: string, notes?: string) => {
-    setOrderToFree();
-    // FreeItemDialog component will log this to localStorage
   };
   
   return (

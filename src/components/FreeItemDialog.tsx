@@ -33,8 +33,8 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
   const [showEditReason, setShowEditReason] = useState(false);
   const [newReasonName, setNewReasonName] = useState("");
   const [reasons, setReasons] = useState<FreeItemReason[]>([]);
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
-  const [selectAll, setSelectAll] = useState(true);
+  const [selectedItems, setSelectedItems] = useState<CartItem[]>([]);
+  const [selectAll, setSelectAll] = useState(false);
 
   useEffect(() => {
     setReasons(loadSavedReasons());
@@ -42,8 +42,9 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
 
   useEffect(() => {
     if (open) {
-      setSelectAll(true);
-      setSelectedItems(cartItems.map(item => item.id));
+      // Reset selections when dialog opens
+      setSelectedItems([]);
+      setSelectAll(false);
     }
   }, [open, cartItems]);
 
@@ -66,9 +67,6 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
     const selectedReason = reasons.find((r) => r.id === selectedReasonId);
     const reasonText = selectedReason ? selectedReason.name : "";
 
-    // Get only the selected cart items
-    const selectedCartItems = cartItems.filter(item => selectedItems.includes(item.id));
-
     const freeItems = JSON.parse(localStorage.getItem("freeItems") || "[]");
     freeItems.push({
       id: Date.now().toString(),
@@ -76,11 +74,11 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
       reason: reasonText,
       notes: notes || "",
       timestamp: new Date().toISOString(),
-      products: selectedCartItems,
+      products: selectedItems,
     });
     localStorage.setItem("freeItems", JSON.stringify(freeItems));
 
-    onApprove(staffName, reasonText, notes, selectedCartItems);
+    onApprove(staffName, reasonText, notes, selectedItems);
     onClose();
     setStaffName("");
     setNotes("");
@@ -88,26 +86,32 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
     toast.success("無料処理が承認されました");
   };
 
-  const handleToggleItem = (itemId: string) => {
-    if (selectedItems.includes(itemId)) {
-      setSelectedItems(selectedItems.filter(id => id !== itemId));
-      setSelectAll(false);
+  const handleToggleItem = (item: CartItem) => {
+    // Check if this specific item instance is already selected
+    const isSelected = selectedItems.some(selectedItem => 
+      selectedItem === item // Compare by reference to handle same product with different instances
+    );
+    
+    if (isSelected) {
+      setSelectedItems(selectedItems.filter(selectedItem => selectedItem !== item));
     } else {
-      setSelectedItems([...selectedItems, itemId]);
-      if (selectedItems.length + 1 === cartItems.length) {
-        setSelectAll(true);
-      }
+      setSelectedItems([...selectedItems, item]);
     }
+    
+    // Update selectAll state based on current selection
+    const allItemsSelected = cartItems.every(item => 
+      selectedItems.some(selectedItem => selectedItem === item)
+    );
+    setSelectAll(allItemsSelected);
   };
 
   const handleToggleAll = () => {
     if (selectAll) {
       setSelectedItems([]);
-      setSelectAll(false);
     } else {
-      setSelectedItems(cartItems.map(item => item.id));
-      setSelectAll(true);
+      setSelectedItems([...cartItems]);
     }
+    setSelectAll(!selectAll);
   };
 
   return (
@@ -187,15 +191,15 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
                 </label>
               </div>
               
-              {cartItems.map((item) => (
-                <div key={item.id} className="flex items-center space-x-2 py-1.5">
+              {cartItems.map((item, index) => (
+                <div key={`${item.id}-${index}`} className="flex items-center space-x-2 py-1.5">
                   <Checkbox 
-                    id={`item-${item.id}`} 
-                    checked={selectedItems.includes(item.id)}
-                    onCheckedChange={() => handleToggleItem(item.id)}
+                    id={`item-${item.id}-${index}`} 
+                    checked={selectedItems.includes(item)}
+                    onCheckedChange={() => handleToggleItem(item)}
                   />
                   <label 
-                    htmlFor={`item-${item.id}`} 
+                    htmlFor={`item-${item.id}-${index}`} 
                     className="flex justify-between w-full text-sm leading-none cursor-pointer"
                   >
                     <span className="truncate flex-grow">{item.name}</span>
