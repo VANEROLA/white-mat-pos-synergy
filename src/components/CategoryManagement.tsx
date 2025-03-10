@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,13 +17,17 @@ export interface Category {
   name: string;
 }
 
+export const emitCategoryChange = () => {
+  const event = new CustomEvent('categoryChange');
+  window.dispatchEvent(event);
+};
+
 const CategoryManagement: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [newCategory, setNewCategory] = useState("");
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Load categories from localStorage
   useEffect(() => {
     const storedCategories = localStorage.getItem("categories");
     if (storedCategories) {
@@ -32,9 +35,9 @@ const CategoryManagement: React.FC = () => {
     }
   }, []);
 
-  // Save categories to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem("categories", JSON.stringify(categories));
+    emitCategoryChange();
   }, [categories]);
 
   const handleAddCategory = () => {
@@ -43,7 +46,6 @@ const CategoryManagement: React.FC = () => {
       return;
     }
 
-    // Check if category already exists
     if (categories.some(cat => cat.name.toLowerCase() === newCategory.trim().toLowerCase())) {
       toast.error("このカテゴリーは既に存在します");
       return;
@@ -71,7 +73,6 @@ const CategoryManagement: React.FC = () => {
       return;
     }
 
-    // Check if category name already exists (excluding the current one)
     if (categories.some(cat => 
       cat.id !== editingCategory.id && 
       cat.name.toLowerCase() === editingCategory.name.trim().toLowerCase()
@@ -89,7 +90,6 @@ const CategoryManagement: React.FC = () => {
   };
 
   const handleDeleteCategory = (categoryId: string) => {
-    // Check if any products are using this category
     const allProducts = JSON.parse(localStorage.getItem("products") || "[]");
     const categoryInUse = allProducts.some((product: any) => 
       product.category.toLowerCase() === categories.find(c => c.id === categoryId)?.name.toLowerCase()
@@ -119,7 +119,6 @@ const CategoryManagement: React.FC = () => {
           </DialogHeader>
           
           <div className="space-y-4 mt-4">
-            {/* Add new category */}
             <div className="flex items-center space-x-2">
               <Input
                 value={newCategory}
@@ -133,7 +132,6 @@ const CategoryManagement: React.FC = () => {
               </Button>
             </div>
             
-            {/* Categories list */}
             <div className="border rounded-md">
               {categories.length === 0 ? (
                 <div className="p-4 text-center text-gray-500">

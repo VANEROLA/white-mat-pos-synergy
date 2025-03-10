@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +6,7 @@ import { Product } from "@/types";
 import { addLogEntry } from "@/utils/api";
 import { Package, Image as ImageIcon, Tag, Check, ArrowLeft, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import CategoryManagement, { Category } from "./CategoryManagement";
+import CategoryManagement, { Category, emitCategoryChange } from "./CategoryManagement";
 
 interface ProductFormProps {
   onSubmit: (product: Omit<Product, "id">) => void;
@@ -27,12 +26,21 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [categories, setCategories] = useState<Category[]>([]);
 
-  // Load categories from localStorage
-  useEffect(() => {
+  const loadCategories = () => {
     const storedCategories = localStorage.getItem("categories");
     if (storedCategories) {
       setCategories(JSON.parse(storedCategories));
     }
+  };
+
+  useEffect(() => {
+    loadCategories();
+    
+    window.addEventListener('categoryChange', loadCategories);
+    
+    return () => {
+      window.removeEventListener('categoryChange', loadCategories);
+    };
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -42,7 +50,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
       [name]: value,
     }));
 
-    // Clear error for this field when user types
     if (errors[name]) {
       setErrors((prev) => {
         const newErrors = { ...prev };
@@ -56,13 +63,11 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       
-      // Validate file type
       if (!file.type.match('image.*')) {
         toast.error("画像ファイルのみアップロードできます");
         return;
       }
       
-      // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         toast.error("画像サイズは5MB以下にしてください");
         return;
@@ -70,14 +75,12 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
 
       setSelectedFile(file);
       
-      // Create preview
       const reader = new FileReader();
       reader.onload = (loadEvent) => {
         setImagePreview(loadEvent.target?.result as string);
       };
       reader.readAsDataURL(file);
       
-      // Clear error if there was one
       if (errors.imageUrl) {
         setErrors((prev) => {
           const newErrors = { ...prev };
@@ -109,7 +112,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
       newErrors.stockCount = "在庫数は0以上の数値を入力してください";
     }
 
-    // Validate image is selected
     if (!imagePreview && !selectedFile) {
       newErrors.imageUrl = "商品画像を選択してください";
     }
@@ -126,8 +128,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
       return;
     }
 
-    // Use the image preview as the image URL if a file was selected
-    // Otherwise use a placeholder
     const imageUrlToUse = imagePreview || "https://placehold.co/200x200?text=商品";
 
     const productData: Omit<Product, "id"> = {
@@ -140,7 +140,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
 
     onSubmit(productData);
 
-    // Log the action
     addLogEntry({
       action: "product_create_attempt",
       details: `Attempted to create product: ${formData.name}`,
@@ -225,7 +224,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
           </label>
           
           <div className="space-y-3">
-            {/* Image preview */}
             {imagePreview && (
               <div className="mt-2 relative w-40 h-40 mx-auto border rounded-md overflow-hidden">
                 <img 
@@ -236,7 +234,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
               </div>
             )}
             
-            {/* Improved file upload area */}
             <div className={`relative border-2 ${errors.imageUrl ? 'border-red-500' : 'border-gray-300'} border-dashed rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors`}>
               <div className="flex flex-col items-center justify-center py-5 px-4">
                 <Upload size={24} className="text-gray-500 mb-2" />
@@ -244,7 +241,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
                 <p className="text-xs text-gray-500">JPG, PNG, GIF (最大5MB)</p>
               </div>
               
-              {/* This is the actual file input, but with a better, more precise hit area */}
               <label className="absolute inset-0 cursor-pointer flex items-center justify-center">
                 <input 
                   type="file" 
