@@ -49,10 +49,7 @@ export const ItemSelectionList: React.FC<ItemSelectionListProps> = ({
       );
     } else {
       // Add item with default free quantity of 1
-      setSelectedItemsWithQuantity(prevItems => [
-        ...prevItems,
-        { item, freeQuantity: 1 }
-      ]);
+      setSelectedItemsWithQuantity(prevItems => [...prevItems, { item, freeQuantity: 1 }]);
     }
   };
 
