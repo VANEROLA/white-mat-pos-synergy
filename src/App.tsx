@@ -12,8 +12,8 @@ import { ConnectionProvider } from "@/contexts/ConnectionContext";
 
 function App() {
   return (
-    <TaxProvider>
-      <ConnectionProvider>
+    <ConnectionProvider>
+      <TaxProvider>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/add-product" element={<AddProduct />} />
@@ -22,8 +22,8 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster />
-      </ConnectionProvider>
-    </TaxProvider>
+      </TaxProvider>
+    </ConnectionProvider>
   );
 }
 

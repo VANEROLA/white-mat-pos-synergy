@@ -1,6 +1,7 @@
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { CheckCircle, AlertCircle, XCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
 export type ConnectionStatus = 'connected' | 'unstable' | 'disconnected';
 
@@ -124,8 +125,18 @@ export const ConnectionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // 在庫更新処理をシミュレート
   const processInventoryUpdate = async (payload: any) => {
-    const { updateInventory } = await import('@/utils/api');
-    return await updateInventory(payload);
+    try {
+      const { updateInventory } = await import('@/utils/api');
+      const result = await updateInventory(payload);
+      if (result.success) {
+        toast.success("オフラインデータが同期されました");
+      }
+      return result;
+    } catch (error) {
+      console.error("Failed to process inventory update:", error);
+      toast.error("オフラインデータの同期に失敗しました");
+      throw error;
+    }
   };
 
   // マウント時にLocalStorageからペンディングアクションを読み込む
