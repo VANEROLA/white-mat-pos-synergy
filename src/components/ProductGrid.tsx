@@ -29,24 +29,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
   return (
     <Tab.Group>
-      <Tab.List className="flex space-x-2 mb-6 overflow-x-auto pb-2 scrollbar-hide">
-        <Tab
-          key="all"
-          className={({ selected }) =>
-            cn(
-              "px-6 py-2 rounded-md text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap border",
-              selected
-                ? "bg-white text-foreground border-gray-200 shadow-sm"
-                : "bg-white/80 text-muted-foreground hover:bg-white/90 border-gray-100"
-            )
-          }
-        >
-          すべて
-        </Tab>
-        
-        {categoryNames.map((category) => (
+      <div className="bg-gray-50 rounded-lg p-2 mb-6">
+        <Tab.List className="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
           <Tab
-            key={category}
+            key="all"
             className={({ selected }) =>
               cn(
                 "px-6 py-2 rounded-md text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap border",
@@ -56,10 +42,26 @@ const ProductGrid: React.FC<ProductGridProps> = ({
               )
             }
           >
-            {category}
+            すべて
           </Tab>
-        ))}
-      </Tab.List>
+          
+          {categoryNames.map((category) => (
+            <Tab
+              key={category}
+              className={({ selected }) =>
+                cn(
+                  "px-6 py-2 rounded-md text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap border",
+                  selected
+                    ? "bg-white text-foreground border-gray-200 shadow-sm"
+                    : "bg-white/80 text-muted-foreground hover:bg-white/90 border-gray-100"
+                )
+              }
+            >
+              {category}
+            </Tab>
+          ))}
+        </Tab.List>
+      </div>
       
       <Tab.Panels>
         <Tab.Panel key="all">
