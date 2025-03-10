@@ -43,23 +43,6 @@ const ProductItem: React.FC<ProductItemProps> = ({ product, onAddToCart }) => {
           loading="lazy"
           onClick={handleAddToCart}
         />
-        <div 
-          className={cn(
-            "absolute inset-0 bg-black/0 flex items-center justify-center transition-all duration-300",
-            isHovering ? "bg-black/5" : "opacity-0"
-          )}
-        >
-          <button 
-            onClick={handleAddToCart}
-            className={cn(
-              "bg-white text-primary rounded-full p-2 shadow-md transform transition-all duration-300",
-              isHovering ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
-            )}
-            aria-label="カートに追加"
-          >
-            <Plus size={20} />
-          </button>
-        </div>
       </div>
       
       <div className="flex justify-between items-start">
