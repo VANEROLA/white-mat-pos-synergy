@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Product } from "@/types";
 import { addLogEntry } from "@/utils/api";
-import { Package, Image, Tag, Check, ArrowLeft } from "lucide-react";
+import { Package, Image as ImageIcon, Tag, Check, ArrowLeft, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface ProductFormProps {
@@ -22,7 +22,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
     imageUrl: "",
     stockCount: "",
   });
-
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,6 +40,42 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
         delete newErrors[name];
         return newErrors;
       });
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      
+      // Validate file type
+      if (!file.type.match('image.*')) {
+        toast.error("画像ファイルのみアップロードできます");
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("画像サイズは5MB以下にしてください");
+        return;
+      }
+
+      setSelectedFile(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (loadEvent) => {
+        setImagePreview(loadEvent.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+      
+      // Clear error if there was one
+      if (errors.imageUrl) {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors.imageUrl;
+          return newErrors;
+        });
+      }
     }
   };
 
@@ -67,7 +104,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -75,11 +112,20 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
       return;
     }
 
+    // Process the image if a file was selected
+    let imageUrlToUse = formData.imageUrl;
+    
+    if (selectedFile) {
+      // In a real app, you would upload to a server or cloud storage
+      // For this demo, we'll use the data URL as the image source
+      imageUrlToUse = imagePreview || "";
+    }
+
     const productData: Omit<Product, "id"> = {
       name: formData.name,
       price: Number(formData.price),
       category: formData.category,
-      imageUrl: formData.imageUrl || "https://placehold.co/200x200?text=商品",
+      imageUrl: imageUrlToUse || "https://placehold.co/200x200?text=商品",
       ...(formData.stockCount ? { stockCount: Number(formData.stockCount) } : {}),
     };
 
@@ -156,16 +202,51 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
 
         <div>
           <label className="block text-sm font-medium mb-1 flex items-center">
-            <Image size={16} className="mr-1.5" />
-            画像URL
+            <ImageIcon size={16} className="mr-1.5" />
+            商品画像
           </label>
-          <Input
-            name="imageUrl"
-            value={formData.imageUrl}
-            onChange={handleChange}
-            placeholder="https://例.com/画像.jpg"
-          />
-          <p className="text-xs text-muted-foreground mt-1">※空白の場合はデフォルト画像が使用されます</p>
+          
+          <div className="space-y-3">
+            {/* Image preview */}
+            {imagePreview && (
+              <div className="mt-2 relative w-40 h-40 mx-auto border rounded-md overflow-hidden">
+                <img 
+                  src={imagePreview} 
+                  alt="プレビュー" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+            
+            {/* File input button */}
+            <div className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+              <Upload size={24} className="text-gray-500 mb-2" />
+              <p className="text-sm text-gray-600 mb-2">クリックして画像をアップロード</p>
+              <p className="text-xs text-gray-500">JPG, PNG, GIF (最大5MB)</p>
+              <input 
+                type="file" 
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                onChange={handleFileChange}
+                accept="image/*"
+              />
+            </div>
+            
+            <div className="flex items-center">
+              <div className="flex-grow border-t border-gray-300"></div>
+              <span className="px-3 text-xs text-gray-500">または</span>
+              <div className="flex-grow border-t border-gray-300"></div>
+            </div>
+            
+            {/* URL input option */}
+            <Input
+              name="imageUrl"
+              value={formData.imageUrl}
+              onChange={handleChange}
+              placeholder="https://例.com/画像.jpg"
+              className="mt-2"
+            />
+            <p className="text-xs text-muted-foreground mt-1">※画像のURLを直接入力することもできます</p>
+          </div>
         </div>
 
         <div>
