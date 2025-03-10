@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import ReasonSelector from "./freeItem/ReasonSelector";
@@ -47,14 +47,25 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
     handleSubmit
   } = useFreeItemForm(cartItems);
 
+  // Memoize the close handler to prevent re-renders
+  const handleClose = useCallback(() => {
+    onClose();
+  }, [onClose]);
+
+  // Only reset the form when the dialog opens
   useEffect(() => {
     if (open) {
       resetForm();
     }
   }, [open, resetForm]);
 
+  // Memoize the submission handler
+  const handleApproveSubmit = useCallback(() => {
+    handleSubmit(onApprove, onClose);
+  }, [handleSubmit, onApprove, onClose]);
+
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>無料処理の承認</DialogTitle>
@@ -123,12 +134,12 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
         </div>
 
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={onClose} className="mr-2">
+          <Button type="button" variant="outline" onClick={handleClose} className="mr-2">
             キャンセル
           </Button>
           <Button 
             type="button" 
-            onClick={() => handleSubmit(onApprove, onClose)}
+            onClick={handleApproveSubmit}
           >
             承認
           </Button>

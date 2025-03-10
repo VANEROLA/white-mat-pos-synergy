@@ -46,7 +46,12 @@ export const ItemSelectionList: React.FC<ItemSelectionListProps> = ({
     return selectedItem ? selectedItem.freeQuantity : 0;
   };
 
-  const handleToggleItem = (item: CartItem) => {
+  const handleToggleItem = (item: CartItem, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     const isSelected = isItemSelected(item);
     
     if (isSelected) {
@@ -61,7 +66,12 @@ export const ItemSelectionList: React.FC<ItemSelectionListProps> = ({
     }
   };
 
-  const handleToggleAll = () => {
+  const handleToggleAll = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     if (selectAll) {
       // Deselect all
       setSelectedItemsWithQuantity([]);
@@ -75,7 +85,10 @@ export const ItemSelectionList: React.FC<ItemSelectionListProps> = ({
     }
   };
 
-  const handleIncrementFreeQuantity = (item: CartItem) => {
+  const handleIncrementFreeQuantity = (item: CartItem, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     setSelectedItemsWithQuantity(prevItems => 
       prevItems.map(selected => {
         if (selected.item.id === item.id) {
@@ -88,7 +101,10 @@ export const ItemSelectionList: React.FC<ItemSelectionListProps> = ({
     );
   };
 
-  const handleDecrementFreeQuantity = (item: CartItem) => {
+  const handleDecrementFreeQuantity = (item: CartItem, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     setSelectedItemsWithQuantity(prevItems => 
       prevItems.map(selected => {
         if (selected.item.id === item.id) {
@@ -112,11 +128,15 @@ export const ItemSelectionList: React.FC<ItemSelectionListProps> = ({
           <Checkbox 
             id="select-all" 
             checked={selectAll} 
-            onCheckedChange={handleToggleAll}
+            onCheckedChange={() => handleToggleAll()}
           />
           <label 
             htmlFor="select-all" 
             className="text-sm font-medium leading-none cursor-pointer"
+            onClick={(e) => {
+              e.preventDefault();
+              handleToggleAll(e);
+            }}
           >
             すべて選択
           </label>
@@ -132,6 +152,10 @@ export const ItemSelectionList: React.FC<ItemSelectionListProps> = ({
             <label 
               htmlFor={`item-${item.id}-${index}`} 
               className="flex justify-between w-full text-sm leading-none cursor-pointer"
+              onClick={(e) => {
+                e.preventDefault();
+                handleToggleItem(item, e);
+              }}
             >
               <span className="truncate flex-grow">{item.name}</span>
               <span className="text-muted-foreground whitespace-nowrap">
@@ -140,14 +164,10 @@ export const ItemSelectionList: React.FC<ItemSelectionListProps> = ({
             </label>
             
             {isItemSelected(item) && (
-              <div className="flex items-center space-x-2 ml-2">
+              <div className="flex items-center space-x-2 ml-2" onClick={(e) => e.stopPropagation()}>
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleDecrementFreeQuantity(item);
-                  }}
+                  onClick={(e) => handleDecrementFreeQuantity(item, e)}
                   className="rounded-full p-1 bg-gray-100 hover:bg-gray-200"
                   disabled={getFreeQuantityForItem(item) <= 1}
                 >
@@ -158,11 +178,7 @@ export const ItemSelectionList: React.FC<ItemSelectionListProps> = ({
                 </span>
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleIncrementFreeQuantity(item);
-                  }}
+                  onClick={(e) => handleIncrementFreeQuantity(item, e)}
                   className="rounded-full p-1 bg-gray-100 hover:bg-gray-200"
                   disabled={getFreeQuantityForItem(item) >= item.quantity}
                 >

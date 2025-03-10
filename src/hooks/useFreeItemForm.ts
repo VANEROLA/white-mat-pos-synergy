@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { CartItem } from "@/types";
 import { FreeItemReason, loadSavedReasons } from "@/utils/freeItemReasons";
@@ -34,6 +34,9 @@ interface UseFreeItemFormResult {
 }
 
 export const useFreeItemForm = (cartItems: CartItem[]): UseFreeItemFormResult => {
+  // Use refs to track if this is the initial render
+  const initialRender = useRef(true);
+  
   const [staffName, setStaffName] = useState("");
   const [notes, setNotes] = useState("");
   const [selectedReasonId, setSelectedReasonId] = useState("");
@@ -49,6 +52,15 @@ export const useFreeItemForm = (cartItems: CartItem[]): UseFreeItemFormResult =>
   useEffect(() => {
     const savedReasons = loadSavedReasons();
     setReasons(savedReasons);
+  }, []);
+
+  // Prevent unnecessary state resets on re-renders
+  useEffect(() => {
+    // Skip the initial render
+    if (initialRender.current) {
+      initialRender.current = false;
+      return;
+    }
   }, []);
 
   const resetForm = useCallback(() => {
