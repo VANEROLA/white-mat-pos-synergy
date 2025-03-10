@@ -1,5 +1,6 @@
+
 import { toast } from "sonner";
-import { ApiResponse, InventoryUpdatePayload, Order, LogEntry } from "@/types";
+import { ApiResponse, InventoryUpdatePayload, Order, LogEntry, Product } from "@/types";
 
 // Simulated API endpoint for inventory system
 const API_ENDPOINT = "https://api.example.com/inventory";
@@ -12,6 +13,9 @@ export const updateInventory = async (payload: InventoryUpdatePayload): Promise<
   try {
     // In a real application, this would be a fetch request to the API
     console.log("Sending inventory update:", payload);
+    
+    // Update product stock counts in localStorage
+    updateProductStockCounts(payload);
     
     // Add to local storage for order history
     saveOrderToHistory(payload);
@@ -54,6 +58,72 @@ export const updateInventory = async (payload: InventoryUpdatePayload): Promise<
 };
 
 /**
+ * Update product stock counts in localStorage
+ */
+const updateProductStockCounts = (payload: InventoryUpdatePayload): void => {
+  try {
+    // Get existing products from localStorage
+    const productsJson = localStorage.getItem('products') || '[]';
+    let products: Product[] = JSON.parse(productsJson);
+    
+    // Get the sample products from localStorage or default sample
+    const sampleProductsJson = localStorage.getItem('sampleProducts');
+    const sampleProducts: Product[] = sampleProductsJson 
+      ? JSON.parse(sampleProductsJson) 
+      : [];
+    
+    // Combine both product lists
+    const allProducts = [...products, ...sampleProducts];
+    
+    // Create a map of products by ID for easier access
+    const productMap = new Map<string, Product>();
+    allProducts.forEach(product => {
+      if (!productMap.has(product.id)) {
+        productMap.set(product.id, product);
+      }
+    });
+    
+    // Update stock counts
+    payload.products.forEach(item => {
+      const product = productMap.get(item.id);
+      if (product && typeof product.stockCount !== 'undefined') {
+        // Decrease stock by the ordered quantity
+        product.stockCount = Math.max(0, product.stockCount - item.quantity);
+        productMap.set(item.id, product);
+      }
+    });
+    
+    // Update products in localStorage
+    const updatedProducts = Array.from(productMap.values());
+    
+    // Filter out sample products
+    const customProducts = updatedProducts.filter(product => {
+      // Products added by the user typically have numeric IDs
+      return !sampleProducts.some(sampleProduct => sampleProduct.id === product.id);
+    });
+    
+    // Update sample products separately
+    localStorage.setItem('sampleProducts', JSON.stringify(sampleProducts));
+    
+    // Update user-added products
+    localStorage.setItem('products', JSON.stringify(customProducts));
+    
+    // Log the stock update
+    addLogEntry({
+      action: "stock_update",
+      details: `Updated stock counts for ${payload.products.length} products in order ${payload.orderId}`
+    });
+  } catch (error) {
+    console.error("Failed to update stock counts:", error);
+    
+    addLogEntry({
+      action: "stock_update_error",
+      details: `Failed to update stock counts: ${error}`
+    });
+  }
+};
+
+/**
  * Generates a unique order ID
  */
 export const generateOrderId = (): string => {
@@ -69,18 +139,23 @@ const saveOrderToHistory = (payload: InventoryUpdatePayload): void => {
     const existingOrdersJson = localStorage.getItem('orderHistory') || '[]';
     const existingOrders: Order[] = JSON.parse(existingOrdersJson);
     
+    // Calculate total
+    const total = payload.products.reduce((sum, product) => {
+      return sum + (product.price || 0) * product.quantity;
+    }, 0);
+    
     // Create a mock order for the history
     const order: Order = {
       id: payload.orderId,
       items: payload.products.map(p => ({
         id: p.id,
-        name: `Product ${p.id}`, // We don't have the names in the payload, this would normally come from the API
-        price: 0, // Similarly, we don't have prices in the payload
+        name: p.name || `Product ${p.id}`,
+        price: p.price || 0,
         quantity: p.quantity,
-        imageUrl: '', // No image in payload
-        category: ''  // No category in payload
+        imageUrl: p.imageUrl || '',
+        category: p.category || ''
       })),
-      total: 0, // We don't have the total in the payload
+      total: total,
       timestamp: payload.timestamp,
       status: 'completed'
     };

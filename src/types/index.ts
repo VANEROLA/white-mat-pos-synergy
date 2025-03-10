@@ -24,6 +24,10 @@ export interface InventoryUpdatePayload {
   products: Array<{
     id: string;
     quantity: number;
+    name?: string;
+    price?: number;
+    imageUrl?: string;
+    category?: string;
   }>;
   orderId: string;
   timestamp: string;

@@ -1,6 +1,6 @@
 
 import React from "react";
-import { CartState, InventoryUpdatePayload } from "@/types";
+import { CartState, InventoryUpdatePayload, Product } from "@/types";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Loader2, AlertTriangle } from "lucide-react";
@@ -40,6 +40,10 @@ const Checkout: React.FC<CheckoutProps> = ({
       products: cart.items.map(item => ({
         id: item.id,
         quantity: item.quantity,
+        name: item.name,
+        price: item.price,
+        imageUrl: item.imageUrl,
+        category: item.category,
       })),
       orderId,
       timestamp: new Date().toISOString(),
