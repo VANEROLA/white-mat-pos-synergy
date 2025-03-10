@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -98,6 +99,11 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
       newErrors.stockCount = "在庫数は0以上の数値を入力してください";
     }
 
+    // Validate image is selected
+    if (!imagePreview && !selectedFile) {
+      newErrors.imageUrl = "商品画像を選択してください";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -119,7 +125,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
       price: Number(formData.price),
       category: formData.category,
       imageUrl: imageUrlToUse,
-      ...(formData.stockCount ? { stockCount: Number(formData.stockCount) } : {}),
+      stockCount: formData.stockCount ? Number(formData.stockCount) : 0,
     };
 
     onSubmit(productData);
@@ -196,7 +202,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
         <div>
           <label className="block text-sm font-medium mb-1 flex items-center">
             <ImageIcon size={16} className="mr-1.5" />
-            商品画像
+            商品画像 <span className="text-red-500 ml-1">*</span>
           </label>
           
           <div className="space-y-3">
@@ -212,7 +218,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
             )}
             
             {/* File input button */}
-            <div className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+            <div className={`flex flex-col items-center justify-center p-4 border-2 ${errors.imageUrl ? 'border-red-500' : 'border-gray-300'} border-dashed rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors`}>
               <Upload size={24} className="text-gray-500 mb-2" />
               <p className="text-sm text-gray-600 mb-2">クリックして画像をアップロード</p>
               <p className="text-xs text-gray-500">JPG, PNG, GIF (最大5MB)</p>
@@ -223,13 +229,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
                 accept="image/*"
               />
             </div>
+            {errors.imageUrl && <p className="text-red-500 text-sm mt-1">{errors.imageUrl}</p>}
           </div>
         </div>
 
         <div>
           <label className="block text-sm font-medium mb-1 flex items-center">
             <Package size={16} className="mr-1.5" />
-            在庫数
+            在庫数 <span className="text-red-500 ml-1">*</span>
           </label>
           <Input
             name="stockCount"
@@ -248,7 +255,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
         <Button type="button" variant="outline" onClick={() => navigate("/")} className="mr-2">
           キャンセル
         </Button>
-        <Button type="submit" disabled={isSubmitting}>
+        <Button type="submit" disabled={isSubmitting} className="min-w-[120px]">
           {isSubmitting ? "保存中..." : (
             <>
               <Check size={16} className="mr-1" />
