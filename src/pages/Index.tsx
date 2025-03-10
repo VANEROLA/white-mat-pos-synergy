@@ -16,7 +16,6 @@ import { Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 import { addLogEntry } from "@/utils/api";
 
-// Mock products data
 const SAMPLE_PRODUCTS: Product[] = [
   {
     id: "1",
@@ -116,7 +115,6 @@ const SAMPLE_PRODUCTS: Product[] = [
   }
 ];
 
-// Group products by category
 const groupProductsByCategory = (products: Product[]): Record<string, Product[]> => {
   return products.reduce<Record<string, Product[]>>((acc, product) => {
     if (!acc[product.category]) {
@@ -143,7 +141,6 @@ const Index: React.FC = () => {
   
   const navigate = useNavigate();
   
-  // Filter products when search query changes
   useEffect(() => {
     if (!searchQuery) {
       setFilteredProducts(products);
@@ -160,17 +157,14 @@ const Index: React.FC = () => {
     setFilteredProducts(filtered);
   }, [searchQuery, products]);
   
-  // Group products by category
   const categories = groupProductsByCategory(filteredProducts);
   const categoryNames = Object.keys(categories);
   
-  // Cart Functions
   const handleAddToCart = (product: Product) => {
     setCart(prev => {
       const existingItemIndex = prev.items.findIndex(item => item.id === product.id);
       
       if (existingItemIndex !== -1) {
-        // Update existing item quantity
         const updatedItems = [...prev.items];
         updatedItems[existingItemIndex] = {
           ...updatedItems[existingItemIndex],
@@ -180,7 +174,6 @@ const Index: React.FC = () => {
         const newTotal = calculateTotal(updatedItems);
         return { items: updatedItems, total: newTotal };
       } else {
-        // Add new item
         const newItem: CartItem = { ...product, quantity: 1 };
         const newItems = [...prev.items, newItem];
         const newTotal = calculateTotal(newItems);
@@ -188,13 +181,11 @@ const Index: React.FC = () => {
       }
     });
     
-    // Show toast notification with shorter duration
     toast.success(`${product.name}をカートに追加しました`, {
       duration: 1500,
       position: "top-right"
     });
     
-    // Add log entry
     addLogEntry({
       action: "add_to_cart",
       details: `Added ${product.name} to cart`
@@ -211,7 +202,6 @@ const Index: React.FC = () => {
       return { items: updatedItems, total: newTotal };
     });
     
-    // Add log entry
     addLogEntry({
       action: "update_quantity",
       details: `Updated quantity for product ${id} to ${quantity}`
@@ -225,7 +215,6 @@ const Index: React.FC = () => {
       return { items: updatedItems, total: newTotal };
     });
     
-    // Add log entry
     addLogEntry({
       action: "remove_from_cart",
       details: `Removed product ${id} from cart`
@@ -248,7 +237,6 @@ const Index: React.FC = () => {
   const handleCompleteCheckout = () => {
     setCart({ items: [], total: 0 });
     
-    // Add log entry
     addLogEntry({
       action: "checkout_complete",
       details: `Completed checkout with ${cart.items.length} items`
@@ -259,6 +247,24 @@ const Index: React.FC = () => {
     navigate(route);
     setIsSidebarOpen(false);
   };
+  
+  const handleAddProductClick = () => {
+    navigate('/add-product');
+  };
+  
+  useEffect(() => {
+    try {
+      const savedProductsJson = localStorage.getItem("products");
+      if (savedProductsJson) {
+        const savedProducts = JSON.parse(savedProductsJson);
+        const allProductsMap = new Map([...products, ...savedProducts].map(p => [p.id, p]));
+        const combinedProducts = Array.from(allProductsMap.values());
+        setFilteredProducts(combinedProducts);
+      }
+    } catch (error) {
+      console.error("Failed to load saved products:", error);
+    }
+  }, [searchQuery, products]);
   
   return (
     <div className="min-h-screen bg-background">
@@ -280,7 +286,6 @@ const Index: React.FC = () => {
         />
         
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Product Section - 3/4 Width */}
           <div className="lg:col-span-3 glass rounded-xl p-6 animate-fade-in">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold">商品一覧</h2>
@@ -297,7 +302,7 @@ const Index: React.FC = () => {
                   />
                 </div>
                 
-                <Button size="sm" variant="outline" onClick={() => setIsAddProductOpen(true)}>
+                <Button size="sm" variant="outline" onClick={handleAddProductClick}>
                   <Plus size={16} className="mr-1" /> 商品追加
                 </Button>
               </div>
@@ -375,7 +380,6 @@ const Index: React.FC = () => {
             )}
           </div>
           
-          {/* Cart Section - 1/4 Width */}
           <div className="lg:col-span-1">
             <Cart
               cart={cart}
@@ -387,7 +391,6 @@ const Index: React.FC = () => {
         </div>
       </div>
       
-      {/* Checkout Dialog */}
       <Checkout
         open={isCheckoutOpen}
         cart={cart}
