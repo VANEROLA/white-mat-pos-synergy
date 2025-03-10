@@ -91,20 +91,24 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
     toast.success("無料処理が承認されました");
   };
 
-  const handleToggleItem = (item: CartItem) => {
-    const isSelected = selectedItems.includes(item);
+  const handleToggleItem = (item: CartItem, index: number) => {
+    // Create a unique identifier for this specific item instance
+    const itemKey = `${item.id}-${index}`;
+    
+    // Check if this specific item is already selected
+    const isSelected = selectedItems.some(selectedItem => 
+      selectedItem === item // Compare by reference to handle same product with different instances
+    );
     
     if (isSelected) {
-      setSelectedItems(selectedItems.filter(i => i !== item));
+      setSelectedItems(selectedItems.filter(selectedItem => selectedItem !== item));
     } else {
       setSelectedItems([...selectedItems, item]);
     }
     
     // Update selectAll state
-    const willSelectAll = cartItems.every(item => 
-      selectedItems.includes(item) || item === cartItems.find(i => i === item && !selectedItems.includes(i))
-    );
-    setSelectAll(willSelectAll && cartItems.length > 0);
+    const willSelectAll = cartItems.length > 0 && selectedItems.length + (isSelected ? -1 : 1) === cartItems.length;
+    setSelectAll(willSelectAll);
   };
 
   const handleToggleAll = () => {
@@ -198,7 +202,7 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
                   <Checkbox 
                     id={`item-${item.id}-${index}`} 
                     checked={selectedItems.includes(item)}
-                    onCheckedChange={() => handleToggleItem(item)}
+                    onCheckedChange={() => handleToggleItem(item, index)}
                   />
                   <label 
                     htmlFor={`item-${item.id}-${index}`} 
