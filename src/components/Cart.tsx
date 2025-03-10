@@ -29,11 +29,11 @@ const Cart: React.FC<CartProps> = ({
   const taxAmount = Math.round(cart.total * (taxRate / 100));
   const totalWithTax = cart.total + taxAmount;
   
-  const handleFreeItemApproved = (staffName: string, reason: string) => {
+  const handleFreeItemApproved = (staffName: string, reason: string, notes?: string) => {
     setTaxRate(0);
     addLogEntry({
       action: "apply_free_item",
-      details: `Staff member ${staffName} approved free item: ${reason}`,
+      details: `Staff member ${staffName} approved free item: ${reason}${notes ? ` (Notes: ${notes})` : ''}`,
       userId: staffName
     });
   };

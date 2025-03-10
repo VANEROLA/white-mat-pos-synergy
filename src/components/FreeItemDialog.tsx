@@ -7,11 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { Plus } from "lucide-react";
 
 interface FreeItemDialogProps {
   open: boolean;
   onClose: () => void;
-  onApprove: (staffName: string, reason: string) => void;
+  onApprove: (staffName: string, reason: string, notes?: string) => void;
 }
 
 interface FreeItemReason {
@@ -25,8 +26,10 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
   onApprove,
 }) => {
   const [staffName, setStaffName] = useState("");
-  const [customReason, setCustomReason] = useState("");
+  const [notes, setNotes] = useState("");
   const [selectedReasonId, setSelectedReasonId] = useState("");
+  const [showAddReason, setShowAddReason] = useState(false);
+  const [newReasonName, setNewReasonName] = useState("");
   const [reasons, setReasons] = useState<FreeItemReason[]>([
     { id: "damaged", name: "商品の損傷" },
     { id: "customer_service", name: "顧客サービス" },
@@ -51,23 +54,25 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
   }, []);
 
   const handleAddNewReason = () => {
-    if (!customReason.trim()) {
+    if (!newReasonName.trim()) {
       toast.error("理由を入力してください");
       return;
     }
 
     const newReason = {
       id: `custom_${Date.now()}`,
-      name: customReason.trim(),
+      name: newReasonName.trim(),
     };
 
     const updatedReasons = [...reasons, newReason];
     setReasons(updatedReasons);
     setSelectedReasonId(newReason.id);
-    setCustomReason("");
+    setNewReasonName("");
+    setShowAddReason(false);
 
     // Save to localStorage
     localStorage.setItem("freeItemReasons", JSON.stringify(updatedReasons));
+    toast.success("新しい理由が追加されました");
   };
 
   const handleSubmit = () => {
@@ -84,8 +89,11 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
     const selectedReason = reasons.find((r) => r.id === selectedReasonId);
     const reasonText = selectedReason ? selectedReason.name : "";
 
-    onApprove(staffName, reasonText);
+    onApprove(staffName, reasonText, notes);
     onClose();
+    setStaffName("");
+    setNotes("");
+    setSelectedReasonId("");
     toast.success("無料処理が承認されました");
   };
 
@@ -108,7 +116,19 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="reason">理由</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="reason">理由</Label>
+              <Button 
+                type="button" 
+                variant="outline" 
+                size="sm" 
+                className="h-7 px-2 text-xs"
+                onClick={() => setShowAddReason(true)}
+              >
+                <Plus className="h-3.5 w-3.5 mr-1" />
+                新しい理由
+              </Button>
+            </div>
             <Select value={selectedReasonId} onValueChange={setSelectedReasonId}>
               <SelectTrigger id="reason">
                 <SelectValue placeholder="理由を選択" />
@@ -123,20 +143,33 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
             </Select>
           </div>
 
-          <div className="grid gap-2">
-            <Label htmlFor="custom-reason">新しい理由を追加</Label>
-            <div className="flex gap-2">
-              <Textarea
-                id="custom-reason"
-                value={customReason}
-                onChange={(e) => setCustomReason(e.target.value)}
-                placeholder="新しい理由を入力"
-                className="flex-1"
-              />
-              <Button type="button" onClick={handleAddNewReason} className="self-end">
-                追加
-              </Button>
+          {showAddReason && (
+            <div className="grid gap-2 bg-muted/30 p-3 rounded-md">
+              <Label htmlFor="new-reason">新しい理由を追加</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="new-reason"
+                  value={newReasonName}
+                  onChange={(e) => setNewReasonName(e.target.value)}
+                  placeholder="新しい理由を入力"
+                  className="flex-1"
+                />
+                <Button type="button" onClick={handleAddNewReason} size="sm">
+                  追加
+                </Button>
+              </div>
             </div>
+          )}
+
+          <div className="grid gap-2">
+            <Label htmlFor="notes">補足メモ (任意)</Label>
+            <Textarea
+              id="notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="備考やメモを入力"
+              className="h-20"
+            />
           </div>
         </div>
 
