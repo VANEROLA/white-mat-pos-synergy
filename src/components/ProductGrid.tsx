@@ -34,10 +34,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({
           key="all"
           className={({ selected }) =>
             cn(
-              "px-6 py-2 rounded-full text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap shadow-sm",
+              "px-6 py-2 rounded-md text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap border",
               selected
-                ? "bg-white text-foreground border-transparent shadow-md"
-                : "bg-white/80 text-muted-foreground hover:bg-white/90"
+                ? "bg-white text-foreground border-gray-200 shadow-sm"
+                : "bg-white/80 text-muted-foreground hover:bg-white/90 border-gray-100"
             )
           }
         >
@@ -49,10 +49,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({
             key={category}
             className={({ selected }) =>
               cn(
-                "px-6 py-2 rounded-full text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap shadow-sm",
+                "px-6 py-2 rounded-md text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap border",
                 selected
-                  ? "bg-white text-foreground border-transparent shadow-md"
-                  : "bg-white/80 text-muted-foreground hover:bg-white/90"
+                  ? "bg-white text-foreground border-gray-200 shadow-sm"
+                  : "bg-white/80 text-muted-foreground hover:bg-white/90 border-gray-100"
               )
             }
           >
