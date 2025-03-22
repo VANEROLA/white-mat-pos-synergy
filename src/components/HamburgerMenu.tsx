@@ -13,16 +13,16 @@ interface HamburgerMenuProps {
 const HamburgerMenu: React.FC<HamburgerMenuProps> = ({ isOpen, toggleMenu, className }) => {
   return (
     <Button 
-      variant="ghost" 
+      variant="outline" 
       size="icon" 
       className={cn("relative z-50", className)}
       onClick={toggleMenu}
       aria-label={isOpen ? "メニューを閉じる" : "メニューを開く"}
     >
       {isOpen ? (
-        <X className="h-6 w-6" />
+        <X className="h-5 w-5" />
       ) : (
-        <Menu className="h-6 w-6" />
+        <Menu className="h-5 w-5" />
       )}
     </Button>
   );

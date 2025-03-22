@@ -13,33 +13,32 @@ import { TaxProvider } from "@/contexts/TaxContext";
 import React, { useState } from "react";
 import SidebarMenu from "@/components/SidebarMenu";
 import HamburgerMenu from "@/components/HamburgerMenu";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   return (
     <TaxProvider>
       <div className="flex min-h-screen">
-        {/* Desktop sidebar - only visible on larger screens */}
-        <div className="hidden md:block w-64 border-r min-h-screen">
-          <SidebarMenu className="p-4" />
-        </div>
-
+        {/* Remove the permanent sidebar that was taking up space */}
+        
         <div className="flex-1">
-          {/* Hamburger menu - visible on mobile devices */}
-          <div className="p-4 flex items-center md:hidden">
+          {/* Hamburger menu - visible on all devices now */}
+          <div className="p-4 flex items-center">
             <HamburgerMenu 
               isOpen={isSidebarOpen} 
               toggleMenu={() => setIsSidebarOpen(!isSidebarOpen)} 
             />
           </div>
 
-          {/* Mobile sidebar activated by hamburger menu */}
+          {/* Sidebar activated by hamburger menu for all devices */}
           <SidebarMenu 
             isOpen={isSidebarOpen}
             onClose={() => setIsSidebarOpen(false)}
             onNavigate={() => setIsSidebarOpen(false)}
-            currentRoute="/"
+            currentRoute={location.pathname}
           />
 
           <Routes>

@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -50,7 +51,7 @@ const SidebarMenu: React.FC<SidebarProps> = ({
     { icon: FileText, label: "システムログ", path: "/system-logs" },
   ];
 
-  // Standard sidebar menu for desktop or when opened in mobile
+  // Menu content that will be displayed in the drawer
   const menuContent = (
     <div className={cn("flex flex-col space-y-1", className)}>
       {menuItems.map((item) => (
@@ -72,22 +73,17 @@ const SidebarMenu: React.FC<SidebarProps> = ({
     </div>
   );
 
-  // If we're using this as a mobile slide-in menu
-  if (isOpen !== undefined) {
-    return (
-      <Sheet open={isOpen} onOpenChange={onClose}>
-        <SheetContent side="left" className="w-64 p-4">
-          <div className="py-4">
-            <h2 className="text-lg font-semibold mb-4">メニュー</h2>
-            {menuContent}
-          </div>
-        </SheetContent>
-      </Sheet>
-    );
-  }
-
-  // Otherwise return the regular sidebar
-  return menuContent;
+  // Always use Sheet component now for a slide-in menu
+  return (
+    <Sheet open={isOpen} onOpenChange={onClose}>
+      <SheetContent side="left" className="w-64 p-4">
+        <div className="py-4">
+          <h2 className="text-lg font-semibold mb-4">メニュー</h2>
+          {menuContent}
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
 };
 
 export default SidebarMenu;
