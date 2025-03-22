@@ -10,20 +10,33 @@ import InventoryManagement from "@/pages/InventoryManagement";
 import NotFound from "@/pages/NotFound";
 import "./App.css";
 import { TaxProvider } from "@/contexts/TaxContext";
-import React from "react";
+import React, { useState } from "react";
+import SidebarMenu from "@/components/SidebarMenu";
+import HamburgerMenu from "@/components/HamburgerMenu";
 
 function App() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   return (
     <TaxProvider>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/add-product" element={<AddProduct />} />
-        <Route path="/order-history" element={<OrderHistory />} />
-        <Route path="/system-logs" element={<SystemLogs />} />
-        <Route path="/free-items" element={<FreeItems />} />
-        <Route path="/inventory" element={<InventoryManagement />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <div className="flex min-h-screen">
+        {/* Desktop sidebar - only visible on larger screens */}
+        <div className="hidden md:block w-64 border-r min-h-screen">
+          <SidebarMenu className="p-4" />
+        </div>
+
+        <div className="flex-1">
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/add-product" element={<AddProduct />} />
+            <Route path="/order-history" element={<OrderHistory />} />
+            <Route path="/system-logs" element={<SystemLogs />} />
+            <Route path="/free-items" element={<FreeItems />} />
+            <Route path="/inventory" element={<InventoryManagement />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </div>
+      </div>
       <Toaster />
     </TaxProvider>
   );

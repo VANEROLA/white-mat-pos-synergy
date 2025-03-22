@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -65,6 +66,7 @@ const Index: React.FC = () => {
           <POSHeader />
         </div>
         
+        {/* Mobile sidebar activated by hamburger menu */}
         <SidebarMenu 
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}

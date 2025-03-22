@@ -15,7 +15,7 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({ isOpen, toggleMenu, class
     <Button 
       variant="ghost" 
       size="icon" 
-      className={cn("relative z-50", className)}
+      className={cn("relative z-50 md:hidden", className)} // Only show on mobile
       onClick={toggleMenu}
       aria-label={isOpen ? "メニューを閉じる" : "メニューを開く"}
     >
