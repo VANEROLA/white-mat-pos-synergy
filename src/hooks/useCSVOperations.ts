@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Product } from '@/types';
@@ -44,8 +45,10 @@ export const useCSVOperations = () => {
         )
       ].join("\n");
 
-      // Create download link
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      // Add BOM (Byte Order Mark) for UTF-8 to handle Japanese characters
+      const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+      const blob = new Blob([bom, csvContent], { type: 'text/csv;charset=utf-8;' });
+      
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.setAttribute('href', url);
@@ -236,7 +239,10 @@ export const useCSVOperations = () => {
         exampleRow.join(",")
       ].join("\n");
       
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      // Add BOM (Byte Order Mark) for UTF-8 to handle Japanese characters
+      const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+      const blob = new Blob([bom, csvContent], { type: 'text/csv;charset=utf-8;' });
+      
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.setAttribute('href', url);
