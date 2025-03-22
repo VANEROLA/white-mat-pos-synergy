@@ -5,8 +5,6 @@ import { useNavigate } from "react-router-dom";
 import POSHeader from "@/components/POSHeader";
 import Cart from "@/components/Cart";
 import Checkout from "@/components/Checkout";
-import HamburgerMenu from "@/components/HamburgerMenu";
-import SidebarMenu from "@/components/SidebarMenu";
 import SearchPanel from "@/components/SearchPanel";
 import ProductGrid from "@/components/ProductGrid";
 import { useProductData } from "@/hooks/useProductData";
@@ -15,7 +13,6 @@ import { useCart } from "@/hooks/useCart";
 const Index: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isAddProductOpen, setIsAddProductOpen] = useState<boolean>(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   
   const navigate = useNavigate();
   
@@ -40,11 +37,6 @@ const Index: React.FC = () => {
     handleApplyFreeItems
   } = useCart();
   
-  const handleNavigate = (route: string) => {
-    navigate(route);
-    setIsSidebarOpen(false);
-  };
-  
   const handleAddProductClick = () => {
     navigate('/add-product');
   };
@@ -57,22 +49,9 @@ const Index: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-[1400px] mx-auto p-4 md:p-6 lg:p-8">
-        <div className="flex items-center justify-between mb-6">
-          <HamburgerMenu 
-            isOpen={isSidebarOpen}
-            toggleMenu={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="mr-4"
-          />
+        <div className="mb-6">
           <POSHeader />
         </div>
-        
-        {/* Mobile sidebar activated by hamburger menu */}
-        <SidebarMenu 
-          isOpen={isSidebarOpen}
-          onClose={() => setIsSidebarOpen(false)}
-          onNavigate={handleNavigate}
-          currentRoute="/"
-        />
         
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className="lg:col-span-3 glass rounded-xl p-6 animate-fade-in">

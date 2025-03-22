@@ -26,6 +26,22 @@ function App() {
         </div>
 
         <div className="flex-1">
+          {/* Hamburger menu - visible on mobile devices */}
+          <div className="p-4 flex items-center md:hidden">
+            <HamburgerMenu 
+              isOpen={isSidebarOpen} 
+              toggleMenu={() => setIsSidebarOpen(!isSidebarOpen)} 
+            />
+          </div>
+
+          {/* Mobile sidebar activated by hamburger menu */}
+          <SidebarMenu 
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+            onNavigate={() => setIsSidebarOpen(false)}
+            currentRoute="/"
+          />
+
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/add-product" element={<AddProduct />} />
