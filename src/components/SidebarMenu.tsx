@@ -6,12 +6,12 @@ import {
   SheetContent,
   SheetTrigger 
 } from "@/components/ui/sheet";
-import { Home, Package, History, FileText, Gift, Database } from "lucide-react";
+import { Home, Package, History, FileText, Gift, Database, PlusCircle } from "lucide-react";
 
 interface SidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
-  onNavigate?: (route: string) => void;
+  onNavigate?: (path: string) => void;
   currentRoute?: string;
   className?: string;
 }
