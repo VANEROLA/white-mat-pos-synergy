@@ -14,12 +14,12 @@ const StaffInfoSection: React.FC<StaffInfoSectionProps> = ({
 }) => {
   return (
     <div className="grid gap-2">
-      <Label htmlFor="staff-name">担当者名</Label>
+      <Label htmlFor="staff-name">担当者ID</Label>
       <Input
         id="staff-name"
         value={staffName}
         onChange={(e) => setStaffName(e.target.value)}
-        placeholder="担当者名を入力"
+        placeholder="担当者IDを入力"
       />
     </div>
   );
