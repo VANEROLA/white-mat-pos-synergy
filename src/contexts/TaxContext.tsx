@@ -15,7 +15,7 @@ const TaxContext = createContext<TaxContextType>({
 
 export const useTax = () => useContext(TaxContext);
 
-export const TaxProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const TaxProvider = ({ children }: { children: React.ReactNode }) => {
   const [taxRate, setTaxRateState] = useState<number>(() => {
     // Try to get the tax rate from local storage
     const savedTaxRate = localStorage.getItem('taxRate');

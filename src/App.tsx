@@ -10,6 +10,7 @@ import InventoryManagement from "@/pages/InventoryManagement";
 import NotFound from "@/pages/NotFound";
 import "./App.css";
 import { TaxProvider } from "@/contexts/TaxContext";
+import React from "react";
 
 function App() {
   return (
