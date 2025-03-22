@@ -1,3 +1,4 @@
+
 import { toast } from "sonner";
 import { ApiResponse, InventoryUpdatePayload } from "@/types";
 import { addLogEntry } from "../logs";
@@ -29,10 +30,9 @@ export const updateInventory = async (payload: InventoryUpdatePayload): Promise<
       details: `Updated inventory for order ${payload.orderId} with ${payload.products.length} products`
     });
     
-    // Supabaseは使用しないためコメントアウト
-    // 以前のSupabaseコードはスキップされます
-    
-    // Try to save to Supabase if connected
+    // Supabaseは使用しないため、この部分をコメントアウト
+    /* 
+    // Supabase code is removed as Supabase is not being used
     try {
       const { error } = await supabase
         .from('inventory_updates')
@@ -50,6 +50,10 @@ export const updateInventory = async (payload: InventoryUpdatePayload): Promise<
       // Silently fail if Supabase operation fails, since we've already saved to localStorage
       console.log("Supabase operation error:", supabaseError);
     }
+    */
+    
+    // Add a log that Supabase is not being used
+    console.log("Note: Supabase operations are disabled, using local storage only");
     
     // Simulate API call with a delay
     return await new Promise((resolve) => {
