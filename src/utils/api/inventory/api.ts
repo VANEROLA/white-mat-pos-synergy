@@ -4,6 +4,7 @@ import { ApiResponse, InventoryUpdatePayload } from "@/types";
 import { addLogEntry } from "../logs";
 import { saveOrderToHistory } from "../orders";
 import { updateProductStockCounts } from "./storage";
+import { supabase } from "@/integrations/supabase/client";
 
 // Simulated API endpoint for inventory system
 const API_ENDPOINT = "https://api.example.com/inventory";
@@ -28,6 +29,25 @@ export const updateInventory = async (payload: InventoryUpdatePayload): Promise<
       action: "inventory_update",
       details: `Updated inventory for order ${payload.orderId} with ${payload.products.length} products`
     });
+    
+    // Try to save to Supabase if connected
+    try {
+      const { error } = await supabase
+        .from('inventory_updates')
+        .insert([{
+          order_id: payload.orderId,
+          products: payload.products,
+          timestamp: payload.timestamp,
+          is_free_order: payload.isFreeOrder || false
+        }]);
+        
+      if (error) {
+        console.log("Supabase insert failed, continuing with local storage only:", error);
+      }
+    } catch (supabaseError) {
+      // Silently fail if Supabase operation fails, since we've already saved to localStorage
+      console.log("Supabase operation error:", supabaseError);
+    }
     
     // Simulate API call with a delay
     return await new Promise((resolve) => {
