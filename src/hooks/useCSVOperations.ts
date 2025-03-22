@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Product } from '@/types';
@@ -7,6 +6,7 @@ export interface CSVField {
   key: keyof Product;
   label: string;
   required: boolean;
+  selected?: boolean;  // Added the selected property as optional
 }
 
 export const CSV_FIELDS: CSVField[] = [
