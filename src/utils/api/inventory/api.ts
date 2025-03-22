@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import { ApiResponse, InventoryUpdatePayload } from "@/types";
 import { addLogEntry } from "../logs";
@@ -29,6 +28,9 @@ export const updateInventory = async (payload: InventoryUpdatePayload): Promise<
       action: "inventory_update",
       details: `Updated inventory for order ${payload.orderId} with ${payload.products.length} products`
     });
+    
+    // Supabaseは使用しないためコメントアウト
+    // 以前のSupabaseコードはスキップされます
     
     // Try to save to Supabase if connected
     try {
