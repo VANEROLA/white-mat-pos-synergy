@@ -80,7 +80,7 @@ export const useFreeItemForm = (cartItems: CartItem[]): UseFreeItemFormResult =>
     onClose: () => void
   ) => {
     if (!staffName.trim()) {
-      toast.error("担当者名は必須です");
+      toast.error("担当者IDは必須です");
       return;
     }
 

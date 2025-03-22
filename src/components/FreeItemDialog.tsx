@@ -1,4 +1,3 @@
-
 import React, { useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -75,7 +74,7 @@ const FreeItemDialog: React.FC<FreeItemDialogProps> = ({
         <DialogHeader>
           <DialogTitle>無料処理の承認</DialogTitle>
           <DialogDescription>
-            担当者名と理由は必須項目です。無料にする商品と数量を選択してください。
+            担当者IDと理由は必須項目です。無料にする商品と数量を選択してください。
           </DialogDescription>
         </DialogHeader>
 
