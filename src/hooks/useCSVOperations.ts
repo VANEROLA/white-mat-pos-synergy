@@ -3,13 +3,34 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { Product } from '@/types';
 
+export interface CSVField {
+  key: keyof Product;
+  label: string;
+  required: boolean;
+}
+
+export const CSV_FIELDS: CSVField[] = [
+  { key: 'id', label: 'ID', required: false },
+  { key: 'name', label: '商品名', required: true },
+  { key: 'price', label: '価格', required: true },
+  { key: 'category', label: 'カテゴリー', required: true },
+  { key: 'stockCount', label: '在庫数', required: false },
+  { key: 'imageUrl', label: '画像URL', required: false },
+];
+
 export const useCSVOperations = () => {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedFields, setSelectedFields] = useState<CSVField[]>(CSV_FIELDS);
 
-  const exportProductsToCSV = (products: Product[]) => {
+  const exportProductsToCSV = (products: Product[], fields?: CSVField[]) => {
     try {
+      // Use selected fields or default to all fields
+      const fieldsToExport = fields || selectedFields;
+      
+      // Get keys of fields to export
+      const headers = fieldsToExport.map(field => field.key);
+      
       // Create CSV content
-      const headers = ["id", "name", "price", "category", "stockCount", "imageUrl"];
       const csvContent = [
         headers.join(","),
         ...products.map(product => 
@@ -42,7 +63,7 @@ export const useCSVOperations = () => {
     }
   };
 
-  const processCSVFile = async (file: File, onComplete?: () => void) => {
+  const processCSVFile = async (file: File, selectedImportFields?: CSVField[], onComplete?: () => void) => {
     setIsProcessing(true);
     
     try {
@@ -52,9 +73,11 @@ export const useCSVOperations = () => {
       // Parse headers (first row)
       const headers = rows[0].split(",").map(h => h.trim());
       
-      // Required fields check
-      const requiredFields = ["name", "price", "category"];
-      const missingFields = requiredFields.filter(field => !headers.includes(field));
+      // Get all required fields
+      const allRequiredFields = CSV_FIELDS.filter(field => field.required).map(field => field.key);
+      
+      // Check if all required fields are present
+      const missingFields = allRequiredFields.filter(field => !headers.includes(field));
       
       if (missingFields.length > 0) {
         toast.error(`CSVファイルに必須フィールドがありません: ${missingFields.join(", ")}`);
@@ -188,10 +211,25 @@ export const useCSVOperations = () => {
     }
   };
 
-  const getCSVTemplate = () => {
+  const getCSVTemplate = (fields?: CSVField[]) => {
     try {
-      const headers = ["name", "price", "category", "stockCount", "imageUrl"];
-      const exampleRow = ["サンプル商品", "500", "コーヒー", "100", "https://placehold.co/200x200?text=サンプル"];
+      // Use selected fields or default to all fields
+      const fieldsToExport = fields || selectedFields;
+      
+      // Get keys and create headers
+      const headers = fieldsToExport.map(field => field.key);
+      
+      // Create example row
+      const exampleValues: Record<keyof Product, string> = {
+        id: "PROD-EXAMPLE-001",
+        name: "サンプル商品",
+        price: "500",
+        category: "コーヒー",
+        stockCount: "100",
+        imageUrl: "https://placehold.co/200x200?text=サンプル"
+      };
+      
+      const exampleRow = headers.map(header => exampleValues[header as keyof Product]);
       
       const csvContent = [
         headers.join(","),
@@ -220,6 +258,9 @@ export const useCSVOperations = () => {
     isProcessing,
     exportProductsToCSV,
     processCSVFile,
-    getCSVTemplate
+    getCSVTemplate,
+    selectedFields,
+    setSelectedFields,
+    CSV_FIELDS
   };
 };

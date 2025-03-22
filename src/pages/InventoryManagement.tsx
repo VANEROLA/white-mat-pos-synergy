@@ -13,16 +13,51 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Product } from "@/types";
 import { useProductData } from "@/hooks/useProductData";
-import { Download, Upload, RefreshCw, ArrowUpDown } from "lucide-react";
+import { 
+  Download, 
+  Upload, 
+  RefreshCw, 
+  ArrowUpDown, 
+  FileDown, 
+  Settings 
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription,
+  DialogFooter 
+} from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useCSVOperations, CSVField, CSV_FIELDS } from "@/hooks/useCSVOperations";
 
 const InventoryManagement: React.FC = () => {
   const navigate = useNavigate();
   const { products, loadProducts } = useProductData("");
   const [sortField, setSortField] = useState<keyof Product | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { 
+    isProcessing, 
+    exportProductsToCSV, 
+    processCSVFile, 
+    getCSVTemplate, 
+    selectedFields, 
+    setSelectedFields, 
+    CSV_FIELDS 
+  } = useCSVOperations();
+
+  // Dialog states
+  const [isExportDialogOpen, setExportDialogOpen] = useState(false);
+  const [isImportDialogOpen, setImportDialogOpen] = useState(false);
+  const [isTemplateDialogOpen, setTemplateDialogOpen] = useState(false);
+  
+  // Local states for field selection
+  const [exportFields, setExportFields] = useState<CSVField[]>(CSV_FIELDS);
+  const [importFields, setImportFields] = useState<CSVField[]>(CSV_FIELDS);
+  const [templateFields, setTemplateFields] = useState<CSVField[]>(CSV_FIELDS);
 
   const handleSort = (field: keyof Product) => {
     if (sortField === field) {
@@ -51,183 +86,18 @@ const InventoryManagement: React.FC = () => {
   });
 
   const handleExportCSV = () => {
-    try {
-      // Create CSV content
-      const headers = ["id", "name", "price", "category", "stockCount", "imageUrl"];
-      const csvContent = [
-        headers.join(","),
-        ...products.map(product => 
-          headers.map(header => {
-            const value = product[header as keyof Product];
-            // Handle values with commas by wrapping in quotes
-            return typeof value === 'string' && value.includes(',') 
-              ? `"${value}"` 
-              : String(value);
-          }).join(",")
-        )
-      ].join("\n");
-
-      // Create download link
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.setAttribute('href', url);
-      link.setAttribute('download', `inventory_${new Date().toISOString().slice(0,10)}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      toast.success("CSVファイルのエクスポートが完了しました");
-    } catch (error) {
-      console.error("CSV export error:", error);
-      toast.error("CSVファイルのエクスポートに失敗しました");
-    }
+    // Filter out unselected fields
+    const fieldsToExport = exportFields.filter(field => field.selected !== false);
+    exportProductsToCSV(products, fieldsToExport);
+    setExportDialogOpen(false);
   };
 
   const handleUploadClick = () => {
-    fileInputRef.current?.click();
+    setImportDialogOpen(true);
   };
 
-  const processCSVFile = async (file: File) => {
-    setIsProcessing(true);
-    
-    try {
-      const text = await file.text();
-      const rows = text.split("\n");
-      
-      // Parse headers (first row)
-      const headers = rows[0].split(",").map(h => h.trim());
-      
-      // Required fields check
-      const requiredFields = ["name", "price", "category"];
-      const missingFields = requiredFields.filter(field => !headers.includes(field));
-      
-      if (missingFields.length > 0) {
-        toast.error(`CSVファイルに必須フィールドがありません: ${missingFields.join(", ")}`);
-        setIsProcessing(false);
-        return;
-      }
-      
-      // Get existing products to avoid duplicates
-      const existingProductsJson = localStorage.getItem("products") || "[]";
-      let existingProducts: Product[] = JSON.parse(existingProductsJson);
-      const existingIds = new Set(existingProducts.map(p => p.id));
-      
-      // Parse product data
-      const newProducts: Product[] = [];
-      let updatedProducts = 0;
-      let skippedRows = 0;
-      
-      // Process each row (skip header)
-      for (let i = 1; i < rows.length; i++) {
-        if (!rows[i].trim()) continue; // Skip empty rows
-        
-        // Parse CSV row (handling quoted values)
-        const values: string[] = [];
-        let currentValue = "";
-        let insideQuotes = false;
-        
-        for (let char of rows[i]) {
-          if (char === '"') {
-            insideQuotes = !insideQuotes;
-          } else if (char === ',' && !insideQuotes) {
-            values.push(currentValue);
-            currentValue = "";
-          } else {
-            currentValue += char;
-          }
-        }
-        values.push(currentValue); // Add the last value
-        
-        // Create product object by mapping headers to values
-        const product: Partial<Product> = {};
-        let isValid = true;
-        
-        headers.forEach((header, index) => {
-          if (index < values.length) {
-            const value = values[index].trim();
-            
-            if (header === "id") {
-              product.id = value || `PROD-${Date.now()}-${i}`;
-            } else if (header === "name") {
-              if (!value) {
-                isValid = false;
-                return;
-              }
-              product.name = value;
-            } else if (header === "price") {
-              const price = Number(value);
-              if (isNaN(price) || price < 0) {
-                isValid = false;
-                return;
-              }
-              product.price = price;
-            } else if (header === "category") {
-              if (!value) {
-                isValid = false;
-                return;
-              }
-              product.category = value;
-            } else if (header === "stockCount") {
-              const stockCount = Number(value);
-              if (!isNaN(stockCount) && stockCount >= 0) {
-                product.stockCount = stockCount;
-              } else {
-                product.stockCount = 0;
-              }
-            } else if (header === "imageUrl") {
-              product.imageUrl = value || "https://placehold.co/200x200?text=商品";
-            }
-          }
-        });
-        
-        // Ensure all required fields are present
-        if (!isValid || !product.name || !product.price || !product.category) {
-          skippedRows++;
-          continue;
-        }
-        
-        // Add required fields if missing
-        if (!product.id) {
-          product.id = `PROD-${Date.now()}-${i}`;
-        }
-        if (!product.imageUrl) {
-          product.imageUrl = "https://placehold.co/200x200?text=商品";
-        }
-        if (product.stockCount === undefined) {
-          product.stockCount = 0;
-        }
-        
-        // Update existing product or add new one
-        if (product.id && existingIds.has(product.id)) {
-          // Update existing product
-          existingProducts = existingProducts.map(p => 
-            p.id === product.id ? { ...p, ...product as Product } : p
-          );
-          updatedProducts++;
-        } else {
-          // Add new product
-          newProducts.push(product as Product);
-        }
-      }
-      
-      // Save changes to localStorage
-      const updatedProductsList = [...existingProducts, ...newProducts];
-      localStorage.setItem("products", JSON.stringify(updatedProductsList));
-      
-      // Show success message
-      toast.success(
-        `CSVインポート完了: ${newProducts.length}件の商品を追加、${updatedProducts}件更新、${skippedRows}件スキップしました`
-      );
-      
-      // Reload product list
-      loadProducts();
-    } catch (error) {
-      console.error("CSV processing error:", error);
-      toast.error("CSVファイルの処理中にエラーが発生しました");
-    } finally {
-      setIsProcessing(false);
-    }
+  const handleFileSelect = () => {
+    fileInputRef.current?.click();
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -238,13 +108,25 @@ const InventoryManagement: React.FC = () => {
         return;
       }
       
-      processCSVFile(file);
+      // Import with selected fields
+      const fieldsToImport = importFields.filter(field => field.selected !== false);
+      processCSVFile(file, fieldsToImport, () => {
+        loadProducts();
+        setImportDialogOpen(false);
+      });
       
       // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
     }
+  };
+
+  const handleGetTemplate = () => {
+    // Filter out unselected fields
+    const fieldsToExport = templateFields.filter(field => field.selected !== false);
+    getCSVTemplate(fieldsToExport);
+    setTemplateDialogOpen(false);
   };
 
   const updateStockCount = (product: Product, newStockCount: number) => {
@@ -304,6 +186,48 @@ const InventoryManagement: React.FC = () => {
     }
   };
 
+  // Toggle field selection for export
+  const toggleExportField = (field: CSVField) => {
+    // Don't allow deselecting required fields
+    if (field.required) return;
+    
+    setExportFields(fields => 
+      fields.map(f => 
+        f.key === field.key 
+          ? { ...f, selected: f.selected === false ? undefined : false } 
+          : f
+      )
+    );
+  };
+
+  // Toggle field selection for import
+  const toggleImportField = (field: CSVField) => {
+    // Don't allow deselecting required fields
+    if (field.required) return;
+    
+    setImportFields(fields => 
+      fields.map(f => 
+        f.key === field.key 
+          ? { ...f, selected: f.selected === false ? undefined : false } 
+          : f
+      )
+    );
+  };
+
+  // Toggle field selection for template
+  const toggleTemplateField = (field: CSVField) => {
+    // Don't allow deselecting required fields
+    if (field.required) return;
+    
+    setTemplateFields(fields => 
+      fields.map(f => 
+        f.key === field.key 
+          ? { ...f, selected: f.selected === false ? undefined : false } 
+          : f
+      )
+    );
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-[1400px] mx-auto p-4 md:p-6 lg:p-8">
@@ -326,7 +250,7 @@ const InventoryManagement: React.FC = () => {
                 新規商品追加
               </Button>
               <Button 
-                onClick={handleExportCSV} 
+                onClick={() => setExportDialogOpen(true)} 
                 className="flex items-center gap-2 sm:w-auto"
               >
                 <Download size={18} />
@@ -340,6 +264,14 @@ const InventoryManagement: React.FC = () => {
               >
                 {isProcessing ? <RefreshCw size={18} className="animate-spin" /> : <Upload size={18} />}
                 CSVインポート
+              </Button>
+              <Button
+                onClick={() => setTemplateDialogOpen(true)}
+                variant="outline"
+                className="flex items-center gap-2 sm:w-auto"
+              >
+                <FileDown size={18} />
+                テンプレート
               </Button>
               <input 
                 type="file" 
@@ -413,6 +345,120 @@ const InventoryManagement: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* CSV Export Options Dialog */}
+      <Dialog open={isExportDialogOpen} onOpenChange={setExportDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>CSVエクスポート設定</DialogTitle>
+            <DialogDescription>
+              エクスポートするフィールドを選択してください
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            {exportFields.map((field) => (
+              <div key={field.key} className="flex items-center space-x-2">
+                <Checkbox 
+                  id={`export-${field.key}`} 
+                  checked={field.selected !== false}
+                  onCheckedChange={() => toggleExportField(field)}
+                  disabled={field.required}
+                />
+                <label
+                  htmlFor={`export-${field.key}`}
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  {field.label} {field.required && <span className="text-red-500">*</span>}
+                </label>
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setExportDialogOpen(false)} variant="outline">
+              キャンセル
+            </Button>
+            <Button onClick={handleExportCSV}>
+              エクスポート
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* CSV Import Options Dialog */}
+      <Dialog open={isImportDialogOpen} onOpenChange={setImportDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>CSVインポート設定</DialogTitle>
+            <DialogDescription>
+              インポートに含めるフィールドを選択してください
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            {importFields.map((field) => (
+              <div key={field.key} className="flex items-center space-x-2">
+                <Checkbox 
+                  id={`import-${field.key}`} 
+                  checked={field.selected !== false}
+                  onCheckedChange={() => toggleImportField(field)}
+                  disabled={field.required}
+                />
+                <label
+                  htmlFor={`import-${field.key}`}
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  {field.label} {field.required && <span className="text-red-500">*</span>}
+                </label>
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setImportDialogOpen(false)} variant="outline">
+              キャンセル
+            </Button>
+            <Button onClick={handleFileSelect}>
+              CSVファイルを選択
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Template Download Options Dialog */}
+      <Dialog open={isTemplateDialogOpen} onOpenChange={setTemplateDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>テンプレート設定</DialogTitle>
+            <DialogDescription>
+              テンプレートに含めるフィールドを選択してください
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            {templateFields.map((field) => (
+              <div key={field.key} className="flex items-center space-x-2">
+                <Checkbox 
+                  id={`template-${field.key}`} 
+                  checked={field.selected !== false}
+                  onCheckedChange={() => toggleTemplateField(field)}
+                  disabled={field.required}
+                />
+                <label
+                  htmlFor={`template-${field.key}`}
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  {field.label} {field.required && <span className="text-red-500">*</span>}
+                </label>
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setTemplateDialogOpen(false)} variant="outline">
+              キャンセル
+            </Button>
+            <Button onClick={handleGetTemplate}>
+              テンプレートをダウンロード
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
