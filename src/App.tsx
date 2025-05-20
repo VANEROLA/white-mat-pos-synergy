@@ -18,6 +18,7 @@ import { TaxProvider } from "@/contexts/TaxContext";
 import React, { useState } from "react";
 import SidebarMenu from "@/components/SidebarMenu";
 import { StoreAuthProvider, useStoreAuthContext } from "@/contexts/StoreAuthContext";
+import "@/styles/options.css"; // Import the options CSS file for dark mode
 
 // 認証が必要なルートを保護するためのラッパー
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {

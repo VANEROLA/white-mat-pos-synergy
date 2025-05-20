@@ -49,6 +49,13 @@ export const OptionsLayout: React.FC = () => {
     } else {
       document.documentElement.classList.remove('compact-mode');
     }
+
+    // Apply animation control
+    if (displayOptions.animationsEnabled) {
+      document.documentElement.classList.add('animations-enabled');
+    } else {
+      document.documentElement.classList.remove('animations-enabled');
+    }
   }, [displayOptions]);
 
   return (

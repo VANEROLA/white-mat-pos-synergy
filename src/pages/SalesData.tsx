@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -77,7 +78,7 @@ const SalesData = ({ toggleMenu, isMenuOpen }: { toggleMenu?: () => void, isMenu
                 }}
               >
                 <Download className="h-4 w-4" />
-                <span>CSV出力</span>
+                <span>CSVエクスポート</span>
               </Button>
             </CardHeader>
             <CardContent className="pt-2">
@@ -109,7 +110,7 @@ const SalesData = ({ toggleMenu, isMenuOpen }: { toggleMenu?: () => void, isMenu
                 }}
               >
                 <Download className="h-4 w-4" />
-                <span>CSV出力</span>
+                <span>CSVエクスポート</span>
               </Button>
             </CardHeader>
             <CardContent className="pt-2">
@@ -141,7 +142,7 @@ const SalesData = ({ toggleMenu, isMenuOpen }: { toggleMenu?: () => void, isMenu
                 }}
               >
                 <Download className="h-4 w-4" />
-                <span>CSV出力</span>
+                <span>CSVエクスポート</span>
               </Button>
             </CardHeader>
             <CardContent className="pt-2">
