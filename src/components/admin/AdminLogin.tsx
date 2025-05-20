@@ -21,11 +21,15 @@ const AdminLogin = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (login(password)) {
       toast.success("管理者画面にログインしました");
-      navigate("/admin"); // Navigate to admin page after successful login
+      // Ensure immediate navigation
+      setTimeout(() => {
+        navigate("/admin");
+      }, 0);
     } else {
       toast.error("パスワードが正しくありません");
       setPassword(""); // Clear password field on failed login
