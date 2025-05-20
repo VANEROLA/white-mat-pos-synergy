@@ -42,15 +42,15 @@ const StoreSearchPanel: React.FC<StoreSearchPanelProps> = ({
   stores
 }) => {
   return (
-    <div className="mb-4">
-      <div className="flex flex-col md:flex-row gap-2 mb-3">
+    <div className="mb-3">
+      <div className="flex flex-col md:flex-row gap-2 mb-2">
         <div className="relative flex-grow">
           <Search size={14} className="absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="商品名で検索..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-7 h-9 text-sm"
+            className="pl-7 h-8 text-sm"
           />
         </div>
         
@@ -59,7 +59,7 @@ const StoreSearchPanel: React.FC<StoreSearchPanelProps> = ({
             value={selectedCategory} 
             onValueChange={setSelectedCategory}
           >
-            <SelectTrigger className="w-[130px] h-9 text-sm">
+            <SelectTrigger className="w-[120px] h-8 text-sm">
               <SelectValue placeholder="カテゴリ選択" />
             </SelectTrigger>
             <SelectContent>
@@ -76,7 +76,7 @@ const StoreSearchPanel: React.FC<StoreSearchPanelProps> = ({
             value={selectedStore} 
             onValueChange={setSelectedStore}
           >
-            <SelectTrigger className="w-[130px] h-9 text-sm">
+            <SelectTrigger className="w-[120px] h-8 text-sm">
               <SelectValue placeholder="店舗選択" />
             </SelectTrigger>
             <SelectContent>
@@ -91,7 +91,7 @@ const StoreSearchPanel: React.FC<StoreSearchPanelProps> = ({
           
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="flex items-center gap-1 h-9">
+              <Button variant="outline" size="sm" className="flex items-center gap-1 h-8">
                 <Filter className="h-3 w-3" />
                 <span className="text-xs">並び替え</span>
               </Button>

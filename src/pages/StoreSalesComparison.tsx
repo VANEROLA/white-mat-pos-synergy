@@ -19,13 +19,11 @@ interface StoreSalesComparisonProps {
   isMenuOpen?: boolean;
 }
 
-// View sizes for the tables
 type ViewSize = "compact" | "default" | "expanded";
 type ViewMode = "table" | "card" | "grid";
 type SortOrder = "asc" | "desc";
 type SortField = "name" | "quantity" | "revenue" | null;
 
-// Store interface
 interface Store {
   id: number;
   name: string;
@@ -34,7 +32,6 @@ interface Store {
   averagePerTransaction: number;
 }
 
-// Product Store interface
 interface ProductStore {
   storeId: number;
   storeName: string;
@@ -42,7 +39,6 @@ interface ProductStore {
   revenue: number;
 }
 
-// Product interface
 interface Product {
   productName: string;
   productCategory: string;
@@ -67,7 +63,6 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const { exportProductsToCSV } = useCSVOperations();
 
-  // Mock store data
   const storeData: Store[] = [
     { id: 1, name: "新宿店", totalSales: 1250000, transactions: 2145, averagePerTransaction: 582.7 },
     { id: 2, name: "渋谷店", totalSales: 980000, transactions: 1876, averagePerTransaction: 522.4 },
@@ -76,7 +71,6 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     { id: 5, name: "横浜店", totalSales: 1120000, transactions: 1987, averagePerTransaction: 563.7 }
   ];
 
-  // Expanded mock product comparison data with categories
   const productComparisonData: Product[] = [
     { 
       productName: "コーヒー (大)",
@@ -245,7 +239,6 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     },
   ];
 
-  // Get the highest revenue product
   const highestRevenueProduct = useMemo(() => {
     if (productComparisonData.length === 0) return null;
     
@@ -266,7 +259,6 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
       );
   }, [productComparisonData]);
 
-  // Get all unique categories
   const uniqueCategories = useMemo(() => {
     const categories = new Set<string>();
     productComparisonData.forEach(product => {
@@ -275,11 +267,9 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     return Array.from(categories);
   }, [productComparisonData]);
 
-  // Filter and sort products
   const filteredAndSortedProducts = useMemo(() => {
     let result = [...productComparisonData];
     
-    // Apply search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(product => 
@@ -288,29 +278,24 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
       );
     }
     
-    // Apply category filter
     if (selectedCategory && selectedCategory !== "all") {
       result = result.filter(product => product.productCategory === selectedCategory);
     }
 
-    // Apply store filter
     if (selectedStore && selectedStore !== "all") {
       result = result.filter(product => 
         product.stores.some(store => store.storeName === selectedStore)
       );
     }
     
-    // Apply sorting if a sort field is selected
     if (sortField) {
       result = [...result].sort((a, b) => {
-        // For product name sorting
         if (sortField === "name") {
           return sortOrder === "asc" 
             ? a.productName.localeCompare(b.productName) 
             : b.productName.localeCompare(a.productName);
         }
         
-        // For store-based metrics we need to sum or average across all stores
         const aValue = a.stores.reduce((sum, store) => sum + store[sortField === "quantity" ? "quantity" : "revenue"], 0);
         const bValue = b.stores.reduce((sum, store) => sum + store[sortField === "quantity" ? "quantity" : "revenue"], 0);
         
@@ -321,7 +306,6 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     return result;
   }, [productComparisonData, searchQuery, selectedCategory, selectedStore, sortField, sortOrder]);
 
-  // Paginate product data
   const paginatedProductData = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
@@ -348,7 +332,6 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
         stockCount: store.transactions
       }));
     } else {
-      // Flattened product comparison data
       exportData = [];
       filteredAndSortedProducts.forEach(product => {
         product.stores.forEach(store => {
@@ -366,7 +349,6 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     toast.success("CSVファイルのエクスポートが完了しました");
   };
 
-  // Reset filters
   const handleResetFilters = () => {
     setSearchQuery("");
     setSelectedCategory("all");
@@ -376,7 +358,6 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     setCurrentPage(1);
   };
 
-  // Toggle sort
   const handleSort = (field: SortField) => {
     if (sortField === field) {
       setSortOrder(prev => prev === "asc" ? "desc" : "asc");
@@ -386,7 +367,6 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     }
   };
 
-  // Get table classes based on view size
   const getTableClasses = () => {
     switch (viewSize) {
       case "compact":
@@ -412,12 +392,10 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
 
   const tableClasses = getTableClasses();
   
-  // Navigate to different pages
   const goToPage = (page: number) => {
     setCurrentPage(page);
   };
 
-  // Render pagination controls
   const renderPagination = () => {
     if (totalPages <= 1) return null;
 
@@ -454,7 +432,6 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     );
   };
 
-  // Render table view
   const renderTableView = (product: Product) => {
     return (
       <div className="rounded-md border overflow-auto">
@@ -480,19 +457,18 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     );
   };
 
-  // Render card view - updated to show 4 cards per row
   const renderCardView = (product: Product) => {
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
         {product.stores.map((store) => (
           <Card key={store.storeId} className="h-full">
-            <CardHeader className="pb-2">
-              <CardTitle className={viewSize === "compact" ? "text-sm" : viewSize === "expanded" ? "text-xl" : "text-base"}>
+            <CardHeader className="pb-1 pt-2 px-3">
+              <CardTitle className={viewSize === "compact" ? "text-xs" : viewSize === "expanded" ? "text-lg" : "text-sm"}>
                 {store.storeName}
               </CardTitle>
             </CardHeader>
-            <CardContent className="pb-4">
-              <div className={`grid grid-cols-2 gap-2 ${viewSize === "compact" ? "text-xs" : viewSize === "expanded" ? "text-base" : "text-sm"}`}>
+            <CardContent className="pb-3 px-3">
+              <div className={`grid grid-cols-2 gap-1 ${viewSize === "compact" ? "text-xs" : viewSize === "expanded" ? "text-base" : "text-xs"}`}>
                 <div>数量:</div>
                 <div className="font-semibold text-right">{store.quantity}個</div>
                 <div>売上:</div>
@@ -505,20 +481,19 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     );
   };
 
-  // Render grid view - updated to show 4 items per row
   const renderGridView = (product: Product) => {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 gap-1">
         {product.stores.map((store) => (
-          <div key={store.storeId} className="flex justify-between border p-2 rounded-md">
-            <div className={`font-medium ${viewSize === "compact" ? "text-xs" : viewSize === "expanded" ? "text-lg" : "text-sm"}`}>
+          <div key={store.storeId} className="flex justify-between border p-1 rounded-md">
+            <div className={`font-medium ${viewSize === "compact" ? "text-xs" : viewSize === "expanded" ? "text-base" : "text-xs"}`}>
               {store.storeName}
             </div>
-            <div className="flex gap-3">
-              <div className={viewSize === "compact" ? "text-xs" : viewSize === "expanded" ? "text-lg" : "text-sm"}>
+            <div className="flex gap-2">
+              <div className={viewSize === "compact" ? "text-xs" : viewSize === "expanded" ? "text-base" : "text-xs"}>
                 {store.quantity}個
               </div>
-              <div className={`font-semibold ${viewSize === "compact" ? "text-xs" : viewSize === "expanded" ? "text-lg" : "text-sm"}`}>
+              <div className={`font-semibold ${viewSize === "compact" ? "text-xs" : viewSize === "expanded" ? "text-base" : "text-xs"}`}>
                 {formatCurrency(store.revenue)}
               </div>
             </div>
@@ -528,7 +503,6 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     );
   };
 
-  // Calculate filter summary text
   const getFilterSummary = () => {
     const filters = [];
     if (searchQuery) filters.push(`検索: ${searchQuery}`);
@@ -547,7 +521,6 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     );
   };
 
-  // Render products count
   const renderProductCount = () => {
     return (
       <div className="text-sm text-muted-foreground mb-2">
@@ -635,14 +608,14 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
           <div className="flex items-center gap-1 flex-wrap">
             <span className="text-xs text-muted-foreground">表示:</span>
             <ToggleGroup type="single" value={viewMode} onValueChange={(val) => val && setViewMode(val as ViewMode)} size="sm">
-              <ToggleGroupItem value="table" aria-label="テーブル表示" title="テーブル表示" className="h-7 w-7">
-                <Table className="h-3 w-3" />
+              <ToggleGroupItem value="table" aria-label="テーブル表示" title="テーブル表示" className="h-8 w-8">
+                <Table className="h-4 w-4" />
               </ToggleGroupItem>
-              <ToggleGroupItem value="card" aria-label="カード表示" title="カード表示" className="h-7 w-7">
-                <Grid3X3 className="h-3 w-3" />
+              <ToggleGroupItem value="card" aria-label="カード表示" title="カード表示" className="h-8 w-8">
+                <Grid3X3 className="h-4 w-4" />
               </ToggleGroupItem>
-              <ToggleGroupItem value="grid" aria-label="グリッド表示" title="グリッド表示" className="h-7 w-7">
-                <List className="h-3 w-3" />
+              <ToggleGroupItem value="grid" aria-label="グリッド表示" title="グリッド表示" className="h-8 w-8">
+                <List className="h-4 w-4" />
               </ToggleGroupItem>
             </ToggleGroup>
             
@@ -650,29 +623,29 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
               <Button
                 variant={viewSize === "compact" ? "default" : "ghost"}
                 size="sm"
-                className="h-7 w-7 p-0"
+                className="h-8 w-8 p-0"
                 onClick={() => setViewSize("compact")}
                 title="コンパクト表示"
               >
-                <Columns3 className="h-3 w-3" />
+                <Columns3 className="h-4 w-4" />
               </Button>
               <Button
                 variant={viewSize === "default" ? "default" : "ghost"}
                 size="sm"
-                className="h-7 w-7 p-0"
+                className="h-8 w-8 p-0"
                 onClick={() => setViewSize("default")}
                 title="標準表示"
               >
-                <LayoutGrid className="h-3 w-3" />
+                <LayoutGrid className="h-4 w-4" />
               </Button>
               <Button
                 variant={viewSize === "expanded" ? "default" : "ghost"}
                 size="sm"
-                className="h-7 w-7 p-0"
+                className="h-8 w-8 p-0"
                 onClick={() => setViewSize("expanded")}
                 title="拡大表示"
               >
-                <Rows3 className="h-3 w-3" />
+                <Rows3 className="h-4 w-4" />
               </Button>
             </div>
           </div>
@@ -777,22 +750,24 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
               {renderProductCount()}
             
               {paginatedProductData.length > 0 ? (
-                paginatedProductData.map((product, index) => (
-                  <div key={index} className="mb-6 pb-4 border-b last:border-b-0 last:mb-2">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className={`font-medium ${viewSize === "compact" ? "text-xs" : viewSize === "expanded" ? "text-lg" : "text-sm"}`}>
-                        {product.productName}
-                      </h3>
-                      <div className={`text-muted-foreground ${viewSize === "compact" ? "text-xs" : viewSize === "expanded" ? "text-sm" : "text-xs"}`}>
-                        {product.productCategory}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
+                  {paginatedProductData.map((product, index) => (
+                    <div key={index} className="pb-4 border-b last:border-b-0">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className={`font-medium ${viewSize === "compact" ? "text-xs" : viewSize === "expanded" ? "text-lg" : "text-sm"}`}>
+                          {product.productName}
+                          <span className="text-muted-foreground ml-2 text-xs">
+                            ({product.productCategory})
+                          </span>
+                        </h3>
                       </div>
+                      
+                      {viewMode === "table" && renderTableView(product)}
+                      {viewMode === "card" && renderCardView(product)}
+                      {viewMode === "grid" && renderGridView(product)}
                     </div>
-                    
-                    {viewMode === "table" && renderTableView(product)}
-                    {viewMode === "card" && renderCardView(product)}
-                    {viewMode === "grid" && renderGridView(product)}
-                  </div>
-                ))
+                  ))}
+                </div>
               ) : (
                 <div className="text-center py-6 text-muted-foreground text-sm">
                   検索条件に一致する商品がありません。
