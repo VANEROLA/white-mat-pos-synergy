@@ -8,6 +8,7 @@ import SystemLogs from "@/pages/SystemLogs";
 import FreeItems from "@/pages/FreeItems";
 import InventoryManagement from "@/pages/InventoryManagement";
 import AdminSettings from "@/pages/AdminSettings";
+import Options from "@/pages/Options";
 import StoreLogin from "@/pages/StoreLogin";
 import NotFound from "@/pages/NotFound";
 import "./App.css";
@@ -83,6 +84,11 @@ function AppContent() {
             <Route path="/inventory" element={
               <ProtectedRoute>
                 <InventoryManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="/options" element={
+              <ProtectedRoute>
+                <Options />
               </ProtectedRoute>
             } />
             <Route path="/admin" element={

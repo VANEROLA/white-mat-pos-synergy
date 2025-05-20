@@ -7,7 +7,7 @@ import {
   SheetContent,
   SheetTrigger 
 } from "@/components/ui/sheet";
-import { Home, Package, History, FileText, Gift, Database, UserCog } from "lucide-react";
+import { Home, Package, History, FileText, Gift, Database, UserCog, Settings } from "lucide-react";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -44,10 +44,11 @@ const SidebarMenu: React.FC<SidebarProps> = ({
 
   const menuItems = [
     { icon: Home, label: "POSレジ", path: "/" },
+    { icon: History, label: "注文履歴", path: "/order-history" },
     { icon: Package, label: "商品追加", path: "/add-product" },
     { icon: Database, label: "在庫管理", path: "/inventory" },
-    { icon: History, label: "注文履歴", path: "/order-history" },
     { icon: Gift, label: "無料処理", path: "/free-items" },
+    { icon: Settings, label: "オプション", path: "/options" },
     { icon: FileText, label: "システムログ", path: "/system-logs" },
     { icon: UserCog, label: "管理者設定", path: "/admin" },
   ];
