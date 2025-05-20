@@ -11,6 +11,7 @@ import AdminSettings from "@/pages/AdminSettings";
 import Options from "@/pages/Options";
 import StoreLogin from "@/pages/StoreLogin";
 import NotFound from "@/pages/NotFound";
+import SalesData from "@/pages/SalesData"; // Import new page
 import "./App.css";
 import { TaxProvider } from "@/contexts/TaxContext";
 import React, { useState } from "react";
@@ -89,6 +90,11 @@ function AppContent() {
             <Route path="/inventory" element={
               <ProtectedRoute>
                 <InventoryManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="/sales-data" element={
+              <ProtectedRoute>
+                <SalesData />
               </ProtectedRoute>
             } />
             <Route path="/options" element={

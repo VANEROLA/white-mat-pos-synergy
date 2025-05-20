@@ -16,7 +16,8 @@ import {
   UserCog, 
   Settings,
   Menu,
-  X 
+  X,
+  ChartBar
 } from "lucide-react";
 import { 
   Tooltip,
@@ -68,6 +69,7 @@ const SidebarMenu: React.FC<SidebarProps> = ({
     { icon: Database, label: "在庫管理", path: "/inventory" },
     { icon: History, label: "注文履歴", path: "/order-history" },
     { icon: Gift, label: "無料処理", path: "/free-items" }, 
+    { icon: ChartBar, label: "売上データ", path: "/sales-data" }, // Add new menu item
     { icon: Settings, label: "オプション", path: "/options" },
     { icon: FileText, label: "システムログ", path: "/system-logs" },
     { icon: UserCog, label: "管理者設定", path: "/admin" },
@@ -100,6 +102,7 @@ const SidebarMenu: React.FC<SidebarProps> = ({
               {item.path === "/inventory" && "在庫状況を管理します"}
               {item.path === "/order-history" && "過去の注文履歴を表示します"}
               {item.path === "/free-items" && "無料商品の処理を行います"}
+              {item.path === "/sales-data" && "売上データを分析します"} 
               {item.path === "/options" && "システム設定をカスタマイズします"}
               {item.path === "/system-logs" && "システムログを確認します"}
               {item.path === "/admin" && "管理者向け詳細設定を行います"}
@@ -113,10 +116,12 @@ const SidebarMenu: React.FC<SidebarProps> = ({
   return (
     <>
       <div className="md:hidden">
-        <HamburgerMenu 
-          isOpen={isOpen || false} 
-          toggleMenu={toggleMenu || (() => {})} 
-        />
+        {!isOpen && (
+          <HamburgerMenu 
+            isOpen={isOpen || false} 
+            toggleMenu={toggleMenu || (() => {})} 
+          />
+        )}
       </div>
       
       <Sheet open={isOpen} onOpenChange={onClose}>
