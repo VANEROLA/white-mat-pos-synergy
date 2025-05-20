@@ -21,18 +21,17 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
   
   return (
     <div className="flex items-center justify-between mb-8">
-      <div className="flex items-center gap-2">
-        <h1 className="text-3xl font-bold tracking-tight flex items-center">
-          {isMobile && (
-            <HamburgerMenu 
-              isOpen={isMenuOpen} 
-              toggleMenu={toggleMenu}
-              className="mr-2"
-            />
-          )}
-          オプション設定
-        </h1>
-        <p className="text-muted-foreground mt-1 block">システムの動作と表示をカスタマイズします</p>
+      <div className="flex flex-row items-center gap-4">
+        <HamburgerMenu 
+          isOpen={isMenuOpen} 
+          toggleMenu={toggleMenu}
+          className="h-9 w-9"
+        />
+        
+        <div className="flex flex-col">
+          <h1 className="text-3xl font-bold tracking-tight">オプション設定</h1>
+          <p className="text-muted-foreground">システムの動作と表示をカスタマイズします</p>
+        </div>
       </div>
       
       <Popover>

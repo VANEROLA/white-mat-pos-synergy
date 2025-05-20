@@ -15,7 +15,7 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({ isOpen, toggleMenu, class
     <Button 
       variant="ghost" 
       size="icon"
-      className={cn("p-0 flex items-center justify-center", className)}
+      className={cn("flex items-center justify-center", className)}
       onClick={toggleMenu}
       aria-label={isOpen ? "メニューを閉じる" : "メニューを開く"}
     >
