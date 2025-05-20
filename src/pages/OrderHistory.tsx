@@ -15,6 +15,8 @@ import {
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import SidebarMenu from '@/components/SidebarMenu';
+import HamburgerMenu from '@/components/HamburgerMenu';
 
 const OrderHistory: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -33,6 +35,10 @@ const OrderHistory: React.FC = () => {
     
     loadOrders();
   }, []);
+
+  const toggleMenu = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
   const handleViewOrder = (order: Order) => {
     setSelectedOrder(order);
@@ -98,11 +104,20 @@ const OrderHistory: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SidebarMenu
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+      />
+      
       <div className="max-w-[1400px] mx-auto p-4 md:p-6 lg:p-8">
-        <POSHeader 
-          toggleMenu={() => setIsSidebarOpen(!isSidebarOpen)}
-          isMenuOpen={isSidebarOpen}
-        />
+        <div className="flex items-center mb-6">
+          <HamburgerMenu 
+            isOpen={isSidebarOpen} 
+            toggleMenu={toggleMenu} 
+            className="mr-4"
+          />
+          <h1 className="text-2xl font-semibold">注文履歴</h1>
+        </div>
         
         <div className="flex items-center mb-6">
           <Button 
@@ -114,7 +129,6 @@ const OrderHistory: React.FC = () => {
             <ArrowLeft className="mr-2 h-4 w-4" />
             戻る
           </Button>
-          <h1 className="text-2xl font-semibold">注文履歴</h1>
         </div>
         
         {orders.length === 0 ? (

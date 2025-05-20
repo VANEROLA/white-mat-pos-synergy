@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/table";
 import HamburgerMenu from "@/components/HamburgerMenu";
 import { useCSVOperations } from "@/hooks/useCSVOperations";
+import SidebarMenu from "@/components/SidebarMenu";
 
 interface StoreSalesComparisonProps {
   toggleMenu?: () => void;
@@ -106,6 +107,13 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
 
   return (
     <div className="container mx-auto py-6 px-4 md:px-6">
+      <SidebarMenu
+        isOpen={isMenuOpen}
+        onClose={() => {
+          if (toggleMenu) toggleMenu();
+        }}
+      />
+      
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <HamburgerMenu 
@@ -113,7 +121,7 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
             toggleMenu={toggleMenu || (() => {})} 
           />
           <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-1">店舗間売上データ共有</h1>
+            <h1 className="text-3xl font-bold tracking-tight mb-1">店舗間売上データ</h1>
             <p className="text-muted-foreground">店舗間の売上の比較と分析</p>
           </div>
         </div>
