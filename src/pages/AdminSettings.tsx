@@ -22,9 +22,6 @@ const AdminSettings: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
   
-  // 認証状態に基づいて表示を切り替え
-  console.log("AdminSettings: Authentication state:", isAuthenticated);
-  
   // ローディング中は何も表示しない
   if (isLoading || isPageLoading) {
     console.log("AdminSettings: Loading...");
