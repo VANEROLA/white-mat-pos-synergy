@@ -4,15 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, ChartPie, ChartBar, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { 
-  Table as UITable,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow 
-} from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DateRange } from "react-day-picker";
 import { DateRangePicker } from "@/components/sales-data/DateRangePicker";
 import ProductSalesTable from "@/components/sales-data/ProductSalesTable";
@@ -37,10 +28,15 @@ const SalesData = ({ toggleMenu, isMenuOpen }: { toggleMenu?: () => void, isMenu
               toggleMenu={toggleMenu || (() => {})} 
             />
           </div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight mb-1">売上データ</h1>
-            <p className="text-muted-foreground">販売データを分析して店舗のパフォーマンスを把握</p>
+          <h1 className="text-3xl font-bold tracking-tight mb-1">売上データ</h1>
+          <div className="md:hidden">
+            <HamburgerMenu 
+              isOpen={isMenuOpen || false} 
+              toggleMenu={toggleMenu || (() => {})} 
+              className="ml-2"
+            />
           </div>
+          <p className="text-muted-foreground">販売データを分析して店舗のパフォーマンスを把握</p>
         </div>
         <div className="flex items-center gap-2 mt-4 md:mt-0">
           <DateRangePicker
@@ -77,7 +73,17 @@ const SalesData = ({ toggleMenu, isMenuOpen }: { toggleMenu?: () => void, isMenu
                   期間内の商品別売上を表示します
                 </CardDescription>
               </div>
-              <Button variant="outline" size="sm" className="flex items-center gap-1">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex items-center gap-1"
+                onClick={() => {
+                  const productSalesTable = document.querySelector('div[data-product-sales-table]');
+                  if (productSalesTable && typeof (productSalesTable as any).handleExportCSV === 'function') {
+                    (productSalesTable as any).handleExportCSV();
+                  }
+                }}
+              >
                 <Download className="h-4 w-4" />
                 <span>CSV出力</span>
               </Button>
@@ -99,7 +105,17 @@ const SalesData = ({ toggleMenu, isMenuOpen }: { toggleMenu?: () => void, isMenu
                   期間内の日別売上を表示します
                 </CardDescription>
               </div>
-              <Button variant="outline" size="sm" className="flex items-center gap-1">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex items-center gap-1"
+                onClick={() => {
+                  const dailySalesTable = document.querySelector('div[data-daily-sales-table]');
+                  if (dailySalesTable && typeof (dailySalesTable as any).handleExportCSV === 'function') {
+                    (dailySalesTable as any).handleExportCSV();
+                  }
+                }}
+              >
                 <Download className="h-4 w-4" />
                 <span>CSV出力</span>
               </Button>
@@ -121,7 +137,17 @@ const SalesData = ({ toggleMenu, isMenuOpen }: { toggleMenu?: () => void, isMenu
                   無料処理された商品と理由の一覧を表示します
                 </CardDescription>
               </div>
-              <Button variant="outline" size="sm" className="flex items-center gap-1">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex items-center gap-1"
+                onClick={() => {
+                  const freeItemsTable = document.querySelector('div[data-free-items-table]');
+                  if (freeItemsTable && typeof (freeItemsTable as any).handleExportCSV === 'function') {
+                    (freeItemsTable as any).handleExportCSV();
+                  }
+                }}
+              >
                 <Download className="h-4 w-4" />
                 <span>CSV出力</span>
               </Button>

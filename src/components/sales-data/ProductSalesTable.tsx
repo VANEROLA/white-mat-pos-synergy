@@ -85,25 +85,16 @@ const ProductSalesTable: React.FC<ProductSalesTableProps> = ({ dateRange }) => {
     }).format(amount);
   };
   
-  const exportToCSV = () => {
-    const csvData = sortedData.map(item => ({
-      productName: item.productName,
-      quantity: item.quantity,
-      revenue: item.revenue
+  const handleExportCSV = () => {
+    // Prepare data for CSV export
+    const exportData = sortedData.map(item => ({
+      name: item.productName,
+      price: item.revenue,
+      category: "売上データ",
+      stockCount: item.quantity
     }));
     
-    // Convert to CSV and download
-    const csvContent = "商品名,数量,売上金額\n" + 
-      csvData.map(item => `${item.productName},${item.quantity},${item.revenue}`).join("\n");
-    
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `product_sales_${format(new Date(), 'yyyyMMdd')}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    exportProductsToCSV(exportData);
   };
 
   if (isLoading) {
