@@ -11,23 +11,34 @@ import { useNavigate } from "react-router-dom";
 
 const AdminLogin = () => {
   const [password, setPassword] = useState("");
+  const [loginSuccess, setLoginSuccess] = useState(false);
   const { login, isAuthenticated } = useAdminAuth();
   const navigate = useNavigate();
 
   // Automatically redirect to admin page if already authenticated
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/admin");
+    console.log("AdminLogin: Authentication state changed:", isAuthenticated);
+    if (isAuthenticated || loginSuccess) {
+      console.log("AdminLogin: Redirecting to /admin");
+      // Use a small delay to ensure state is fully updated
+      const redirectTimer = setTimeout(() => {
+        navigate("/admin");
+      }, 100);
+      
+      return () => clearTimeout(redirectTimer);
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, loginSuccess, navigate]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("AdminLogin: Login form submitted");
     
     if (login(password)) {
+      console.log("AdminLogin: Login successful");
+      setLoginSuccess(true); // Set local success state
       toast.success("管理者画面にログインしました");
-      navigate("/admin");
     } else {
+      console.log("AdminLogin: Login failed");
       toast.error("パスワードが正しくありません");
       setPassword(""); // Clear password field on failed login
     }
