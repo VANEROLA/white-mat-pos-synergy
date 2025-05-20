@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -34,7 +33,6 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import SearchPanel from "@/components/SearchPanel";
 
 interface StoreSalesComparisonProps {
   toggleMenu?: () => void;
@@ -83,8 +81,8 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [selectedStore, setSelectedStore] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedStore, setSelectedStore] = useState<string>("all");
   const [sortField, setSortField] = useState<SortField>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const { exportProductsToCSV } = useCSVOperations();
@@ -290,12 +288,12 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     }
     
     // Apply category filter
-    if (selectedCategory) {
+    if (selectedCategory && selectedCategory !== "all") {
       result = result.filter(product => product.productCategory === selectedCategory);
     }
 
     // Apply store filter
-    if (selectedStore) {
+    if (selectedStore && selectedStore !== "all") {
       result = result.filter(product => 
         product.stores.some(store => store.storeName === selectedStore)
       );
@@ -370,8 +368,8 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
   // Reset filters
   const handleResetFilters = () => {
     setSearchQuery("");
-    setSelectedCategory("");
-    setSelectedStore("");
+    setSelectedCategory("all");
+    setSelectedStore("all");
     setSortField(null);
     setSortOrder("desc");
     setCurrentPage(1);
@@ -533,8 +531,8 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
   const getFilterSummary = () => {
     const filters = [];
     if (searchQuery) filters.push(`検索: ${searchQuery}`);
-    if (selectedCategory) filters.push(`カテゴリ: ${selectedCategory}`);
-    if (selectedStore) filters.push(`店舗: ${selectedStore}`);
+    if (selectedCategory !== "all") filters.push(`カテゴリ: ${selectedCategory}`);
+    if (selectedStore !== "all") filters.push(`店舗: ${selectedStore}`);
     
     if (filters.length === 0) return null;
     
@@ -755,7 +753,7 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
                         <SelectValue placeholder="カテゴリ選択" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">全てのカテゴリ</SelectItem>
+                        <SelectItem value="all">全てのカテゴリ</SelectItem>
                         {uniqueCategories.map(category => (
                           <SelectItem key={category} value={category}>
                             {category}
@@ -775,7 +773,7 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
                         <SelectValue placeholder="店舗選択" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">全ての店舗</SelectItem>
+                        <SelectItem value="all">全ての店舗</SelectItem>
                         {storeData.map(store => (
                           <SelectItem key={store.id} value={store.name}>
                             {store.name}
@@ -823,7 +821,18 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
                   </div>
                 </div>
                 
-                {getFilterSummary()}
+                {(searchQuery || selectedCategory !== "all" || selectedStore !== "all") && (
+                  <div className="text-sm text-muted-foreground mt-1 mb-3">
+                    適用フィルター: 
+                    {searchQuery && `検索: ${searchQuery}`} 
+                    {selectedCategory !== "all" && (searchQuery ? ` / カテゴリ: ${selectedCategory}` : `カテゴリ: ${selectedCategory}`)} 
+                    {selectedStore !== "all" && ((searchQuery || selectedCategory !== "all") ? ` / 店舗: ${selectedStore}` : `店舗: ${selectedStore}`)} {" "}
+                    <Button variant="ghost" size="sm" onClick={handleResetFilters} className="h-6 px-2 text-xs">
+                      リセット
+                    </Button>
+                  </div>
+                )}
+                
                 {renderProductCount()}
               </div>
             

@@ -63,7 +63,7 @@ const StoreSearchPanel: React.FC<StoreSearchPanelProps> = ({
               <SelectValue placeholder="カテゴリ選択" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">全てのカテゴリ</SelectItem>
+              <SelectItem value="all">全てのカテゴリ</SelectItem>
               {categories.map(category => (
                 <SelectItem key={category} value={category}>
                   {category}
@@ -80,7 +80,7 @@ const StoreSearchPanel: React.FC<StoreSearchPanelProps> = ({
               <SelectValue placeholder="店舗選択" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">全ての店舗</SelectItem>
+              <SelectItem value="all">全ての店舗</SelectItem>
               {stores.map(store => (
                 <SelectItem key={store.id} value={store.name}>
                   {store.name}
@@ -132,8 +132,8 @@ const StoreSearchPanel: React.FC<StoreSearchPanelProps> = ({
         <div className="text-sm text-muted-foreground mt-1 mb-3">
           適用フィルター: 
           {searchQuery && `検索: ${searchQuery}`} 
-          {selectedCategory && (searchQuery ? ` / カテゴリ: ${selectedCategory}` : `カテゴリ: ${selectedCategory}`)} 
-          {selectedStore && ((searchQuery || selectedCategory) ? ` / 店舗: ${selectedStore}` : `店舗: ${selectedStore}`)} {" "}
+          {selectedCategory && (searchQuery ? ` / カテゴリ: ${selectedCategory === "all" ? "全てのカテゴリ" : selectedCategory}` : `カテゴリ: ${selectedCategory === "all" ? "全てのカテゴリ" : selectedCategory}`)} 
+          {selectedStore && ((searchQuery || selectedCategory) ? ` / 店舗: ${selectedStore === "all" ? "全ての店舗" : selectedStore}` : `店舗: ${selectedStore === "all" ? "全ての店舗" : selectedStore}`)} {" "}
           <Button variant="ghost" size="sm" onClick={handleResetFilters} className="h-6 px-2 text-xs">
             リセット
           </Button>
