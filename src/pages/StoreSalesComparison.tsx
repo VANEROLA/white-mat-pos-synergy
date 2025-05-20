@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, Download, BarChart3, Building } from "lucide-react";
+import { Table, Download, BarChart3, Building, LayoutGrid, Columns3, Rows3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DateRange } from "react-day-picker";
@@ -18,11 +18,15 @@ import {
 import HamburgerMenu from "@/components/HamburgerMenu";
 import { useCSVOperations } from "@/hooks/useCSVOperations";
 import SidebarMenu from "@/components/SidebarMenu";
+import { toast } from "sonner";
 
 interface StoreSalesComparisonProps {
   toggleMenu?: () => void;
   isMenuOpen?: boolean;
 }
+
+// View sizes for the tables
+type ViewSize = "compact" | "default" | "expanded";
 
 const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu, isMenuOpen }) => {
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
@@ -31,6 +35,7 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
   });
   const [activeTab, setActiveTab] = useState("by-store");
   const [isLoading, setIsLoading] = useState(false);
+  const [viewSize, setViewSize] = useState<ViewSize>("default");
   const { exportProductsToCSV } = useCSVOperations();
 
   // Mock store data
@@ -103,7 +108,34 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     }
 
     exportProductsToCSV(exportData);
+    toast.success("CSVファイルのエクスポートが完了しました");
   };
+
+  // Get table classes based on view size
+  const getTableClasses = () => {
+    switch (viewSize) {
+      case "compact":
+        return {
+          table: "text-xs",
+          header: "h-8 px-2",
+          cell: "p-2"
+        };
+      case "expanded":
+        return {
+          table: "text-base",
+          header: "h-14 px-6",
+          cell: "p-6"
+        };
+      default:
+        return {
+          table: "text-sm",
+          header: "h-12 px-4",
+          cell: "p-4"
+        };
+    }
+  };
+
+  const tableClasses = getTableClasses();
 
   return (
     <div className="container mx-auto py-6 px-4 md:px-6">
@@ -145,6 +177,39 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
               <span>商品別</span>
             </TabsTrigger>
           </TabsList>
+          
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">表示サイズ:</span>
+            <div className="flex bg-muted rounded-md p-1">
+              <Button
+                variant={viewSize === "compact" ? "default" : "ghost"}
+                size="sm"
+                className="h-8 px-2"
+                onClick={() => setViewSize("compact")}
+                title="コンパクト表示"
+              >
+                <Columns3 className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewSize === "default" ? "default" : "ghost"}
+                size="sm"
+                className="h-8 px-2"
+                onClick={() => setViewSize("default")}
+                title="標準表示"
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewSize === "expanded" ? "default" : "ghost"}
+                size="sm"
+                className="h-8 px-2"
+                onClick={() => setViewSize("expanded")}
+                title="拡大表示"
+              >
+                <Rows3 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
         </div>
 
         <TabsContent value="by-store">
@@ -168,22 +233,22 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
             </CardHeader>
             <CardContent className="pt-2">
               <div className="rounded-md border overflow-auto">
-                <UITable>
+                <UITable className={tableClasses.table}>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>店舗名</TableHead>
-                      <TableHead>総売上</TableHead>
-                      <TableHead>取引数</TableHead>
-                      <TableHead>取引平均</TableHead>
+                      <TableHead className={tableClasses.header}>店舗名</TableHead>
+                      <TableHead className={tableClasses.header}>総売上</TableHead>
+                      <TableHead className={tableClasses.header}>取引数</TableHead>
+                      <TableHead className={tableClasses.header}>取引平均</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {storeData.map((store) => (
                       <TableRow key={store.id}>
-                        <TableCell className="font-medium">{store.name}</TableCell>
-                        <TableCell>{formatCurrency(store.totalSales)}</TableCell>
-                        <TableCell>{store.transactions}件</TableCell>
-                        <TableCell>{formatCurrency(store.averagePerTransaction)}</TableCell>
+                        <TableCell className={`font-medium ${tableClasses.cell}`}>{store.name}</TableCell>
+                        <TableCell className={tableClasses.cell}>{formatCurrency(store.totalSales)}</TableCell>
+                        <TableCell className={tableClasses.cell}>{store.transactions}件</TableCell>
+                        <TableCell className={tableClasses.cell}>{formatCurrency(store.averagePerTransaction)}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -215,22 +280,24 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
             <CardContent className="pt-2">
               {productComparisonData.map((product, index) => (
                 <div key={index} className="mb-8">
-                  <h3 className="text-lg font-medium mb-2">{product.productName}</h3>
+                  <h3 className={`font-medium mb-2 ${viewSize === "compact" ? "text-sm" : viewSize === "expanded" ? "text-xl" : "text-lg"}`}>
+                    {product.productName}
+                  </h3>
                   <div className="rounded-md border overflow-auto">
-                    <UITable>
+                    <UITable className={tableClasses.table}>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>店舗</TableHead>
-                          <TableHead>数量</TableHead>
-                          <TableHead>売上</TableHead>
+                          <TableHead className={tableClasses.header}>店舗</TableHead>
+                          <TableHead className={tableClasses.header}>数量</TableHead>
+                          <TableHead className={tableClasses.header}>売上</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {product.stores.map((store) => (
                           <TableRow key={store.storeId}>
-                            <TableCell>{store.storeName}</TableCell>
-                            <TableCell>{store.quantity}個</TableCell>
-                            <TableCell>{formatCurrency(store.revenue)}</TableCell>
+                            <TableCell className={tableClasses.cell}>{store.storeName}</TableCell>
+                            <TableCell className={tableClasses.cell}>{store.quantity}個</TableCell>
+                            <TableCell className={tableClasses.cell}>{formatCurrency(store.revenue)}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
