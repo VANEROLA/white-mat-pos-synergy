@@ -14,19 +14,37 @@ export const useAdminAuth = (): AdminAuthState => {
 
   // Check if user is already authenticated on component mount
   useEffect(() => {
-    const adminAuthToken = localStorage.getItem("adminAuthToken");
-    if (adminAuthToken) {
-      const tokenData = JSON.parse(adminAuthToken);
-      const currentTime = new Date().getTime();
-      
-      // If token has not expired, authenticate the user
-      if (tokenData.expiry > currentTime) {
-        setIsAuthenticated(true);
+    const checkAuth = () => {
+      const adminAuthToken = localStorage.getItem("adminAuthToken");
+      if (adminAuthToken) {
+        try {
+          const tokenData = JSON.parse(adminAuthToken);
+          const currentTime = new Date().getTime();
+          
+          // If token has not expired, authenticate the user
+          if (tokenData.expiry > currentTime) {
+            setIsAuthenticated(true);
+          } else {
+            // Clear expired token
+            localStorage.removeItem("adminAuthToken");
+            setIsAuthenticated(false);
+          }
+        } catch (error) {
+          console.error("Error parsing auth token:", error);
+          localStorage.removeItem("adminAuthToken");
+          setIsAuthenticated(false);
+        }
       } else {
-        // Clear expired token
-        localStorage.removeItem("adminAuthToken");
+        setIsAuthenticated(false);
       }
-    }
+    };
+
+    checkAuth();
+    
+    // Set up an interval to check token expiry regularly
+    const intervalId = setInterval(checkAuth, 60000); // Check every minute
+    
+    return () => clearInterval(intervalId);
   }, []);
 
   // Reset authentication when navigating away from admin page
