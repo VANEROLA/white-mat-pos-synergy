@@ -94,7 +94,10 @@ function AppContent() {
             } />
             <Route path="/sales-data" element={
               <ProtectedRoute>
-                <SalesData />
+                <SalesData 
+                  toggleMenu={toggleMenu}
+                  isMenuOpen={isSidebarOpen}
+                />
               </ProtectedRoute>
             } />
             <Route path="/options" element={

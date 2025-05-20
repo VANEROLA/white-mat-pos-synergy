@@ -2,7 +2,8 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChartBar, ChartPie, Table } from "lucide-react";
+import { Table, ChartPie, ChartBar, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { 
   Table as UITable,
   TableBody,
@@ -14,24 +15,32 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DateRange } from "react-day-picker";
 import { DateRangePicker } from "@/components/sales-data/DateRangePicker";
-import ProductSalesChart from "@/components/sales-data/ProductSalesChart";
-import DailySalesChart from "@/components/sales-data/DailySalesChart";
+import ProductSalesTable from "@/components/sales-data/ProductSalesTable";
+import DailySalesTable from "@/components/sales-data/DailySalesTable";
 import FreeItemsTable from "@/components/sales-data/FreeItemsTable";
+import HamburgerMenu from "@/components/HamburgerMenu";
 
-const SalesData = () => {
+const SalesData = ({ toggleMenu, isMenuOpen }: { toggleMenu?: () => void, isMenuOpen?: boolean }) => {
   const [activeTab, setActiveTab] = useState("product");
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: new Date(new Date().setDate(new Date().getDate() - 30)),
     to: new Date(),
   });
-  const [viewType, setViewType] = useState("chart");
 
   return (
     <div className="container mx-auto py-6 px-4 md:px-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight mb-1">売上データ</h1>
-          <p className="text-muted-foreground">販売データを分析して店舗のパフォーマンスを把握</p>
+        <div className="flex items-center gap-2">
+          <div className="md:hidden">
+            <HamburgerMenu 
+              isOpen={isMenuOpen || false} 
+              toggleMenu={toggleMenu || (() => {})} 
+            />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight mb-1">売上データ</h1>
+            <p className="text-muted-foreground">販売データを分析して店舗のパフォーマンスを把握</p>
+          </div>
         </div>
         <div className="flex items-center gap-2 mt-4 md:mt-0">
           <DateRangePicker
@@ -57,32 +66,25 @@ const SalesData = () => {
               <span>無料処理</span>
             </TabsTrigger>
           </TabsList>
-          
-          {activeTab !== "free-items" && (
-            <Select value={viewType} onValueChange={setViewType}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="表示形式" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="chart">グラフ</SelectItem>
-                <SelectItem value="table">表</SelectItem>
-              </SelectContent>
-            </Select>
-          )}
         </div>
 
         <TabsContent value="product">
           <Card>
-            <CardHeader>
-              <CardTitle>商品別売上データ</CardTitle>
-              <CardDescription>
-                期間内の商品別売上を表示します
-              </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <div>
+                <CardTitle>商品別売上データ</CardTitle>
+                <CardDescription>
+                  期間内の商品別売上を表示します
+                </CardDescription>
+              </div>
+              <Button variant="outline" size="sm" className="flex items-center gap-1">
+                <Download className="h-4 w-4" />
+                <span>CSV出力</span>
+              </Button>
             </CardHeader>
             <CardContent className="pt-2">
-              <ProductSalesChart 
+              <ProductSalesTable 
                 dateRange={dateRange} 
-                viewType={viewType} 
               />
             </CardContent>
           </Card>
@@ -90,16 +92,21 @@ const SalesData = () => {
         
         <TabsContent value="daily">
           <Card>
-            <CardHeader>
-              <CardTitle>日別売上データ</CardTitle>
-              <CardDescription>
-                期間内の日別売上を表示します
-              </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <div>
+                <CardTitle>日別売上データ</CardTitle>
+                <CardDescription>
+                  期間内の日別売上を表示します
+                </CardDescription>
+              </div>
+              <Button variant="outline" size="sm" className="flex items-center gap-1">
+                <Download className="h-4 w-4" />
+                <span>CSV出力</span>
+              </Button>
             </CardHeader>
             <CardContent className="pt-2">
-              <DailySalesChart 
+              <DailySalesTable 
                 dateRange={dateRange} 
-                viewType={viewType} 
               />
             </CardContent>
           </Card>
@@ -107,11 +114,17 @@ const SalesData = () => {
         
         <TabsContent value="free-items">
           <Card>
-            <CardHeader>
-              <CardTitle>無料処理データ</CardTitle>
-              <CardDescription>
-                無料処理された商品と理由の一覧を表示します
-              </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <div>
+                <CardTitle>無料処理データ</CardTitle>
+                <CardDescription>
+                  無料処理された商品と理由の一覧を表示します
+                </CardDescription>
+              </div>
+              <Button variant="outline" size="sm" className="flex items-center gap-1">
+                <Download className="h-4 w-4" />
+                <span>CSV出力</span>
+              </Button>
             </CardHeader>
             <CardContent className="pt-2">
               <FreeItemsTable dateRange={dateRange} />

@@ -177,6 +177,37 @@ const FreeItemsTable: React.FC<FreeItemsTableProps> = ({ dateRange }) => {
     }).format(amount);
   };
 
+  // Export free items data to CSV
+  const exportToCSV = () => {
+    const csvData = sortedData.map(item => ({
+      id: item.id,
+      date: item.date,
+      productName: item.productName,
+      quantity: item.quantity,
+      price: item.price,
+      reason: item.reason,
+      staff: item.staff,
+      location: item.location
+    }));
+    
+    // Convert to CSV and download
+    const csvContent = "ID,日時,商品,数量,金額,理由,スタッフ,店舗\n" + 
+      csvData.map(item => 
+        `${item.id},${item.date},"${item.productName}",${item.quantity},${item.price},"${item.reason}","${item.staff}","${item.location}"`
+      ).join("\n");
+    
+    // Add BOM for UTF-8 to handle Japanese characters
+    const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+    const blob = new Blob([bom, csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `free_items_${format(new Date(), 'yyyyMMdd')}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // Calculate the total value of free items
   const totalValue = filteredData.reduce((sum, item) => sum + item.price, 0);
 
