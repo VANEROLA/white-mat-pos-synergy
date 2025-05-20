@@ -7,15 +7,18 @@ import { Label } from "@/components/ui/label";
 import { UserCog } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 const AdminLogin = () => {
   const [password, setPassword] = useState("");
   const { login } = useAdminAuth();
+  const navigate = useNavigate();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (login(password)) {
       toast.success("管理者画面にログインしました");
+      navigate("/admin"); // Add navigation to admin page after successful login
     } else {
       toast.error("パスワードが正しくありません");
       setPassword(""); // Clear password field on failed login
