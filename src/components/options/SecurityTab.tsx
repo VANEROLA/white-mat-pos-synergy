@@ -1,9 +1,10 @@
 
 import React from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Lock, RefreshCw, FileText, Fingerprint, Separator } from "lucide-react";
+import { Lock, RefreshCw, FileText, Fingerprint } from "lucide-react";
 import { SettingRow } from "./SettingRow";
 import { AutoLockTimeSelector } from "./AutoLockTimeSelector";
+import { Separator } from "@/components/ui/separator";
 
 interface SecurityTabProps {
   securityOptions: {
