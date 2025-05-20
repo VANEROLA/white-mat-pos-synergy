@@ -1,8 +1,11 @@
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, Download, BarChart3, Building, LayoutGrid, Columns3, Rows3, List, Grid3X3 } from "lucide-react";
+import { 
+  Table, Download, BarChart3, Building, LayoutGrid, 
+  Columns3, Rows3, List, Grid3X3, Search, Filter 
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DateRange } from "react-day-picker";
 import { DateRangePicker } from "@/components/sales-data/DateRangePicker";
@@ -28,6 +31,10 @@ import HamburgerMenu from "@/components/HamburgerMenu";
 import { useCSVOperations } from "@/hooks/useCSVOperations";
 import SidebarMenu from "@/components/SidebarMenu";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import SearchPanel from "@/components/SearchPanel";
 
 interface StoreSalesComparisonProps {
   toggleMenu?: () => void;
@@ -37,6 +44,32 @@ interface StoreSalesComparisonProps {
 // View sizes for the tables
 type ViewSize = "compact" | "default" | "expanded";
 type ViewMode = "table" | "card" | "grid";
+type SortOrder = "asc" | "desc";
+type SortField = "name" | "quantity" | "revenue" | null;
+
+// Store interface
+interface Store {
+  id: number;
+  name: string;
+  totalSales: number;
+  transactions: number;
+  averagePerTransaction: number;
+}
+
+// Product Store interface
+interface ProductStore {
+  storeId: number;
+  storeName: string;
+  quantity: number;
+  revenue: number;
+}
+
+// Product interface
+interface Product {
+  productName: string;
+  productCategory: string;
+  stores: ProductStore[];
+}
 
 const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu, isMenuOpen }) => {
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
@@ -49,10 +82,15 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
   const [viewMode, setViewMode] = useState<ViewMode>("table");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedStore, setSelectedStore] = useState<string>("");
+  const [sortField, setSortField] = useState<SortField>(null);
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const { exportProductsToCSV } = useCSVOperations();
 
   // Mock store data
-  const storeData = [
+  const storeData: Store[] = [
     { id: 1, name: "新宿店", totalSales: 1250000, transactions: 2145, averagePerTransaction: 582.7 },
     { id: 2, name: "渋谷店", totalSales: 980000, transactions: 1876, averagePerTransaction: 522.4 },
     { id: 3, name: "池袋店", totalSales: 870000, transactions: 1562, averagePerTransaction: 557.0 },
@@ -60,10 +98,11 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     { id: 5, name: "横浜店", totalSales: 1120000, transactions: 1987, averagePerTransaction: 563.7 }
   ];
 
-  // Expanded mock product comparison data
-  const productComparisonData = [
+  // Expanded mock product comparison data with categories
+  const productComparisonData: Product[] = [
     { 
       productName: "コーヒー (大)",
+      productCategory: "コーヒー",
       stores: [
         { storeId: 1, storeName: "新宿店", quantity: 320, revenue: 160000 },
         { storeId: 2, storeName: "渋谷店", quantity: 280, revenue: 140000 },
@@ -74,6 +113,7 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     },
     { 
       productName: "カプチーノ",
+      productCategory: "コーヒー",
       stores: [
         { storeId: 1, storeName: "新宿店", quantity: 180, revenue: 108000 },
         { storeId: 2, storeName: "渋谷店", quantity: 150, revenue: 90000 },
@@ -84,6 +124,7 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     },
     { 
       productName: "チョコレートクッキー",
+      productCategory: "ベーカリー",
       stores: [
         { storeId: 1, storeName: "新宿店", quantity: 95, revenue: 28500 },
         { storeId: 2, storeName: "渋谷店", quantity: 110, revenue: 33000 },
@@ -94,6 +135,7 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     },
     { 
       productName: "抹茶ラテ",
+      productCategory: "ティー",
       stores: [
         { storeId: 1, storeName: "新宿店", quantity: 150, revenue: 75000 },
         { storeId: 2, storeName: "渋谷店", quantity: 180, revenue: 90000 },
@@ -104,6 +146,7 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     },
     { 
       productName: "アメリカーノ",
+      productCategory: "コーヒー",
       stores: [
         { storeId: 1, storeName: "新宿店", quantity: 200, revenue: 80000 },
         { storeId: 2, storeName: "渋谷店", quantity: 170, revenue: 68000 },
@@ -114,6 +157,7 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     },
     { 
       productName: "チーズケーキ",
+      productCategory: "ケーキ",
       stores: [
         { storeId: 1, storeName: "新宿店", quantity: 120, revenue: 72000 },
         { storeId: 2, storeName: "渋谷店", quantity: 90, revenue: 54000 },
@@ -124,6 +168,7 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     },
     { 
       productName: "ティラミス",
+      productCategory: "ケーキ",
       stores: [
         { storeId: 1, storeName: "新宿店", quantity: 75, revenue: 45000 },
         { storeId: 2, storeName: "渋谷店", quantity: 60, revenue: 36000 },
@@ -131,17 +176,160 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
         { storeId: 4, storeName: "上野店", quantity: 40, revenue: 24000 },
         { storeId: 5, storeName: "横浜店", quantity: 70, revenue: 42000 }
       ] 
-    }
+    },
+    { 
+      productName: "カフェモカ",
+      productCategory: "コーヒー",
+      stores: [
+        { storeId: 1, storeName: "新宿店", quantity: 140, revenue: 84000 },
+        { storeId: 2, storeName: "渋谷店", quantity: 120, revenue: 72000 },
+        { storeId: 3, storeName: "池袋店", quantity: 115, revenue: 69000 },
+        { storeId: 4, storeName: "上野店", quantity: 90, revenue: 54000 },
+        { storeId: 5, storeName: "横浜店", quantity: 135, revenue: 81000 }
+      ] 
+    },
+    { 
+      productName: "ショコラケーキ",
+      productCategory: "ケーキ",
+      stores: [
+        { storeId: 1, storeName: "新宿店", quantity: 85, revenue: 59500 },
+        { storeId: 2, storeName: "渋谷店", quantity: 70, revenue: 49000 },
+        { storeId: 3, storeName: "池袋店", quantity: 65, revenue: 45500 },
+        { storeId: 4, storeName: "上野店", quantity: 45, revenue: 31500 },
+        { storeId: 5, storeName: "横浜店", quantity: 80, revenue: 56000 }
+      ] 
+    },
+    { 
+      productName: "フレーバーティー",
+      productCategory: "ティー",
+      stores: [
+        { storeId: 1, storeName: "新宿店", quantity: 110, revenue: 49500 },
+        { storeId: 2, storeName: "渋谷店", quantity: 140, revenue: 63000 },
+        { storeId: 3, storeName: "池袋店", quantity: 90, revenue: 40500 },
+        { storeId: 4, storeName: "上野店", quantity: 70, revenue: 31500 },
+        { storeId: 5, storeName: "横浜店", quantity: 120, revenue: 54000 }
+      ] 
+    },
+    { 
+      productName: "抹茶ケーキ",
+      productCategory: "ケーキ",
+      stores: [
+        { storeId: 1, storeName: "新宿店", quantity: 65, revenue: 42250 },
+        { storeId: 2, storeName: "渋谷店", quantity: 80, revenue: 52000 },
+        { storeId: 3, storeName: "池袋店", quantity: 55, revenue: 35750 },
+        { storeId: 4, storeName: "上野店", quantity: 40, revenue: 26000 },
+        { storeId: 5, storeName: "横浜店", quantity: 75, revenue: 48750 }
+      ] 
+    },
+    { 
+      productName: "クロワッサン",
+      productCategory: "ベーカリー",
+      stores: [
+        { storeId: 1, storeName: "新宿店", quantity: 160, revenue: 48000 },
+        { storeId: 2, storeName: "渋谷店", quantity: 130, revenue: 39000 },
+        { storeId: 3, storeName: "池袋店", quantity: 120, revenue: 36000 },
+        { storeId: 4, storeName: "上野店", quantity: 95, revenue: 28500 },
+        { storeId: 5, storeName: "横浜店", quantity: 145, revenue: 43500 }
+      ] 
+    },
+    { 
+      productName: "アイスコーヒー",
+      productCategory: "コーヒー",
+      stores: [
+        { storeId: 1, storeName: "新宿店", quantity: 230, revenue: 103500 },
+        { storeId: 2, storeName: "渋谷店", quantity: 200, revenue: 90000 },
+        { storeId: 3, storeName: "池袋店", quantity: 180, revenue: 81000 },
+        { storeId: 4, storeName: "上野店", quantity: 150, revenue: 67500 },
+        { storeId: 5, storeName: "横浜店", quantity: 220, revenue: 99000 }
+      ] 
+    },
+    { 
+      productName: "フルーツタルト",
+      productCategory: "ケーキ",
+      stores: [
+        { storeId: 1, storeName: "新宿店", quantity: 55, revenue: 38500 },
+        { storeId: 2, storeName: "渋谷店", quantity: 45, revenue: 31500 },
+        { storeId: 3, storeName: "池袋店", quantity: 40, revenue: 28000 },
+        { storeId: 4, storeName: "上野店", quantity: 30, revenue: 21000 },
+        { storeId: 5, storeName: "横浜店", quantity: 50, revenue: 35000 }
+      ] 
+    },
+    { 
+      productName: "パン・オ・ショコラ",
+      productCategory: "ベーカリー",
+      stores: [
+        { storeId: 1, storeName: "新宿店", quantity: 80, revenue: 28000 },
+        { storeId: 2, storeName: "渋谷店", quantity: 65, revenue: 22750 },
+        { storeId: 3, storeName: "池袋店", quantity: 60, revenue: 21000 },
+        { storeId: 4, storeName: "上野店", quantity: 45, revenue: 15750 },
+        { storeId: 5, storeName: "横浜店", quantity: 75, revenue: 26250 }
+      ] 
+    },
   ];
+
+  // Get all unique categories
+  const uniqueCategories = useMemo(() => {
+    const categories = new Set<string>();
+    productComparisonData.forEach(product => {
+      categories.add(product.productCategory);
+    });
+    return Array.from(categories);
+  }, [productComparisonData]);
+
+  // Filter and sort products
+  const filteredAndSortedProducts = useMemo(() => {
+    let result = [...productComparisonData];
+    
+    // Apply search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(product => 
+        product.productName.toLowerCase().includes(query) || 
+        product.productCategory.toLowerCase().includes(query)
+      );
+    }
+    
+    // Apply category filter
+    if (selectedCategory) {
+      result = result.filter(product => product.productCategory === selectedCategory);
+    }
+
+    // Apply store filter
+    if (selectedStore) {
+      result = result.filter(product => 
+        product.stores.some(store => store.storeName === selectedStore)
+      );
+    }
+    
+    // Apply sorting if a sort field is selected
+    if (sortField) {
+      result = [...result].sort((a, b) => {
+        // For product name sorting
+        if (sortField === "name") {
+          return sortOrder === "asc" 
+            ? a.productName.localeCompare(b.productName) 
+            : b.productName.localeCompare(a.productName);
+        }
+        
+        // For store-based metrics we need to sum or average across all stores
+        const aValue = a.stores.reduce((sum, store) => sum + store[sortField === "quantity" ? "quantity" : "revenue"], 0);
+        const bValue = b.stores.reduce((sum, store) => sum + store[sortField === "quantity" ? "quantity" : "revenue"], 0);
+        
+        return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+      });
+    }
+    
+    return result;
+  }, [productComparisonData, searchQuery, selectedCategory, selectedStore, sortField, sortOrder]);
 
   // Paginate product data
   const paginatedProductData = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    return productComparisonData.slice(startIndex, endIndex);
-  }, [productComparisonData, currentPage, itemsPerPage]);
+    return filteredAndSortedProducts.slice(startIndex, endIndex);
+  }, [filteredAndSortedProducts, currentPage, itemsPerPage]);
 
-  const totalPages = Math.ceil(productComparisonData.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredAndSortedProducts.length / itemsPerPage);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('ja-JP', {
@@ -163,12 +351,12 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     } else {
       // Flattened product comparison data
       exportData = [];
-      productComparisonData.forEach(product => {
+      filteredAndSortedProducts.forEach(product => {
         product.stores.forEach(store => {
           exportData.push({
             name: `${product.productName} (${store.storeName})`,
             price: store.revenue,
-            category: "商品別売上",
+            category: product.productCategory,
             stockCount: store.quantity
           });
         });
@@ -177,6 +365,26 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
 
     exportProductsToCSV(exportData);
     toast.success("CSVファイルのエクスポートが完了しました");
+  };
+
+  // Reset filters
+  const handleResetFilters = () => {
+    setSearchQuery("");
+    setSelectedCategory("");
+    setSelectedStore("");
+    setSortField(null);
+    setSortOrder("desc");
+    setCurrentPage(1);
+  };
+
+  // Toggle sort
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortOrder(prev => prev === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortOrder("desc");
+    }
   };
 
   // Get table classes based on view size
@@ -248,7 +456,7 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
   };
 
   // Render table view
-  const renderTableView = (product: typeof productComparisonData[0]) => {
+  const renderTableView = (product: Product) => {
     return (
       <div className="rounded-md border overflow-auto">
         <UITable className={tableClasses.table}>
@@ -274,7 +482,7 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
   };
 
   // Render card view
-  const renderCardView = (product: typeof productComparisonData[0]) => {
+  const renderCardView = (product: Product) => {
     return (
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {product.stores.map((store) => (
@@ -299,7 +507,7 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
   };
 
   // Render grid view
-  const renderGridView = (product: typeof productComparisonData[0]) => {
+  const renderGridView = (product: Product) => {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
         {product.stores.map((store) => (
@@ -317,6 +525,34 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
             </div>
           </div>
         ))}
+      </div>
+    );
+  };
+
+  // Calculate filter summary text
+  const getFilterSummary = () => {
+    const filters = [];
+    if (searchQuery) filters.push(`検索: ${searchQuery}`);
+    if (selectedCategory) filters.push(`カテゴリ: ${selectedCategory}`);
+    if (selectedStore) filters.push(`店舗: ${selectedStore}`);
+    
+    if (filters.length === 0) return null;
+    
+    return (
+      <div className="text-sm text-muted-foreground mt-1 mb-3">
+        適用フィルター: {filters.join(" / ")} {" "}
+        <Button variant="ghost" size="sm" onClick={handleResetFilters} className="h-6 px-2 text-xs">
+          リセット
+        </Button>
+      </div>
+    );
+  };
+
+  // Render products count
+  const renderProductCount = () => {
+    return (
+      <div className="text-sm text-muted-foreground mb-2">
+        全 {filteredAndSortedProducts.length} 件中 {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, filteredAndSortedProducts.length)} 件表示
       </div>
     );
   };
@@ -477,7 +713,7 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
                     <option value={3}>3件</option>
                     <option value={5}>5件</option>
                     <option value={10}>10件</option>
-                    <option value={productComparisonData.length}>全て</option>
+                    <option value={filteredAndSortedProducts.length}>全て</option>
                   </select>
                 </div>
                 <Button 
@@ -492,17 +728,127 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
               </div>
             </CardHeader>
             <CardContent className="pt-2">
-              {paginatedProductData.map((product, index) => (
-                <div key={index} className="mb-8">
-                  <h3 className={`font-medium mb-2 ${viewSize === "compact" ? "text-sm" : viewSize === "expanded" ? "text-xl" : "text-lg"}`}>
-                    {product.productName}
-                  </h3>
+              <div className="mb-6">
+                <div className="flex flex-col md:flex-row gap-3 mb-4">
+                  <div className="relative flex-grow">
+                    <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      placeholder="商品名で検索..."
+                      value={searchQuery}
+                      onChange={(e) => {
+                        setSearchQuery(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                      className="pl-9"
+                    />
+                  </div>
                   
-                  {viewMode === "table" && renderTableView(product)}
-                  {viewMode === "card" && renderCardView(product)}
-                  {viewMode === "grid" && renderGridView(product)}
+                  <div className="flex flex-wrap gap-3">
+                    <Select 
+                      value={selectedCategory} 
+                      onValueChange={(value) => {
+                        setSelectedCategory(value);
+                        setCurrentPage(1);
+                      }}
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="カテゴリ選択" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">全てのカテゴリ</SelectItem>
+                        {uniqueCategories.map(category => (
+                          <SelectItem key={category} value={category}>
+                            {category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    
+                    <Select 
+                      value={selectedStore} 
+                      onValueChange={(value) => {
+                        setSelectedStore(value);
+                        setCurrentPage(1);
+                      }}
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="店舗選択" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">全ての店舗</SelectItem>
+                        {storeData.map(store => (
+                          <SelectItem key={store.id} value={store.name}>
+                            {store.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className="flex items-center gap-2">
+                          <Filter className="h-4 w-4" />
+                          <span>並び替え</span>
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-56 p-2">
+                        <div className="space-y-1">
+                          <Button 
+                            variant={sortField === "name" ? "default" : "ghost"} 
+                            size="sm" 
+                            className="w-full justify-start" 
+                            onClick={() => handleSort("name")}
+                          >
+                            商品名 {sortField === "name" && (sortOrder === "asc" ? "↑" : "↓")}
+                          </Button>
+                          <Button 
+                            variant={sortField === "quantity" ? "default" : "ghost"} 
+                            size="sm" 
+                            className="w-full justify-start" 
+                            onClick={() => handleSort("quantity")}
+                          >
+                            数量 {sortField === "quantity" && (sortOrder === "asc" ? "↑" : "↓")}
+                          </Button>
+                          <Button 
+                            variant={sortField === "revenue" ? "default" : "ghost"} 
+                            size="sm" 
+                            className="w-full justify-start" 
+                            onClick={() => handleSort("revenue")}
+                          >
+                            売上 {sortField === "revenue" && (sortOrder === "asc" ? "↑" : "↓")}
+                          </Button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                 </div>
-              ))}
+                
+                {getFilterSummary()}
+                {renderProductCount()}
+              </div>
+            
+              {paginatedProductData.length > 0 ? (
+                paginatedProductData.map((product, index) => (
+                  <div key={index} className="mb-8">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className={`font-medium ${viewSize === "compact" ? "text-sm" : viewSize === "expanded" ? "text-xl" : "text-lg"}`}>
+                        {product.productName}
+                      </h3>
+                      <div className={`text-muted-foreground ${viewSize === "compact" ? "text-xs" : viewSize === "expanded" ? "text-base" : "text-sm"}`}>
+                        {product.productCategory}
+                      </div>
+                    </div>
+                    
+                    {viewMode === "table" && renderTableView(product)}
+                    {viewMode === "card" && renderCardView(product)}
+                    {viewMode === "grid" && renderGridView(product)}
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  検索条件に一致する商品がありません。
+                </div>
+              )}
               
               {renderPagination()}
             </CardContent>
