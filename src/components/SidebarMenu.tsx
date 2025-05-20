@@ -7,7 +7,7 @@ import {
   SheetContent,
   SheetTrigger 
 } from "@/components/ui/sheet";
-import { Home, Package, History, FileText, Gift, Database, PlusCircle } from "lucide-react";
+import { Home, Package, History, FileText, Gift, Database, UserCog } from "lucide-react";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -49,6 +49,7 @@ const SidebarMenu: React.FC<SidebarProps> = ({
     { icon: History, label: "注文履歴", path: "/order-history" },
     { icon: Gift, label: "無料処理", path: "/free-items" },
     { icon: FileText, label: "システムログ", path: "/system-logs" },
+    { icon: UserCog, label: "管理者設定", path: "/admin" },
   ];
 
   // Menu content that will be displayed in the drawer

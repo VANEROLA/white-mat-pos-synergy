@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { CartItem } from "@/types";
 import { FreeItemReason, loadSavedReasons } from "@/utils/freeItemReasons";
 import { useFreeItems } from "./useFreeItems";
+import { useStaffManagement } from "./useStaffManagement";
 
 export interface SelectedItemWithQuantity {
   item: CartItem;
@@ -50,6 +51,7 @@ export const useFreeItemForm = (cartItems: CartItem[]): UseFreeItemFormResult =>
   const [selectAll, setSelectAll] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const { saveFreeItems } = useFreeItems();
+  const { isValidStaff } = useStaffManagement();
 
   // Load reasons once at initialization
   useEffect(() => {
@@ -81,6 +83,12 @@ export const useFreeItemForm = (cartItems: CartItem[]): UseFreeItemFormResult =>
   ) => {
     if (!staffName.trim()) {
       toast.error("担当者IDは必須です");
+      return;
+    }
+
+    // Validate staff ID
+    if (!isValidStaff(staffName)) {
+      toast.error("無効な担当者IDです。管理者に確認してください。");
       return;
     }
 
@@ -133,7 +141,7 @@ export const useFreeItemForm = (cartItems: CartItem[]): UseFreeItemFormResult =>
       setSubmitError(errorMessage);
       toast.error(errorMessage);
     }
-  }, [staffName, selectedReasonId, selectedItemsWithQuantity, notes, reasons, saveFreeItems, resetForm]);
+  }, [staffName, selectedReasonId, selectedItemsWithQuantity, notes, reasons, saveFreeItems, resetForm, isValidStaff]);
 
   return {
     staffName,
