@@ -10,7 +10,12 @@ import ProductGrid from "@/components/ProductGrid";
 import { useProductData } from "@/hooks/useProductData";
 import { useCart } from "@/hooks/useCart";
 
-const Index: React.FC = () => {
+interface IndexProps {
+  toggleMenu: () => void;
+  isMenuOpen: boolean;
+}
+
+const Index: React.FC<IndexProps> = ({ toggleMenu, isMenuOpen }) => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isAddProductOpen, setIsAddProductOpen] = useState<boolean>(false);
   
@@ -50,7 +55,10 @@ const Index: React.FC = () => {
     <div className="min-h-screen bg-background">
       <div className="max-w-[1400px] mx-auto p-4 md:p-6 lg:p-8">
         <div className="mb-6">
-          <POSHeader />
+          <POSHeader 
+            toggleMenu={toggleMenu} 
+            isMenuOpen={isMenuOpen} 
+          />
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
