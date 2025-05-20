@@ -13,6 +13,7 @@ import { toast } from "sonner";
 interface ColorOptionProps {
   color: string;
   name: string;
+  selectedColor: string;
 }
 
 interface ThemeColorPickerProps {
@@ -20,23 +21,45 @@ interface ThemeColorPickerProps {
   onChange: (value: string) => void;
 }
 
-const ColorOption: React.FC<ColorOptionProps> = ({ color, name }) => (
-  <TooltipProvider>
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <ToggleGroupItem 
-          value={color} 
-          className={`bg-${color}-500 hover:bg-${color}-600 h-8 w-8 mr-2 rounded-full transition-transform hover:scale-110`}
-        />
-      </TooltipTrigger>
-      <TooltipContent>
-        <p>{name}テーマ</p>
-      </TooltipContent>
-    </Tooltip>
-  </TooltipProvider>
-);
+const ColorOption: React.FC<ColorOptionProps> = ({ color, name, selectedColor }) => {
+  // Create color styles dynamically
+  const bgColorClass = `bg-${color}-500`;
+  const hoverClass = `hover:bg-${color}-600`;
+  const isSelected = color === selectedColor;
+  
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="relative">
+            <ToggleGroupItem 
+              value={color} 
+              className={`${bgColorClass} ${hoverClass} h-8 w-8 rounded-full transition-transform hover:scale-110 ${isSelected ? 'ring-2 ring-offset-2 ring-offset-background' : ''}`}
+              style={isSelected ? {boxShadow: '0 0 0 2px white'} : {}}
+              aria-label={`${name}テーマ`}
+            />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{name}テーマ</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
 
 export const ThemeColorPicker: React.FC<ThemeColorPickerProps> = ({ themeColor, onChange }) => {
+  const colorOptions = [
+    { color: "blue", name: "ブルー" },
+    { color: "green", name: "グリーン" },
+    { color: "purple", name: "パープル" },
+    { color: "rose", name: "ローズ" },
+    { color: "amber", name: "アンバー" },
+    { color: "teal", name: "ティール" },
+    { color: "indigo", name: "インディゴ" },
+    { color: "pink", name: "ピンク" }
+  ];
+
   return (
     <div className="mt-6 mb-3">
       <Label className="text-base font-medium mb-3 block">テーマカラー</Label>
@@ -55,14 +78,14 @@ export const ThemeColorPicker: React.FC<ThemeColorPickerProps> = ({ themeColor, 
           }}
           className="flex flex-wrap gap-2"
         >
-          <ColorOption color="blue" name="ブルー" />
-          <ColorOption color="green" name="グリーン" />
-          <ColorOption color="purple" name="パープル" />
-          <ColorOption color="rose" name="ローズ" />
-          <ColorOption color="amber" name="アンバー" />
-          <ColorOption color="teal" name="ティール" />
-          <ColorOption color="indigo" name="インディゴ" />
-          <ColorOption color="pink" name="ピンク" />
+          {colorOptions.map(option => (
+            <ColorOption 
+              key={option.color}
+              color={option.color}
+              name={option.name}
+              selectedColor={themeColor}
+            />
+          ))}
         </ToggleGroup>
       </div>
     </div>
