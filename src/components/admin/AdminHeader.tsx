@@ -4,15 +4,25 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { toast } from "sonner";
 
 const AdminHeader: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAdminAuth();
   
   const handleBackClick = () => {
-    // Log out before navigating away
-    logout();
-    navigate(-1);
+    try {
+      console.log("AdminHeader: Back button clicked, logging out");
+      // まずログアウト処理を行う
+      logout();
+      // ログアウト成功のメッセージを表示
+      toast.success("ログアウトしました");
+      // ホームページに移動
+      navigate("/");
+    } catch (error) {
+      console.error("AdminHeader: Error during logout", error);
+      navigate("/");
+    }
   };
   
   return (

@@ -1,109 +1,95 @@
 
-import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
-interface AdminAuthState {
+export interface AdminAuthState {
   isAuthenticated: boolean;
   login: (password: string) => boolean;
   logout: () => void;
 }
 
 export const useAdminAuth = (): AdminAuthState => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    // Initialize state from localStorage on mount
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // 初回マウント時に認証状態をチェック
+  useEffect(() => {
+    console.log("Auth: Initializing authentication state");
+    checkAuthStatus();
+  }, []);
+
+  // 認証トークンのステータスを確認する関数
+  const checkAuthStatus = useCallback(() => {
     try {
       const adminAuthToken = localStorage.getItem("adminAuthToken");
       if (adminAuthToken) {
         const tokenData = JSON.parse(adminAuthToken);
         const currentTime = new Date().getTime();
-        return tokenData.expiry > currentTime;
-      }
-    } catch (error) {
-      console.error("Error checking initial auth state:", error);
-    }
-    return false;
-  });
-  
-  const location = useLocation();
-
-  // Set up regular token expiry check
-  useEffect(() => {
-    const checkAuth = () => {
-      try {
-        const adminAuthToken = localStorage.getItem("adminAuthToken");
-        if (adminAuthToken) {
-          const tokenData = JSON.parse(adminAuthToken);
-          const currentTime = new Date().getTime();
-          
-          console.log("Auth check: Token expiry:", new Date(tokenData.expiry).toLocaleTimeString());
-          console.log("Auth check: Current time:", new Date(currentTime).toLocaleTimeString());
-          
-          if (tokenData.expiry > currentTime) {
-            setIsAuthenticated(true);
-          } else {
-            // Clear expired token
-            console.log("Auth check: Token expired, logging out");
-            localStorage.removeItem("adminAuthToken");
-            setIsAuthenticated(false);
-          }
+        const isValid = tokenData.expiry > currentTime;
+        
+        console.log("Auth: Token status check -", isValid ? "valid" : "expired");
+        
+        if (isValid) {
+          setIsAuthenticated(true);
         } else {
-          if (isAuthenticated) {
-            console.log("Auth check: No token found but state is authenticated, resetting");
-            setIsAuthenticated(false);
-          }
+          // 期限切れのトークンを削除
+          console.log("Auth: Token expired, removing");
+          localStorage.removeItem("adminAuthToken");
+          setIsAuthenticated(false);
         }
-      } catch (error) {
-        console.error("Error checking auth token:", error);
-        localStorage.removeItem("adminAuthToken");
+      } else {
+        console.log("Auth: No token found");
         setIsAuthenticated(false);
       }
-    };
+    } catch (error) {
+      console.error("Auth: Error checking token", error);
+      localStorage.removeItem("adminAuthToken");
+      setIsAuthenticated(false);
+    }
+  }, []);
 
-    // Initial check
-    checkAuth();
-    
-    // Set up interval for regular checks
-    const intervalId = setInterval(checkAuth, 30000); // Check every 30 seconds
-    
-    return () => clearInterval(intervalId);
-  }, [isAuthenticated]);
-
-  // Reset authentication when navigating away from admin page
+  // 管理画面外に移動した場合にログアウトする
   useEffect(() => {
     if (!location.pathname.includes("/admin") && isAuthenticated) {
-      console.log("Leaving admin area, logging out");
+      console.log("Auth: Leaving admin area, logging out");
       logout();
     }
   }, [location.pathname, isAuthenticated]);
 
-  // Login function with improved state management
-  const login = (password: string): boolean => {
-    console.log("Login attempt");
-    // Get the stored admin password or use the default if not set
+  // 定期的に認証状態をチェック（30秒ごと）
+  useEffect(() => {
+    const intervalId = setInterval(checkAuthStatus, 30000);
+    return () => clearInterval(intervalId);
+  }, [checkAuthStatus]);
+
+  // ログイン処理
+  const login = useCallback((password: string): boolean => {
+    console.log("Auth: Login attempt");
+    // デフォルトパスワードまたは保存されたパスワードを取得
     const storedPassword = localStorage.getItem("adminPassword") || "1234";
     
     if (password === storedPassword) {
-      console.log("Password correct, creating token");
-      // Set authentication token with 2-hour expiry
-      const expiryTime = new Date().getTime() + (2 * 60 * 60 * 1000); // 2 hours
-      const tokenData = { expiry: expiryTime };
+      console.log("Auth: Password correct, creating token");
+      // 2時間の有効期限を持つ認証トークンを設定
+      const expiryTime = new Date().getTime() + (2 * 60 * 60 * 1000);
+      localStorage.setItem("adminAuthToken", JSON.stringify({ expiry: expiryTime }));
       
-      localStorage.setItem("adminAuthToken", JSON.stringify(tokenData));
-      console.log("Setting authenticated state to true");
       setIsAuthenticated(true);
+      console.log("Auth: Authentication successful");
       return true;
     }
     
-    console.log("Password incorrect");
+    console.log("Auth: Password incorrect");
     return false;
-  };
+  }, []);
 
-  // Logout function with immediate state update
-  const logout = (): void => {
-    console.log("Logout called");
+  // ログアウト処理
+  const logout = useCallback((): void => {
+    console.log("Auth: Logout called");
     localStorage.removeItem("adminAuthToken");
     setIsAuthenticated(false);
-  };
+  }, []);
 
   return {
     isAuthenticated,

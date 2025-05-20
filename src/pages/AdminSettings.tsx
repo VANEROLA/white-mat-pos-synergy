@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AdminLogin from "@/components/admin/AdminLogin";
 import AdminHeader from "@/components/admin/AdminHeader";
@@ -8,33 +8,20 @@ import SecuritySettings from "@/components/admin/SecuritySettings";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { useStaffManagement } from "@/hooks/useStaffManagement";
 
-const AdminSettings = () => {
+const AdminSettings: React.FC = () => {
   const { isAuthenticated } = useAdminAuth();
   const { staffList, addStaff, removeStaff, changeAdminPassword } = useStaffManagement();
-  const [isLoading, setIsLoading] = useState(true);
   
-  // Add a small delay to ensure auth state is properly loaded
-  useEffect(() => {
-    console.log("AdminSettings: Checking authentication state:", isAuthenticated);
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 100);
-    
-    return () => clearTimeout(timer);
-  }, [isAuthenticated]);
-
-  // Show loading state while checking authentication
-  if (isLoading) {
-    console.log("AdminSettings: Still loading...");
-    return <div className="container flex items-center justify-center min-h-[80vh]">読み込み中...</div>;
-  }
+  // 認証状態に基づいて表示を切り替え
+  console.log("AdminSettings: Authentication state:", isAuthenticated);
   
-  // If not authenticated, show login page
+  // 認証されていない場合はログイン画面を表示
   if (!isAuthenticated) {
     console.log("AdminSettings: Not authenticated, showing login");
     return <AdminLogin />;
   }
 
+  // 認証されている場合は管理画面を表示
   console.log("AdminSettings: Authenticated, showing admin panel");
   return (
     <div className="container mx-auto py-8">

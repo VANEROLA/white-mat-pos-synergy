@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,40 +9,50 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
-const AdminLogin = () => {
+const AdminLogin: React.FC = () => {
   const [password, setPassword] = useState("");
-  const [loginSuccess, setLoginSuccess] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const { login, isAuthenticated } = useAdminAuth();
   const navigate = useNavigate();
 
-  // Automatically redirect to admin page if already authenticated
-  useEffect(() => {
-    console.log("AdminLogin: Authentication state changed:", isAuthenticated);
-    if (isAuthenticated || loginSuccess) {
-      console.log("AdminLogin: Redirecting to /admin");
-      // Use a small delay to ensure state is fully updated
-      const redirectTimer = setTimeout(() => {
-        navigate("/admin");
-      }, 100);
-      
-      return () => clearTimeout(redirectTimer);
-    }
-  }, [isAuthenticated, loginSuccess, navigate]);
-
+  // ログイン処理を実行
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!password) {
+      toast.error("パスワードを入力してください");
+      return;
+    }
+    
+    setIsLoggingIn(true); // ログイン中フラグをセット
     console.log("AdminLogin: Login form submitted");
     
     if (login(password)) {
       console.log("AdminLogin: Login successful");
-      setLoginSuccess(true); // Set local success state
       toast.success("管理者画面にログインしました");
+      
+      // ログイン成功後、少し遅延させてからリダイレクト
+      // これにより認証状態が確実に更新される
+      setTimeout(() => {
+        console.log("AdminLogin: Redirecting to admin page");
+        navigate("/admin");
+        setIsLoggingIn(false);
+      }, 500);
     } else {
       console.log("AdminLogin: Login failed");
       toast.error("パスワードが正しくありません");
-      setPassword(""); // Clear password field on failed login
+      setPassword(""); // 失敗したらパスワードをクリア
+      setIsLoggingIn(false);
     }
   };
+
+  // すでに認証済みの場合はリダイレクト
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      console.log("AdminLogin: Already authenticated, redirecting");
+      navigate("/admin");
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <div className="container flex items-center justify-center min-h-[80vh]">
@@ -72,8 +82,12 @@ const AdminLogin = () => {
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="w-full">
-              ログイン
+            <Button 
+              type="submit" 
+              className="w-full"
+              disabled={isLoggingIn}
+            >
+              {isLoggingIn ? "ログイン中..." : "ログイン"}
             </Button>
           </CardFooter>
         </form>
