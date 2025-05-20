@@ -3,9 +3,13 @@ import React, { useState } from "react";
 import { HeaderSection } from "@/components/options/HeaderSection";
 import { TabsSection } from "@/components/options/TabsSection";
 import { SaveSettingsButton } from "@/components/options/SaveSettingsButton";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 export const OptionsLayout: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 768px)");
   
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);

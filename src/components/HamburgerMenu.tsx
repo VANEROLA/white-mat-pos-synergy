@@ -15,14 +15,14 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({ isOpen, toggleMenu, class
     <Button 
       variant="ghost" 
       size="sm" 
-      className={cn("relative focus:outline-none", className)}
+      className={cn("relative p-2 focus:outline-none", className)}
       onClick={toggleMenu}
       aria-label={isOpen ? "メニューを閉じる" : "メニューを開く"}
     >
       {isOpen ? (
-        <X className="h-5 w-5" />
+        <X className="h-6 w-6" />
       ) : (
-        <Menu className="h-5 w-5" />
+        <Menu className="h-6 w-6" />
       )}
     </Button>
   );

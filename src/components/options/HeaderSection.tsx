@@ -1,9 +1,9 @@
 
 import React from "react";
-import { Info, Menu } from "lucide-react";
+import { Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import SidebarMenu from "@/components/SidebarMenu";
+import HamburgerMenu from "@/components/HamburgerMenu";
 
 interface HeaderSectionProps {
   isMenuOpen: boolean;
@@ -19,20 +19,10 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
   return (
     <div className="flex items-center justify-between mb-8">
       <div className="flex items-center">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={toggleMenu} 
-          className="mr-2 md:hidden"
-          aria-label="メニューを開く"
-        >
-          <Menu className="h-5 w-5" />
-        </Button>
-        <SidebarMenu 
-          isOpen={isMenuOpen}
-          onClose={closeMenu}
-          toggleMenu={toggleMenu}
-          className="mr-3"
+        <HamburgerMenu 
+          isOpen={isMenuOpen} 
+          toggleMenu={toggleMenu} 
+          className="mr-4 md:hidden" 
         />
         <div>
           <h1 className="text-3xl font-bold tracking-tight">オプション設定</h1>
