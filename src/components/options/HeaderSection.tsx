@@ -4,6 +4,7 @@ import { Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import HamburgerMenu from "@/components/HamburgerMenu";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface HeaderSectionProps {
   isMenuOpen: boolean;
@@ -16,14 +17,17 @@ export const HeaderSection: React.FC<HeaderSectionProps> = ({
   toggleMenu, 
   closeMenu 
 }) => {
+  const isMobile = useIsMobile();
+  
   return (
     <div className="flex items-center justify-between mb-8">
-      <div className="flex items-center">
-        <HamburgerMenu 
-          isOpen={isMenuOpen} 
-          toggleMenu={toggleMenu} 
-          className="mr-4 md:hidden" 
-        />
+      <div className="flex items-center gap-3">
+        {isMobile && (
+          <HamburgerMenu 
+            isOpen={isMenuOpen} 
+            toggleMenu={toggleMenu}
+          />
+        )}
         <div>
           <h1 className="text-3xl font-bold tracking-tight">オプション設定</h1>
           <p className="text-muted-foreground">システムの動作と表示をカスタマイズします</p>

@@ -4,12 +4,12 @@ import { HeaderSection } from "@/components/options/HeaderSection";
 import { TabsSection } from "@/components/options/TabsSection";
 import { SaveSettingsButton } from "@/components/options/SaveSettingsButton";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { useMediaQuery } from "@/hooks/use-media-query";
+import { useIsMobile } from "@/hooks/use-mobile";
 import SidebarMenu from "@/components/SidebarMenu";
 
 export const OptionsLayout: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useIsMobile();
   
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
