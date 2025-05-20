@@ -1,6 +1,5 @@
 
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
 
 export interface StoreAuthState {
   isAuthenticated: boolean;
@@ -21,8 +20,7 @@ export const useStoreAuth = (): StoreAuthState => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [storeInfo, setStoreInfo] = useState<StoreInfo | null>(null);
-  const navigate = useNavigate();
-
+  
   // 初回マウント時に認証状態をチェック
   useEffect(() => {
     console.log("StoreAuth: Initializing authentication state");
@@ -135,8 +133,10 @@ export const useStoreAuth = (): StoreAuthState => {
     localStorage.removeItem("storeInfo");
     setIsAuthenticated(false);
     setStoreInfo(null);
-    navigate("/login", { replace: true });
-  }, [navigate]);
+    
+    // Navigate is handled in the context
+    window.location.href = "/login";
+  }, []);
 
   // 店舗情報の更新
   const updateStoreInfo = useCallback((info: Partial<StoreInfo>): boolean => {

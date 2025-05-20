@@ -14,14 +14,11 @@ import "./App.css";
 import { TaxProvider } from "@/contexts/TaxContext";
 import React, { useState } from "react";
 import SidebarMenu from "@/components/SidebarMenu";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { StoreAuthProvider } from "@/contexts/StoreAuthContext";
+import { StoreAuthProvider, useStoreAuthContext } from "@/contexts/StoreAuthContext";
 
 // 認証が必要なルートを保護するためのラッパー
-import { useStoreAuth } from "@/hooks/useStoreAuth";
-
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, isLoading } = useStoreAuth();
+  const { isAuthenticated, isLoading } = useStoreAuthContext();
   
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center">読み込み中...</div>;
@@ -34,69 +31,75 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   return <>{children}</>;
 };
 
-function App() {
+function AppContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <StoreAuthProvider>
-      <TaxProvider>
-        <div className="flex min-h-screen">
-          <div className="flex-1">
-            {/* Sidebar activated by hamburger menu for all devices */}
-            <SidebarMenu 
-              isOpen={isSidebarOpen}
-              onClose={() => setIsSidebarOpen(false)}
-              onNavigate={() => setIsSidebarOpen(false)}
-            />
+    <TaxProvider>
+      <div className="flex min-h-screen">
+        <div className="flex-1">
+          {/* Sidebar activated by hamburger menu for all devices */}
+          <SidebarMenu 
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+            onNavigate={() => setIsSidebarOpen(false)}
+          />
 
-            <Routes>
-              <Route path="/login" element={<StoreLogin />} />
-              
-              {/* Protected routes */}
-              <Route path="/" element={
-                <ProtectedRoute>
-                  <Index 
-                    toggleMenu={() => setIsSidebarOpen(!isSidebarOpen)} 
-                    isMenuOpen={isSidebarOpen} 
-                  />
-                </ProtectedRoute>
-              } />
-              <Route path="/add-product" element={
-                <ProtectedRoute>
-                  <AddProduct />
-                </ProtectedRoute>
-              } />
-              <Route path="/order-history" element={
-                <ProtectedRoute>
-                  <OrderHistory />
-                </ProtectedRoute>
-              } />
-              <Route path="/system-logs" element={
-                <ProtectedRoute>
-                  <SystemLogs />
-                </ProtectedRoute>
-              } />
-              <Route path="/free-items" element={
-                <ProtectedRoute>
-                  <FreeItems />
-                </ProtectedRoute>
-              } />
-              <Route path="/inventory" element={
-                <ProtectedRoute>
-                  <InventoryManagement />
-                </ProtectedRoute>
-              } />
-              <Route path="/admin" element={
-                <ProtectedRoute>
-                  <AdminSettings />
-                </ProtectedRoute>
-              } />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </div>
+          <Routes>
+            <Route path="/login" element={<StoreLogin />} />
+            
+            {/* Protected routes */}
+            <Route path="/" element={
+              <ProtectedRoute>
+                <Index 
+                  toggleMenu={() => setIsSidebarOpen(!isSidebarOpen)} 
+                  isMenuOpen={isSidebarOpen} 
+                />
+              </ProtectedRoute>
+            } />
+            <Route path="/add-product" element={
+              <ProtectedRoute>
+                <AddProduct />
+              </ProtectedRoute>
+            } />
+            <Route path="/order-history" element={
+              <ProtectedRoute>
+                <OrderHistory />
+              </ProtectedRoute>
+            } />
+            <Route path="/system-logs" element={
+              <ProtectedRoute>
+                <SystemLogs />
+              </ProtectedRoute>
+            } />
+            <Route path="/free-items" element={
+              <ProtectedRoute>
+                <FreeItems />
+              </ProtectedRoute>
+            } />
+            <Route path="/inventory" element={
+              <ProtectedRoute>
+                <InventoryManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin" element={
+              <ProtectedRoute>
+                <AdminSettings />
+              </ProtectedRoute>
+            } />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </div>
-        <Toaster />
-      </TaxProvider>
+      </div>
+      <Toaster />
+    </TaxProvider>
+  );
+}
+
+function App() {
+  return (
+    <StoreAuthProvider>
+      <AppContent />
     </StoreAuthProvider>
   );
 }
