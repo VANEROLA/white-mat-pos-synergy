@@ -3,17 +3,11 @@ import React from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Bell, Volume2, AlertTriangle, CheckCheck, Vibrate, Mail } from "lucide-react";
 import { SettingRow } from "./SettingRow";
+import type { NotificationOptions } from "@/hooks/useOptionsState";
 
 interface NotificationsTabProps {
-  notificationOptions: {
-    enableNotifications: boolean;
-    soundEnabled: boolean;
-    showLowStockAlerts: boolean;
-    showOrderCompletionAlerts: boolean;
-    vibrateOnAlert: boolean;
-    emailNotifications: boolean;
-  };
-  handleNotificationOptionChange: (key: keyof typeof notificationOptions) => void;
+  notificationOptions: NotificationOptions;
+  handleNotificationOptionChange: (key: keyof NotificationOptions) => void;
 }
 
 export const NotificationsTab: React.FC<NotificationsTabProps> = ({

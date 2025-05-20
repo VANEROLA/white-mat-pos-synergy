@@ -4,18 +4,12 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Moon, Image, Text, Smartphone, Contrast, MonitorSmartphone } from "lucide-react";
 import { SettingRow } from "./SettingRow";
 import { ThemeColorPicker } from "./ThemeColorPicker";
+import type { DisplayOptions } from "@/hooks/useOptionsState";
 
 interface DisplayOptionProps {
-  displayOptions: {
-    darkMode: boolean;
-    showProductImages: boolean;
-    largeText: boolean;
-    compactMode: boolean;
-    highContrastMode: boolean;
-    animationsEnabled: boolean;
-  };
+  displayOptions: DisplayOptions;
   themeColor: string;
-  handleDisplayOptionChange: (key: keyof typeof displayOptions) => void;
+  handleDisplayOptionChange: (key: keyof DisplayOptions) => void;
   setThemeColor: (value: string) => void;
 }
 

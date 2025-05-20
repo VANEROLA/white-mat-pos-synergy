@@ -3,18 +3,11 @@ import React from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { ShoppingCart, Zap, AlertCircle, Receipt, Save, FileText, UserCog } from "lucide-react";
 import { SettingRow } from "./SettingRow";
+import type { POSOptions } from "@/hooks/useOptionsState";
 
 interface POSTabProps {
-  posOptions: {
-    quickCheckout: boolean;
-    confirmBeforeRemove: boolean;
-    showLastOrderSummary: boolean;
-    autoSaveCart: boolean;
-    clearCartAfterCheckout: boolean;
-    showTaxBreakdown: boolean;
-    requireStaffIdForDiscounts: boolean;
-  };
-  handlePOSOptionChange: (key: keyof typeof posOptions) => void;
+  posOptions: POSOptions;
+  handlePOSOptionChange: (key: keyof POSOptions) => void;
 }
 
 export const POSTab: React.FC<POSTabProps> = ({

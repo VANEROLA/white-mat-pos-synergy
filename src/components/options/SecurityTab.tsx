@@ -5,17 +5,12 @@ import { Lock, RefreshCw, FileText, Fingerprint } from "lucide-react";
 import { SettingRow } from "./SettingRow";
 import { AutoLockTimeSelector } from "./AutoLockTimeSelector";
 import { Separator } from "@/components/ui/separator";
+import type { SecurityOptions } from "@/hooks/useOptionsState";
 
 interface SecurityTabProps {
-  securityOptions: {
-    autoLockScreen: boolean;
-    autoLockTimeout: number;
-    requirePinForRefunds: boolean;
-    showActivityLogs: boolean;
-    allowBiometricAuth: boolean;
-  };
-  handleSecurityOptionChange: (key: keyof typeof securityOptions) => void;
-  setSecurityOptions: React.Dispatch<React.SetStateAction<typeof securityOptions>>;
+  securityOptions: SecurityOptions;
+  handleSecurityOptionChange: (key: keyof SecurityOptions) => void;
+  setSecurityOptions: React.Dispatch<React.SetStateAction<SecurityOptions>>;
 }
 
 export const SecurityTab: React.FC<SecurityTabProps> = ({
