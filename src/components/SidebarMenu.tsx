@@ -15,8 +15,6 @@ import {
   Database, 
   UserCog, 
   Settings,
-  Menu,
-  X,
   ChartBar,
   BarChart3
 } from "lucide-react";
@@ -122,13 +120,7 @@ const SidebarMenu: React.FC<SidebarProps> = ({
         <SheetContent side="left" className="w-64 p-4">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold">メニュー</h2>
-            <button 
-              onClick={onClose} 
-              className="p-1 rounded-full hover:bg-accent"
-              aria-label="閉じる"
-            >
-              <X className="h-4 w-4" />
-            </button>
+            {/* Removed the duplicate X button here since SheetContent already has a close button */}
           </div>
           {menuContent}
         </SheetContent>
