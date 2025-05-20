@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Store } from "lucide-react";
-import { useStoreAuth } from "@/hooks/useStoreAuth";
+import { useStoreAuthContext } from "@/contexts/StoreAuthContext";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -13,7 +13,7 @@ const StoreLogin: React.FC = () => {
   const [storeId, setStoreId] = useState("");
   const [password, setPassword] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const { login, isAuthenticated } = useStoreAuth();
+  const { login, isAuthenticated } = useStoreAuthContext();
   const navigate = useNavigate();
 
   // ログイン処理を実行
@@ -33,8 +33,10 @@ const StoreLogin: React.FC = () => {
     setIsLoggingIn(true);
     console.log("StoreLogin: Login form submitted");
     
-    if (login(storeId, password)) {
-      console.log("StoreLogin: Login successful");
+    // ログイン処理を実行し、成功したら即座にリダイレクト
+    const success = login(storeId, password);
+    if (success) {
+      console.log("StoreLogin: Login successful, redirecting...");
       toast.success("店舗システムにログインしました");
       navigate("/", { replace: true });
     } else {

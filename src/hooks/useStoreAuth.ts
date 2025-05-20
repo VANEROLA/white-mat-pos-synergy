@@ -1,6 +1,5 @@
 
 import { useState, useEffect, useCallback } from "react";
-import React from "react";
 
 export interface StoreAuthState {
   isAuthenticated: boolean;
@@ -135,9 +134,6 @@ export const useStoreAuth = (): StoreAuthState => {
     localStorage.removeItem("storeInfo");
     setIsAuthenticated(false);
     setStoreInfo(null);
-    
-    // Navigate is handled in the context
-    window.location.href = "/login";
   }, []);
 
   // 店舗情報の更新

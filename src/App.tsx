@@ -33,17 +33,20 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
 function AppContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { isAuthenticated } = useStoreAuthContext();
 
   return (
     <TaxProvider>
       <div className="flex min-h-screen">
         <div className="flex-1">
           {/* Sidebar activated by hamburger menu for all devices */}
-          <SidebarMenu 
-            isOpen={isSidebarOpen}
-            onClose={() => setIsSidebarOpen(false)}
-            onNavigate={() => setIsSidebarOpen(false)}
-          />
+          {isAuthenticated && (
+            <SidebarMenu 
+              isOpen={isSidebarOpen}
+              onClose={() => setIsSidebarOpen(false)}
+              onNavigate={() => setIsSidebarOpen(false)}
+            />
+          )}
 
           <Routes>
             <Route path="/login" element={<StoreLogin />} />
