@@ -42,24 +42,24 @@ const StoreSearchPanel: React.FC<StoreSearchPanelProps> = ({
   stores
 }) => {
   return (
-    <div className="mb-6">
-      <div className="flex flex-col md:flex-row gap-3 mb-4">
+    <div className="mb-4">
+      <div className="flex flex-col md:flex-row gap-2 mb-3">
         <div className="relative flex-grow">
-          <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+          <Search size={14} className="absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="商品名で検索..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
+            className="pl-7 h-9 text-sm"
           />
         </div>
         
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-2">
           <Select 
             value={selectedCategory} 
             onValueChange={setSelectedCategory}
           >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[130px] h-9 text-sm">
               <SelectValue placeholder="カテゴリ選択" />
             </SelectTrigger>
             <SelectContent>
@@ -76,7 +76,7 @@ const StoreSearchPanel: React.FC<StoreSearchPanelProps> = ({
             value={selectedStore} 
             onValueChange={setSelectedStore}
           >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[130px] h-9 text-sm">
               <SelectValue placeholder="店舗選択" />
             </SelectTrigger>
             <SelectContent>
@@ -91,17 +91,17 @@ const StoreSearchPanel: React.FC<StoreSearchPanelProps> = ({
           
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="flex items-center gap-2">
-                <Filter className="h-4 w-4" />
-                <span>並び替え</span>
+              <Button variant="outline" size="sm" className="flex items-center gap-1 h-9">
+                <Filter className="h-3 w-3" />
+                <span className="text-xs">並び替え</span>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-56 p-2">
+            <PopoverContent className="w-48 p-1">
               <div className="space-y-1">
                 <Button 
                   variant={sortField === "name" ? "default" : "ghost"} 
                   size="sm" 
-                  className="w-full justify-start" 
+                  className="w-full justify-start text-xs h-8" 
                   onClick={() => handleSort("name")}
                 >
                   商品名 {sortField === "name" && (sortOrder === "asc" ? "↑" : "↓")}
@@ -109,7 +109,7 @@ const StoreSearchPanel: React.FC<StoreSearchPanelProps> = ({
                 <Button 
                   variant={sortField === "quantity" ? "default" : "ghost"} 
                   size="sm" 
-                  className="w-full justify-start" 
+                  className="w-full justify-start text-xs h-8" 
                   onClick={() => handleSort("quantity")}
                 >
                   数量 {sortField === "quantity" && (sortOrder === "asc" ? "↑" : "↓")}
@@ -117,7 +117,7 @@ const StoreSearchPanel: React.FC<StoreSearchPanelProps> = ({
                 <Button 
                   variant={sortField === "revenue" ? "default" : "ghost"} 
                   size="sm" 
-                  className="w-full justify-start" 
+                  className="w-full justify-start text-xs h-8" 
                   onClick={() => handleSort("revenue")}
                 >
                   売上 {sortField === "revenue" && (sortOrder === "asc" ? "↑" : "↓")}
@@ -129,12 +129,12 @@ const StoreSearchPanel: React.FC<StoreSearchPanelProps> = ({
       </div>
 
       {(searchQuery || selectedCategory !== "all" || selectedStore !== "all") && (
-        <div className="text-sm text-muted-foreground mt-1 mb-3">
+        <div className="text-xs text-muted-foreground mb-2">
           適用フィルター: 
           {searchQuery && `検索: ${searchQuery}`} 
           {selectedCategory !== "all" && (searchQuery ? ` / カテゴリ: ${selectedCategory}` : `カテゴリ: ${selectedCategory}`)} 
           {selectedStore !== "all" && ((searchQuery || selectedCategory !== "all") ? ` / 店舗: ${selectedStore}` : `店舗: ${selectedStore}`)} {" "}
-          <Button variant="ghost" size="sm" onClick={handleResetFilters} className="h-6 px-2 text-xs">
+          <Button variant="ghost" size="sm" onClick={handleResetFilters} className="h-5 px-1 text-xs">
             リセット
           </Button>
         </div>
