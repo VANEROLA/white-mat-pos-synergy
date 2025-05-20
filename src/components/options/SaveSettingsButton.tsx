@@ -1,15 +1,14 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { useOptions } from "@/contexts/OptionsContext";
 
-interface SaveSettingsButtonProps {
-  onSave: () => void;
-}
-
-export const SaveSettingsButton: React.FC<SaveSettingsButtonProps> = ({ onSave }) => {
+export const SaveSettingsButton: React.FC = () => {
+  const { handleSaveSettings } = useOptions();
+  
   return (
     <div className="mt-8 flex justify-end">
-      <Button onClick={onSave} size="lg" className="px-8 py-6 text-lg font-medium">
+      <Button onClick={handleSaveSettings} size="lg" className="px-8 py-6 text-lg font-medium">
         すべての設定を保存
       </Button>
     </div>
