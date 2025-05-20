@@ -2,7 +2,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { 
+import {
   Sheet,
   SheetContent,
   SheetTrigger 
@@ -19,6 +19,12 @@ import {
   Menu,
   X 
 } from "lucide-react";
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger 
+} from "@/components/ui/tooltip";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -59,9 +65,9 @@ const SidebarMenu: React.FC<SidebarProps> = ({
   const menuItems = [
     { icon: Home, label: "POSレジ", path: "/" },
     { icon: Package, label: "商品追加", path: "/add-product" },
-    { icon: History, label: "注文履歴", path: "/order-history" },
     { icon: Database, label: "在庫管理", path: "/inventory" },
-    { icon: Gift, label: "無料処理", path: "/free-items" },
+    { icon: History, label: "注文履歴", path: "/order-history" },
+    { icon: Gift, label: "無料処理", path: "/free-items" }, 
     { icon: Settings, label: "オプション", path: "/options" },
     { icon: FileText, label: "システムログ", path: "/system-logs" },
     { icon: UserCog, label: "管理者設定", path: "/admin" },
@@ -71,31 +77,47 @@ const SidebarMenu: React.FC<SidebarProps> = ({
   const menuContent = (
     <div className={cn("flex flex-col space-y-1", className)}>
       {menuItems.map((item) => (
-        <Link
-          key={item.label}
-          to={item.path}
-          onClick={() => handleNavigate(item.path)}
-          className={cn(
-            "group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground",
-            isActive(item.path)
-              ? "bg-accent text-accent-foreground"
-              : "text-muted-foreground"
-          )}
-        >
-          <item.icon className="mr-2 h-4 w-4" />
-          <span>{item.label}</span>
-        </Link>
+        <TooltipProvider key={item.path} delayDuration={300}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                to={item.path}
+                onClick={() => handleNavigate(item.path)}
+                className={cn(
+                  "group flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
+                  isActive(item.path)
+                    ? "bg-accent text-accent-foreground"
+                    : "text-muted-foreground"
+                )}
+              >
+                <item.icon className="mr-2 h-4 w-4" />
+                <span>{item.label}</span>
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              {item.path === "/" && "レジ操作画面に移動します"}
+              {item.path === "/add-product" && "新しい商品を登録できます"}
+              {item.path === "/inventory" && "在庫状況を管理します"}
+              {item.path === "/order-history" && "過去の注文履歴を表示します"}
+              {item.path === "/free-items" && "無料商品の処理を行います"}
+              {item.path === "/options" && "システム設定をカスタマイズします"}
+              {item.path === "/system-logs" && "システムログを確認します"}
+              {item.path === "/admin" && "管理者向け詳細設定を行います"}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       ))}
     </div>
   );
 
-  // Always use Sheet component now for a slide-in menu
+  // Fix the Sheet component to properly handle the menu toggle
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetTrigger asChild className="md:hidden">
         <button 
           className="p-2 rounded-md hover:bg-accent"
           onClick={toggleMenu}
+          aria-label="メニュー"
         >
           <Menu className="h-5 w-5" />
         </button>
