@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,21 +21,14 @@ const SalesData = ({ toggleMenu, isMenuOpen }: { toggleMenu?: () => void, isMenu
     <div className="container mx-auto py-6 px-4 md:px-6">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <div className="md:hidden">
-            <HamburgerMenu 
-              isOpen={isMenuOpen || false} 
-              toggleMenu={toggleMenu || (() => {})} 
-            />
+          <HamburgerMenu 
+            isOpen={isMenuOpen || false} 
+            toggleMenu={toggleMenu || (() => {})} 
+          />
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight mb-1">売上データ</h1>
+            <p className="text-muted-foreground">販売データを分析して店舗のパフォーマンスを把握</p>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight mb-1">売上データ</h1>
-          <div className="md:hidden">
-            <HamburgerMenu 
-              isOpen={isMenuOpen || false} 
-              toggleMenu={toggleMenu || (() => {})} 
-              className="ml-2"
-            />
-          </div>
-          <p className="text-muted-foreground">販売データを分析して店舗のパフォーマンスを把握</p>
         </div>
         <div className="flex items-center gap-2 mt-4 md:mt-0">
           <DateRangePicker

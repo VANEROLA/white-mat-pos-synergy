@@ -71,7 +71,7 @@ const SidebarMenu: React.FC<SidebarProps> = ({
     { icon: History, label: "注文履歴", path: "/order-history" },
     { icon: Gift, label: "無料処理", path: "/free-items" }, 
     { icon: ChartBar, label: "売上データ", path: "/sales-data" },
-    { icon: BarChart3, label: "店舗間売上データ共有", path: "/store-sales-comparison" }, // Add new menu item
+    { icon: BarChart3, label: "店舗間売上データ共有", path: "/store-sales-comparison" },
     { icon: Settings, label: "オプション", path: "/options" },
     { icon: FileText, label: "システムログ", path: "/system-logs" },
     { icon: UserCog, label: "管理者設定", path: "/admin" },
@@ -118,15 +118,6 @@ const SidebarMenu: React.FC<SidebarProps> = ({
 
   return (
     <>
-      <div className="md:hidden">
-        {!isOpen && (
-          <HamburgerMenu 
-            isOpen={isOpen || false} 
-            toggleMenu={toggleMenu || (() => {})} 
-          />
-        )}
-      </div>
-      
       <Sheet open={isOpen} onOpenChange={onClose}>
         <SheetContent side="left" className="w-64 p-4">
           <div className="flex justify-between items-center mb-4">

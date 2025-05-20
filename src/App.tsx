@@ -12,7 +12,7 @@ import Options from "@/pages/Options";
 import StoreLogin from "@/pages/StoreLogin";
 import NotFound from "@/pages/NotFound";
 import SalesData from "@/pages/SalesData";
-import StoreSalesComparison from "@/pages/StoreSalesComparison"; // Import new page
+import StoreSalesComparison from "@/pages/StoreSalesComparison";
 import "./App.css";
 import { TaxProvider } from "@/contexts/TaxContext";
 import React, { useState } from "react";

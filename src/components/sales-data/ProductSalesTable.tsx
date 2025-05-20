@@ -86,12 +86,14 @@ const ProductSalesTable: React.FC<ProductSalesTableProps> = ({ dateRange }) => {
   };
   
   const handleExportCSV = () => {
-    // Prepare data for CSV export
+    // Convert the product sales data to a format compatible with the CSV exporter
     const exportData = sortedData.map(item => ({
+      id: `product-${item.productName}`,
       name: item.productName,
       price: item.revenue,
       category: "売上データ",
-      stockCount: item.quantity
+      stockCount: item.quantity,
+      imageUrl: "" // Adding required field for Product type
     }));
     
     exportProductsToCSV(exportData);
@@ -102,7 +104,7 @@ const ProductSalesTable: React.FC<ProductSalesTableProps> = ({ dateRange }) => {
   }
 
   return (
-    <>
+    <div data-product-sales-table={{handleExportCSV}}>
       <div className="rounded-md border overflow-auto">
         <Table>
           <TableHeader>
@@ -139,7 +141,7 @@ const ProductSalesTable: React.FC<ProductSalesTableProps> = ({ dateRange }) => {
           </TableBody>
         </Table>
       </div>
-    </>
+    </div>
   );
 };
 
