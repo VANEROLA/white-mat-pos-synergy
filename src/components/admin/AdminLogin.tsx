@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,14 +11,21 @@ import { useNavigate } from "react-router-dom";
 
 const AdminLogin = () => {
   const [password, setPassword] = useState("");
-  const { login } = useAdminAuth();
+  const { login, isAuthenticated } = useAdminAuth();
   const navigate = useNavigate();
+
+  // Automatically redirect to admin page if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/admin");
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (login(password)) {
       toast.success("管理者画面にログインしました");
-      navigate("/admin"); // Add navigation to admin page after successful login
+      navigate("/admin"); // Navigate to admin page after successful login
     } else {
       toast.error("パスワードが正しくありません");
       setPassword(""); // Clear password field on failed login
