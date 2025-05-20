@@ -18,6 +18,7 @@ const AdminLogin = () => {
       toast.success("管理者画面にログインしました");
     } else {
       toast.error("パスワードが正しくありません");
+      setPassword(""); // Clear password field on failed login
     }
   };
 
@@ -44,6 +45,7 @@ const AdminLogin = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                autoFocus
               />
             </div>
           </CardContent>

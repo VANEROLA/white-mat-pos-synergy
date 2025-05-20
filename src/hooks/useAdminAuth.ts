@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 interface AdminAuthState {
   isAuthenticated: boolean;
@@ -9,6 +10,7 @@ interface AdminAuthState {
 
 export const useAdminAuth = (): AdminAuthState => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const location = useLocation();
 
   // Check if user is already authenticated on component mount
   useEffect(() => {
@@ -26,6 +28,13 @@ export const useAdminAuth = (): AdminAuthState => {
       }
     }
   }, []);
+
+  // Reset authentication when navigating away from admin page
+  useEffect(() => {
+    if (!location.pathname.includes("/admin") && isAuthenticated) {
+      logout();
+    }
+  }, [location.pathname, isAuthenticated]);
 
   // Login function that validates the password
   const login = (password: string): boolean => {
