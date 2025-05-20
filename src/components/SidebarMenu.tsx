@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils";
 import {
   Sheet,
   SheetContent,
-  SheetTrigger 
 } from "@/components/ui/sheet";
 import { 
   Home, 
@@ -25,6 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger 
 } from "@/components/ui/tooltip";
+import HamburgerMenu from "./HamburgerMenu";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -112,13 +112,12 @@ const SidebarMenu: React.FC<SidebarProps> = ({
 
   return (
     <>
-      <button 
-        className="md:hidden p-2 rounded-md hover:bg-accent"
-        onClick={toggleMenu}
-        aria-label="メニュー"
-      >
-        <Menu className="h-5 w-5" />
-      </button>
+      <div className="md:hidden">
+        <HamburgerMenu 
+          isOpen={isOpen || false} 
+          toggleMenu={toggleMenu || (() => {})} 
+        />
+      </div>
       
       <Sheet open={isOpen} onOpenChange={onClose}>
         <SheetContent side="left" className="w-64 p-4">
