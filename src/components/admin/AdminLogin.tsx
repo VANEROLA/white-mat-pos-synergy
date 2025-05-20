@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 const AdminLogin: React.FC = () => {
   const [password, setPassword] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [loginSuccess, setLoginSuccess] = useState(false);
   const { login, isAuthenticated } = useAdminAuth();
   const navigate = useNavigate();
 
@@ -30,14 +31,10 @@ const AdminLogin: React.FC = () => {
     if (login(password)) {
       console.log("AdminLogin: Login successful");
       toast.success("管理者画面にログインしました");
+      setLoginSuccess(true);
       
-      // ログイン成功後、少し遅延させてからリダイレクト
-      // これにより認証状態が確実に更新される
-      setTimeout(() => {
-        console.log("AdminLogin: Redirecting to admin page");
-        navigate("/admin");
-        setIsLoggingIn(false);
-      }, 500);
+      // ログイン成功したらすぐにリダイレクト
+      navigate("/admin", { replace: true });
     } else {
       console.log("AdminLogin: Login failed");
       toast.error("パスワードが正しくありません");
@@ -46,13 +43,13 @@ const AdminLogin: React.FC = () => {
     }
   };
 
-  // すでに認証済みの場合はリダイレクト
-  React.useEffect(() => {
-    if (isAuthenticated) {
-      console.log("AdminLogin: Already authenticated, redirecting");
-      navigate("/admin");
+  // ログイン成功後のリダイレクト処理（バックアップ）
+  useEffect(() => {
+    if (loginSuccess || isAuthenticated) {
+      console.log("AdminLogin: Redirecting to admin page");
+      navigate("/admin", { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [loginSuccess, isAuthenticated, navigate]);
 
   return (
     <div className="container flex items-center justify-center min-h-[80vh]">

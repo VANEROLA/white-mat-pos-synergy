@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AdminLogin from "@/components/admin/AdminLogin";
 import AdminHeader from "@/components/admin/AdminHeader";
@@ -9,11 +9,33 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { useStaffManagement } from "@/hooks/useStaffManagement";
 
 const AdminSettings: React.FC = () => {
-  const { isAuthenticated } = useAdminAuth();
+  const { isAuthenticated, isLoading } = useAdminAuth();
   const { staffList, addStaff, removeStaff, changeAdminPassword } = useStaffManagement();
+  const [isPageLoading, setIsPageLoading] = useState(true);
+  
+  // ページ読み込み時に少し待ってから認証状態を確認
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsPageLoading(false);
+    }, 300); // 300msのディレイを追加
+    
+    return () => clearTimeout(timer);
+  }, []);
   
   // 認証状態に基づいて表示を切り替え
   console.log("AdminSettings: Authentication state:", isAuthenticated);
+  
+  // ローディング中は何も表示しない
+  if (isLoading || isPageLoading) {
+    console.log("AdminSettings: Loading...");
+    return (
+      <div className="flex justify-center items-center min-h-[80vh]">
+        <div className="text-center">
+          <p>読み込み中...</p>
+        </div>
+      </div>
+    );
+  }
   
   // 認証されていない場合はログイン画面を表示
   if (!isAuthenticated) {

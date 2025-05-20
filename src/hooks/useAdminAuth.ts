@@ -6,10 +6,12 @@ export interface AdminAuthState {
   isAuthenticated: boolean;
   login: (password: string) => boolean;
   logout: () => void;
+  isLoading: boolean;
 }
 
 export const useAdminAuth = (): AdminAuthState => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -17,6 +19,7 @@ export const useAdminAuth = (): AdminAuthState => {
   useEffect(() => {
     console.log("Auth: Initializing authentication state");
     checkAuthStatus();
+    setIsLoading(false);
   }, []);
 
   // 認証トークンのステータスを確認する関数
@@ -32,20 +35,24 @@ export const useAdminAuth = (): AdminAuthState => {
         
         if (isValid) {
           setIsAuthenticated(true);
+          return true;
         } else {
           // 期限切れのトークンを削除
           console.log("Auth: Token expired, removing");
           localStorage.removeItem("adminAuthToken");
           setIsAuthenticated(false);
+          return false;
         }
       } else {
         console.log("Auth: No token found");
         setIsAuthenticated(false);
+        return false;
       }
     } catch (error) {
       console.error("Auth: Error checking token", error);
       localStorage.removeItem("adminAuthToken");
       setIsAuthenticated(false);
+      return false;
     }
   }, []);
 
@@ -66,6 +73,8 @@ export const useAdminAuth = (): AdminAuthState => {
   // ログイン処理
   const login = useCallback((password: string): boolean => {
     console.log("Auth: Login attempt");
+    setIsLoading(true);
+    
     // デフォルトパスワードまたは保存されたパスワードを取得
     const storedPassword = localStorage.getItem("adminPassword") || "1234";
     
@@ -77,10 +86,12 @@ export const useAdminAuth = (): AdminAuthState => {
       
       setIsAuthenticated(true);
       console.log("Auth: Authentication successful");
+      setIsLoading(false);
       return true;
     }
     
     console.log("Auth: Password incorrect");
+    setIsLoading(false);
     return false;
   }, []);
 
@@ -94,6 +105,7 @@ export const useAdminAuth = (): AdminAuthState => {
   return {
     isAuthenticated,
     login,
-    logout
+    logout,
+    isLoading
   };
 };

@@ -17,8 +17,10 @@ const AdminHeader: React.FC = () => {
       logout();
       // ログアウト成功のメッセージを表示
       toast.success("ログアウトしました");
-      // ホームページに移動
-      navigate("/");
+      // 少し遅延してからホームページに移動
+      setTimeout(() => {
+        navigate("/", { replace: true });
+      }, 100);
     } catch (error) {
       console.error("AdminHeader: Error during logout", error);
       navigate("/");
