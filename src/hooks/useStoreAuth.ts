@@ -1,5 +1,6 @@
 
 import { useState, useEffect, useCallback } from "react";
+import React from "react";
 
 export interface StoreAuthState {
   isAuthenticated: boolean;
@@ -92,7 +93,8 @@ export const useStoreAuth = (): StoreAuthState => {
     const defaultStores: Record<string, {password: string, name: string}> = {
       "store1": { password: "1234", name: "東京本店" },
       "store2": { password: "1234", name: "大阪支店" },
-      "store3": { password: "1234", name: "名古屋支店" }
+      "store3": { password: "1234", name: "名古屋支店" },
+      "VANEROLA": { password: "1234", name: "VANEROLA" }
     };
     
     // 店舗IDが存在し、パスワードが一致するか確認
