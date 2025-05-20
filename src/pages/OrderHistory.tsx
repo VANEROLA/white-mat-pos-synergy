@@ -21,6 +21,7 @@ const OrderHistory: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedOrder, setEditedOrder] = useState<Order | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -98,7 +99,10 @@ const OrderHistory: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-[1400px] mx-auto p-4 md:p-6 lg:p-8">
-        <POSHeader />
+        <POSHeader 
+          toggleMenu={() => setIsSidebarOpen(!isSidebarOpen)}
+          isMenuOpen={isSidebarOpen}
+        />
         
         <div className="flex items-center mb-6">
           <Button 
