@@ -36,6 +36,10 @@ function AppContent() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { isAuthenticated } = useStoreAuthContext();
 
+  const toggleMenu = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
     <TaxProvider>
       <div className="flex min-h-screen">
@@ -46,6 +50,7 @@ function AppContent() {
               isOpen={isSidebarOpen}
               onClose={() => setIsSidebarOpen(false)}
               onNavigate={() => setIsSidebarOpen(false)}
+              toggleMenu={toggleMenu}
             />
           )}
 
@@ -56,7 +61,7 @@ function AppContent() {
             <Route path="/" element={
               <ProtectedRoute>
                 <Index 
-                  toggleMenu={() => setIsSidebarOpen(!isSidebarOpen)} 
+                  toggleMenu={toggleMenu} 
                   isMenuOpen={isSidebarOpen} 
                 />
               </ProtectedRoute>

@@ -7,7 +7,18 @@ import {
   SheetContent,
   SheetTrigger 
 } from "@/components/ui/sheet";
-import { Home, Package, History, FileText, Gift, Database, UserCog, Settings } from "lucide-react";
+import { 
+  Home, 
+  Package, 
+  History, 
+  FileText, 
+  Gift, 
+  Database, 
+  UserCog, 
+  Settings,
+  Menu,
+  X 
+} from "lucide-react";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -15,6 +26,7 @@ interface SidebarProps {
   onNavigate?: (path: string) => void;
   currentRoute?: string;
   className?: string;
+  toggleMenu?: () => void;
 }
 
 const SidebarMenu: React.FC<SidebarProps> = ({ 
@@ -22,7 +34,8 @@ const SidebarMenu: React.FC<SidebarProps> = ({
   onClose, 
   onNavigate, 
   currentRoute,
-  className 
+  className,
+  toggleMenu
 }) => {
   const location = useLocation();
 
@@ -42,10 +55,11 @@ const SidebarMenu: React.FC<SidebarProps> = ({
     }
   };
 
+  // Reorganized menu items for better flow
   const menuItems = [
     { icon: Home, label: "POSレジ", path: "/" },
-    { icon: History, label: "注文履歴", path: "/order-history" },
     { icon: Package, label: "商品追加", path: "/add-product" },
+    { icon: History, label: "注文履歴", path: "/order-history" },
     { icon: Database, label: "在庫管理", path: "/inventory" },
     { icon: Gift, label: "無料処理", path: "/free-items" },
     { icon: Settings, label: "オプション", path: "/options" },
@@ -78,11 +92,26 @@ const SidebarMenu: React.FC<SidebarProps> = ({
   // Always use Sheet component now for a slide-in menu
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
+      <SheetTrigger asChild className="md:hidden">
+        <button 
+          className="p-2 rounded-md hover:bg-accent"
+          onClick={toggleMenu}
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+      </SheetTrigger>
       <SheetContent side="left" className="w-64 p-4">
-        <div className="py-4">
-          <h2 className="text-lg font-semibold mb-4">メニュー</h2>
-          {menuContent}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-semibold">メニュー</h2>
+          <button 
+            onClick={onClose} 
+            className="p-1 rounded-full hover:bg-accent"
+            aria-label="閉じる"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
+        {menuContent}
       </SheetContent>
     </Sheet>
   );
