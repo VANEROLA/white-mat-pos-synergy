@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -25,7 +24,7 @@ import {
   Moon, 
   Sun, 
   Image, 
-  TextSize, 
+  Text, 
   Smartphone, 
   Contrast, 
   MonitorSmartphone,
@@ -300,7 +299,7 @@ const Options: React.FC = () => {
               />
               
               <SettingRow
-                icon={<TextSize size={18} className="text-amber-600" />}
+                icon={<Text size={18} className="text-amber-600" />}
                 label="大きいテキスト"
                 checked={displayOptions.largeText}
                 onChange={() => handleDisplayOptionChange('largeText')}
