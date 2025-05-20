@@ -1,31 +1,13 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Table, Download, BarChart3, Building, LayoutGrid, 
-  Columns3, Rows3, List, Grid3X3, Search, Filter 
-} from "lucide-react";
+import { Table, Download, BarChart3, Building, LayoutGrid, Columns3, Rows3, List, Grid3X3, Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DateRange } from "react-day-picker";
 import { DateRangePicker } from "@/components/sales-data/DateRangePicker";
-import { 
-  Table as UITable,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow 
-} from "@/components/ui/table";
+import { Table as UITable, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import HamburgerMenu from "@/components/HamburgerMenu";
 import { useCSVOperations } from "@/hooks/useCSVOperations";
 import SidebarMenu from "@/components/SidebarMenu";
@@ -479,10 +461,10 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     );
   };
 
-  // Render card view
+  // Render card view - updated to show 4 cards per row
   const renderCardView = (product: Product) => {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {product.stores.map((store) => (
           <Card key={store.storeId} className="h-full">
             <CardHeader className="pb-2">
@@ -504,16 +486,16 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     );
   };
 
-  // Render grid view
+  // Render grid view - updated to show 4 items per row
   const renderGridView = (product: Product) => {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
         {product.stores.map((store) => (
-          <div key={store.storeId} className="flex justify-between border p-3 rounded-md">
+          <div key={store.storeId} className="flex justify-between border p-2 rounded-md">
             <div className={`font-medium ${viewSize === "compact" ? "text-xs" : viewSize === "expanded" ? "text-lg" : "text-sm"}`}>
               {store.storeName}
             </div>
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               <div className={viewSize === "compact" ? "text-xs" : viewSize === "expanded" ? "text-lg" : "text-sm"}>
                 {store.quantity}個
               </div>

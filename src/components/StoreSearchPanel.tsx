@@ -128,12 +128,12 @@ const StoreSearchPanel: React.FC<StoreSearchPanelProps> = ({
         </div>
       </div>
 
-      {(searchQuery || selectedCategory || selectedStore) && (
+      {(searchQuery || selectedCategory !== "all" || selectedStore !== "all") && (
         <div className="text-sm text-muted-foreground mt-1 mb-3">
           適用フィルター: 
           {searchQuery && `検索: ${searchQuery}`} 
-          {selectedCategory && (searchQuery ? ` / カテゴリ: ${selectedCategory === "all" ? "全てのカテゴリ" : selectedCategory}` : `カテゴリ: ${selectedCategory === "all" ? "全てのカテゴリ" : selectedCategory}`)} 
-          {selectedStore && ((searchQuery || selectedCategory) ? ` / 店舗: ${selectedStore === "all" ? "全ての店舗" : selectedStore}` : `店舗: ${selectedStore === "all" ? "全ての店舗" : selectedStore}`)} {" "}
+          {selectedCategory !== "all" && (searchQuery ? ` / カテゴリ: ${selectedCategory}` : `カテゴリ: ${selectedCategory}`)} 
+          {selectedStore !== "all" && ((searchQuery || selectedCategory !== "all") ? ` / 店舗: ${selectedStore}` : `店舗: ${selectedStore}`)} {" "}
           <Button variant="ghost" size="sm" onClick={handleResetFilters} className="h-6 px-2 text-xs">
             リセット
           </Button>
