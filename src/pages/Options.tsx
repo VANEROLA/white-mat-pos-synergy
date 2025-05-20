@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -49,6 +50,7 @@ import {
   Palette
 } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import SidebarMenu from "@/components/SidebarMenu";
 
 const Options: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -139,6 +141,10 @@ const Options: React.FC = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
+
   const ColorOption = ({ color, name }: { color: string; name: string }) => (
     <TooltipProvider>
       <Tooltip>
@@ -214,15 +220,12 @@ const Options: React.FC = () => {
     <div className="container mx-auto py-6 px-4 md:px-6 max-w-6xl">
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center">
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={toggleMenu}
+          <SidebarMenu 
+            isOpen={isMenuOpen}
+            onClose={closeMenu}
+            toggleMenu={toggleMenu}
             className="mr-3"
-            aria-label={isMenuOpen ? "メニューを閉じる" : "メニューを開く"}
-          >
-            {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
-          </Button>
+          />
           <div>
             <h1 className="text-3xl font-bold tracking-tight">オプション設定</h1>
             <p className="text-muted-foreground">システムの動作と表示をカスタマイズします</p>

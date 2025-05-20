@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -109,32 +110,32 @@ const SidebarMenu: React.FC<SidebarProps> = ({
     </div>
   );
 
-  // Fix the Sheet component to properly handle the menu toggle
   return (
-    <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetTrigger asChild className="md:hidden">
-        <button 
-          className="p-2 rounded-md hover:bg-accent"
-          onClick={toggleMenu}
-          aria-label="メニュー"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
-      </SheetTrigger>
-      <SheetContent side="left" className="w-64 p-4">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">メニュー</h2>
-          <button 
-            onClick={onClose} 
-            className="p-1 rounded-full hover:bg-accent"
-            aria-label="閉じる"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-        {menuContent}
-      </SheetContent>
-    </Sheet>
+    <>
+      <button 
+        className="md:hidden p-2 rounded-md hover:bg-accent"
+        onClick={toggleMenu}
+        aria-label="メニュー"
+      >
+        <Menu className="h-5 w-5" />
+      </button>
+      
+      <Sheet open={isOpen} onOpenChange={onClose}>
+        <SheetContent side="left" className="w-64 p-4">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">メニュー</h2>
+            <button 
+              onClick={onClose} 
+              className="p-1 rounded-full hover:bg-accent"
+              aria-label="閉じる"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          {menuContent}
+        </SheetContent>
+      </Sheet>
+    </>
   );
 };
 
