@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Info, Palette, Bell, ShoppingCart, Lock } from "lucide-react";
+import { Info, Palette, Bell, ShoppingCart, Lock, Menu } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { toast } from "sonner";
 import SidebarMenu from "@/components/SidebarMenu";
@@ -108,6 +108,15 @@ const Options: React.FC = () => {
     <div className="container mx-auto py-6 px-4 md:px-6 max-w-6xl">
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={toggleMenu} 
+            className="mr-2 md:hidden"
+            aria-label="メニューを開く"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
           <SidebarMenu 
             isOpen={isMenuOpen}
             onClose={closeMenu}
