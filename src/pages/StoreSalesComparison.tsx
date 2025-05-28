@@ -530,10 +530,13 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
   };
 
   return (
-    <div className="container mx-auto py-4 px-3 md:px-4">
+    <div className="container mx-auto py-4 px-3 md:px-4 relative">
       <SidebarMenu
-        isOpen={isMenuOpen}
+        isOpen={isMenuOpen || false}
         onClose={() => {
+          if (toggleMenu) toggleMenu();
+        }}
+        onNavigate={() => {
           if (toggleMenu) toggleMenu();
         }}
       />

@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import {
   Sheet,
   SheetContent,
+  SheetOverlay,
 } from "@/components/ui/sheet";
 import { 
   Home, 
@@ -24,7 +25,6 @@ import {
   TooltipProvider,
   TooltipTrigger 
 } from "@/components/ui/tooltip";
-import HamburgerMenu from "./HamburgerMenu";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -75,7 +75,7 @@ const SidebarMenu: React.FC<SidebarProps> = ({
     { icon: UserCog, label: "管理者設定", path: "/admin" },
   ];
 
-  // Menu content that will be displayed in the drawer
+  // Menu content that will be displayed in the sheet
   const menuContent = (
     <div className={cn("flex flex-col space-y-1", className)}>
       {menuItems.map((item) => (
@@ -115,17 +115,19 @@ const SidebarMenu: React.FC<SidebarProps> = ({
   );
 
   return (
-    <>
-      <Sheet open={isOpen} onOpenChange={onClose}>
-        <SheetContent side="left" className="w-64 p-4">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold">メニュー</h2>
-            {/* Removed the duplicate X button here since SheetContent already has a close button */}
-          </div>
-          {menuContent}
-        </SheetContent>
-      </Sheet>
-    </>
+    <Sheet open={isOpen} onOpenChange={onClose}>
+      <SheetOverlay className="bg-black/50 backdrop-blur-sm" />
+      <SheetContent 
+        side="left" 
+        className="w-64 p-4 bg-background border-r z-50"
+        style={{ zIndex: 50 }}
+      >
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-semibold">メニュー</h2>
+        </div>
+        {menuContent}
+      </SheetContent>
+    </Sheet>
   );
 };
 
