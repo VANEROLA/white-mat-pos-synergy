@@ -9,6 +9,7 @@ import { addLogEntry } from "@/utils/api";
 import CartItemRow from "@/components/cart/CartItemRow";
 import CartSummary from "@/components/cart/CartSummary";
 import CartCheckoutButton from "@/components/cart/CartCheckoutButton";
+import CartTaxSelector from "@/components/cart/CartTaxSelector";
 import EmptyCart from "@/components/cart/EmptyCart";
 
 interface CartProps {
@@ -45,7 +46,7 @@ const Cart: React.FC<CartProps> = ({
   
   return (
     <div className="relative h-full flex flex-col">
-      <div className="glass rounded-xl p-6 flex flex-col animate-fade-in flex-1 mb-20">
+      <div className="glass rounded-xl p-6 flex flex-col animate-fade-in flex-1 mb-32">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <ShoppingCart size={18} /> カート
@@ -75,8 +76,6 @@ const Cart: React.FC<CartProps> = ({
             <CartSummary 
               cart={cart}
               taxRate={taxRate}
-              setTaxRate={setTaxRate}
-              onFreeItemClick={() => setIsFreeItemDialogOpen(true)}
             />
           </>
         )}
@@ -90,11 +89,18 @@ const Cart: React.FC<CartProps> = ({
       </div>
       
       {cart.items.length > 0 && (
-        <CartCheckoutButton 
-          cart={cart}
-          taxRate={taxRate}
-          onCheckout={onCheckout}
-        />
+        <>
+          <CartTaxSelector 
+            taxRate={taxRate}
+            setTaxRate={setTaxRate}
+            onFreeItemClick={() => setIsFreeItemDialogOpen(true)}
+          />
+          <CartCheckoutButton 
+            cart={cart}
+            taxRate={taxRate}
+            onCheckout={onCheckout}
+          />
+        </>
       )}
     </div>
   );

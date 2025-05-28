@@ -31,8 +31,8 @@ const CartCheckoutButton: React.FC<CartCheckoutButtonProps> = ({
   const totalWithTax = subtotal + taxAmount;
   
   return (
-    <div className="fixed bottom-0 right-4 left-auto w-80 lg:w-96 z-50">
-      <div className="glass rounded-t-xl p-4 border-t">
+    <div className="fixed bottom-20 right-4 left-auto w-80 lg:w-96 z-50">
+      <div className="glass rounded-xl p-4 border">
         <Button 
           className="w-full py-6 bg-primary hover:bg-primary/90 text-white font-medium shadow-lg transition-all text-lg"
           onClick={onCheckout}

@@ -3,23 +3,16 @@ import React from "react";
 import { CartState, CartItem } from "@/types";
 import { BadgePercent } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import TaxSelector from "./TaxSelector";
 
 interface CartSummaryProps {
   cart: CartState;
   taxRate: number;
-  setTaxRate: (rate: number) => void;
-  onFreeItemClick: () => void;
 }
 
 const CartSummary: React.FC<CartSummaryProps> = ({
   cart,
   taxRate,
-  setTaxRate,
-  onFreeItemClick,
 }) => {
-  const taxOptions = [0, 8, 10];
-  
   const calculateSubtotal = (items: CartItem[]): number => {
     return items.reduce((sum, item) => {
       if (item.originalPrice !== undefined) {
@@ -52,13 +45,6 @@ const CartSummary: React.FC<CartSummaryProps> = ({
           </span>
           <span>¥{taxAmount.toLocaleString()}</span>
         </div>
-        
-        <TaxSelector 
-          taxRate={taxRate}
-          setTaxRate={setTaxRate}
-          taxOptions={taxOptions}
-          onFreeItemClick={onFreeItemClick}
-        />
         
         <div className="flex justify-between font-semibold mb-2 bg-muted/20 p-2 rounded-md">
           <span>合計:</span>
