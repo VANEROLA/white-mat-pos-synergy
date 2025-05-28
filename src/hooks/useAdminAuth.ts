@@ -17,11 +17,11 @@ export const useAdminAuth = (): AdminAuthState => {
     console.log("AdminAuth: Initializing authentication state");
     const authStatus = checkAuthStatus();
     setIsAuthenticated(authStatus);
-    setIsLoading(false); // 初期チェック後はすぐにローディングを完了
+    setIsLoading(false);
   }, []);
 
   // 認証トークンのステータスを確認する関数
-  const checkAuthStatus = useCallback(() => {
+  const checkAuthStatus = useCallback((): boolean => {
     try {
       const adminAuthToken = localStorage.getItem("adminAuthToken");
       if (adminAuthToken) {
@@ -50,7 +50,7 @@ export const useAdminAuth = (): AdminAuthState => {
     }
   }, []);
 
-  // 定期的に認証状態をチェック（60秒ごとに変更 - 頻度を下げる）
+  // 定期的に認証状態をチェック（60秒ごと）
   useEffect(() => {
     const intervalId = setInterval(() => {
       const authStatus = checkAuthStatus();
@@ -59,9 +59,10 @@ export const useAdminAuth = (): AdminAuthState => {
     return () => clearInterval(intervalId);
   }, [checkAuthStatus]);
 
-  // ログイン処理
+  // ログイン処理 - 店舗ログインと同様のシンプルな処理
   const login = useCallback((password: string): boolean => {
     console.log("AdminAuth: Login attempt");
+    setIsLoading(true);
     
     // デフォルトパスワードまたは保存されたパスワードを取得
     const storedPassword = localStorage.getItem("adminPassword") || "1234";
@@ -74,10 +75,12 @@ export const useAdminAuth = (): AdminAuthState => {
       
       setIsAuthenticated(true);
       console.log("AdminAuth: Authentication successful");
+      setIsLoading(false);
       return true;
     }
     
     console.log("AdminAuth: Password incorrect");
+    setIsLoading(false);
     return false;
   }, []);
 

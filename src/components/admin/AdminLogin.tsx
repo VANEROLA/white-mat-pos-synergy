@@ -15,8 +15,8 @@ const AdminLogin: React.FC = () => {
   const { login } = useAdminAuth();
   const navigate = useNavigate();
 
-  // ログイン処理を実行
-  const handleLogin = async (e: React.FormEvent) => {
+  // ログイン処理を実行 - 店舗ログインと同様のシンプルな処理
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!password) {
@@ -27,20 +27,18 @@ const AdminLogin: React.FC = () => {
     setIsLoggingIn(true);
     console.log("AdminLogin: Login form submitted");
     
-    // 少し遅延を入れて即座にログイン処理を実行
-    setTimeout(() => {
-      if (login(password)) {
-        console.log("AdminLogin: Login successful, redirecting...");
-        toast.success("ログインしました");
-        // 即座にリダイレクト（replaceを使用してhistoryを置き換え）
-        navigate("/admin", { replace: true });
-      } else {
-        console.log("AdminLogin: Login failed");
-        toast.error("パスワードが正しくありません");
-        setPassword("");
-        setIsLoggingIn(false);
-      }
-    }, 100); // 100msの最小遅延のみ
+    // 店舗ログインと同様の即座のログイン処理
+    const success = login(password);
+    if (success) {
+      console.log("AdminLogin: Login successful, redirecting...");
+      toast.success("管理者画面にログインしました");
+      navigate("/admin", { replace: true });
+    } else {
+      console.log("AdminLogin: Login failed");
+      toast.error("パスワードが正しくありません");
+      setPassword("");
+      setIsLoggingIn(false);
+    }
   };
 
   return (

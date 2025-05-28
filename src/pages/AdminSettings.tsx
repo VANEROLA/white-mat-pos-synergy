@@ -13,11 +13,11 @@ const AdminSettings: React.FC = () => {
   const { staffList, addStaff, removeStaff, changeAdminPassword } = useStaffManagement();
   const [isPageLoading, setIsPageLoading] = useState(true);
   
-  // ページ読み込み時のディレイを大幅に短縮
+  // ページ読み込み時のディレイを最小化
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsPageLoading(false);
-    }, 50); // 300msから50msに短縮
+    }, 10); // さらに短縮して10msに
     
     return () => clearTimeout(timer);
   }, []);
