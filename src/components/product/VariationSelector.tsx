@@ -27,6 +27,7 @@ const VariationSelector: React.FC<VariationSelectorProps> = ({
         name: `${product.name} (${variation.name})`,
         price: variation.price,
         stockCount: variation.stockCount,
+        imageUrl: variation.imageUrl || product.imageUrl,
       };
       onSelect(variationProduct, variation);
     } else {
@@ -51,10 +52,17 @@ const VariationSelector: React.FC<VariationSelectorProps> = ({
             className="w-full justify-between p-4 h-auto"
             onClick={() => handleSelect()}
           >
-            <div className="text-left">
-              <div className="font-medium">通常版</div>
-              <div className="text-sm text-muted-foreground">
-                ¥{product.price.toLocaleString()}
+            <div className="flex items-center gap-3">
+              <img 
+                src={product.imageUrl} 
+                alt={product.name}
+                className="w-12 h-12 object-cover rounded"
+              />
+              <div className="text-left">
+                <div className="font-medium">通常版</div>
+                <div className="text-sm text-muted-foreground">
+                  ¥{product.price.toLocaleString()}
+                </div>
               </div>
             </div>
           </Button>
@@ -66,11 +74,18 @@ const VariationSelector: React.FC<VariationSelectorProps> = ({
               className="w-full justify-between p-4 h-auto"
               onClick={() => handleSelect(variation)}
             >
-              <div className="text-left">
-                <div className="font-medium">{variation.name}</div>
-                <div className="text-sm text-muted-foreground">
-                  ¥{variation.price.toLocaleString()}
-                  {variation.stockCount !== undefined && ` - 在庫: ${variation.stockCount}`}
+              <div className="flex items-center gap-3">
+                <img 
+                  src={variation.imageUrl || product.imageUrl} 
+                  alt={variation.name}
+                  className="w-12 h-12 object-cover rounded"
+                />
+                <div className="text-left">
+                  <div className="font-medium">{variation.name}</div>
+                  <div className="text-sm text-muted-foreground">
+                    ¥{variation.price.toLocaleString()}
+                    {variation.stockCount !== undefined && ` - 在庫: ${variation.stockCount}`}
+                  </div>
                 </div>
               </div>
             </Button>

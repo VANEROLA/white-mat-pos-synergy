@@ -1,8 +1,11 @@
+
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Product, ProductVariation } from "@/types";
 import { addLogEntry } from "@/utils/api";
-import { Package, Tag } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Package, Tag, ImageIcon } from "lucide-react";
 import FormField from "./product/FormField";
 import ImageUploader from "./product/ImageUploader";
 import CategorySelect from "./product/CategorySelect";
@@ -137,68 +140,93 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl mx-auto">
+    <div className="max-w-4xl mx-auto space-y-6">
       <ProductFormHeader />
+      
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* 基本情報セクション */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Package size={20} />
+              基本情報
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <FormField
+                label="商品名"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="例: カフェラテ"
+                icon={Package}
+                error={errors.name}
+                required
+              />
 
-      <div className="space-y-4">
-        <FormField
-          label="商品名"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          placeholder="例: カフェラテ"
-          icon={Package}
-          error={errors.name}
-          required
-        />
+              <FormField
+                label="価格 (円)"
+                name="price"
+                value={formData.price}
+                onChange={handleChange}
+                type="number"
+                min="1"
+                placeholder="例: 480"
+                icon={Tag}
+                error={errors.price}
+                required
+              />
 
-        <FormField
-          label="価格 (円)"
-          name="price"
-          value={formData.price}
-          onChange={handleChange}
-          type="number"
-          min="1"
-          placeholder="例: 480"
-          icon={Tag}
-          error={errors.price}
-          required
-        />
+              <CategorySelect
+                categories={categories}
+                value={formData.category}
+                onChange={handleChange}
+                error={errors.category}
+              />
 
-        <CategorySelect
-          categories={categories}
-          value={formData.category}
-          onChange={handleChange}
-          error={errors.category}
-        />
+              <FormField
+                label="在庫数"
+                name="stockCount"
+                value={formData.stockCount}
+                onChange={handleChange}
+                type="number"
+                min="0"
+                placeholder="例: 100"
+                icon={Package}
+                error={errors.stockCount}
+              />
+            </div>
 
-        <ImageUploader
-          imagePreview={imagePreview}
-          onFileChange={handleFileChange}
-          error={errors.imageUrl}
-        />
+            <div>
+              <ImageUploader
+                imagePreview={imagePreview}
+                onFileChange={handleFileChange}
+                error={errors.imageUrl}
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-        <FormField
-          label="在庫数"
-          name="stockCount"
-          value={formData.stockCount}
-          onChange={handleChange}
-          type="number"
-          min="0"
-          placeholder="例: 100"
-          icon={Package}
-          error={errors.stockCount}
-          required
-        />
+        {/* バリエーションセクション */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ImageIcon size={20} />
+              バリエーション
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <VariationManager
+              variations={variations}
+              onChange={setVariations}
+            />
+          </CardContent>
+        </Card>
 
-        <VariationManager
-          variations={variations}
-          onChange={setVariations}
-        />
-      </div>
-
-      <FormActions isSubmitting={isSubmitting} />
-    </form>
+        <FormActions isSubmitting={isSubmitting} />
+      </form>
+    </div>
   );
 };
 
