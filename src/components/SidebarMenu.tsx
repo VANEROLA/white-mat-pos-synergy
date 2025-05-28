@@ -5,7 +5,6 @@ import { cn } from "@/lib/utils";
 import {
   Sheet,
   SheetContent,
-  SheetOverlay,
 } from "@/components/ui/sheet";
 import { 
   Home, 
@@ -116,11 +115,10 @@ const SidebarMenu: React.FC<SidebarProps> = ({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetOverlay className="bg-black/50 backdrop-blur-sm" />
       <SheetContent 
         side="left" 
-        className="w-64 p-4 bg-background border-r z-50"
-        style={{ zIndex: 50 }}
+        className="w-64 p-4 bg-background border-r"
+        style={{ zIndex: 9999 }}
       >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">メニュー</h2>
