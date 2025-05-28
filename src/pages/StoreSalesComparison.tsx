@@ -529,200 +529,143 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
     );
   };
 
+  const handleCloseSidebar = () => {
+    if (toggleMenu) {
+      toggleMenu();
+    }
+  };
+
   return (
-    <div className="container mx-auto py-4 px-3 md:px-4 relative">
+    <div className="min-h-screen bg-background">
       <SidebarMenu
         isOpen={isMenuOpen || false}
-        onClose={() => {
-          if (toggleMenu) toggleMenu();
-        }}
-        onNavigate={() => {
-          if (toggleMenu) toggleMenu();
-        }}
+        onClose={handleCloseSidebar}
+        onNavigate={handleCloseSidebar}
       />
       
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <HamburgerMenu 
-            isOpen={isMenuOpen || false} 
-            toggleMenu={toggleMenu || (() => {})} 
-          />
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight mb-0">店舗間売上データ</h1>
-            <p className="text-sm text-muted-foreground">店舗間の売上の比較と分析</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 mt-3 md:mt-0">
-          <DateRangePicker
-            date={dateRange}
-            onDateChange={setDateRange}
-          />
-        </div>
-      </div>
-      
-      {highestRevenueProduct && (
-        <Card className="mb-4 bg-muted/20 border-primary/20">
-          <CardHeader className="pb-2 pt-3">
-            <CardTitle className="text-base flex justify-between items-center">
-              <span>最高売上商品</span>
-              <span className="text-primary font-bold">{formatCurrency(highestRevenueProduct.totalRevenue)}</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pb-3">
-            <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-4">
-              <div className="flex items-center gap-4">
-                <div>
-                  <span className="text-sm font-medium">{highestRevenueProduct.productName}</span>
-                  <span className="text-xs text-muted-foreground ml-2">({highestRevenueProduct.productCategory})</span>
-                </div>
-              </div>
-              <div className="flex gap-4 mt-1 md:mt-0 md:ml-auto">
-                <div className="text-xs">
-                  <span className="text-muted-foreground">最高売上店舗:</span>
-                  <span className="font-semibold ml-1">{highestRevenueProduct.highestStore.storeName}</span>
-                </div>
-                <div className="text-xs">
-                  <span className="text-muted-foreground">店舗売上:</span>
-                  <span className="font-semibold ml-1">{formatCurrency(highestRevenueProduct.highestStore.revenue)}</span>
-                </div>
-                <div className="text-xs">
-                  <span className="text-muted-foreground">数量:</span>
-                  <span className="font-semibold ml-1">{highestRevenueProduct.highestStore.quantity}個</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-      
-      <Tabs defaultValue="by-store" value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-3">
-          <TabsList className="mb-3 md:mb-0">
-            <TabsTrigger value="by-store" className="flex items-center gap-1 text-xs">
-              <Building className="h-3 w-3" />
-              <span>店舗別</span>
-            </TabsTrigger>
-            <TabsTrigger value="by-product" className="flex items-center gap-1 text-xs">
-              <BarChart3 className="h-3 w-3" />
-              <span>商品別</span>
-            </TabsTrigger>
-          </TabsList>
-          
-          <div className="flex items-center gap-1 flex-wrap">
-            <span className="text-xs text-muted-foreground">表示:</span>
-            <ToggleGroup type="single" value={viewMode} onValueChange={(val) => val && setViewMode(val as ViewMode)} size="sm">
-              <ToggleGroupItem value="table" aria-label="テーブル表示" title="テーブル表示" className="h-8 w-8">
-                <Table className="h-4 w-4" />
-              </ToggleGroupItem>
-              <ToggleGroupItem value="card" aria-label="カード表示" title="カード表示" className="h-8 w-8">
-                <Grid3X3 className="h-4 w-4" />
-              </ToggleGroupItem>
-              <ToggleGroupItem value="grid" aria-label="グリッド表示" title="グリッド表示" className="h-8 w-8">
-                <List className="h-4 w-4" />
-              </ToggleGroupItem>
-            </ToggleGroup>
-            
-            <div className="flex bg-muted rounded-md p-0.5 ml-1">
-              <Button
-                variant={viewSize === "compact" ? "default" : "ghost"}
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={() => setViewSize("compact")}
-                title="コンパクト表示"
-              >
-                <Columns3 className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewSize === "default" ? "default" : "ghost"}
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={() => setViewSize("default")}
-                title="標準表示"
-              >
-                <LayoutGrid className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewSize === "expanded" ? "default" : "ghost"}
-                size="sm"
-                className="h-8 w-8 p-0"
-                onClick={() => setViewSize("expanded")}
-                title="拡大表示"
-              >
-                <Rows3 className="h-4 w-4" />
-              </Button>
+      <div className="container mx-auto py-4 px-3 md:px-4 relative">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <HamburgerMenu 
+              isOpen={isMenuOpen || false} 
+              toggleMenu={toggleMenu || (() => {})} 
+            />
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight mb-0">店舗間売上データ</h1>
+              <p className="text-sm text-muted-foreground">店舗間の売上の比較と分析</p>
             </div>
           </div>
+          <div className="flex items-center gap-2 mt-3 md:mt-0">
+            <DateRangePicker
+              date={dateRange}
+              onDateChange={setDateRange}
+            />
+          </div>
         </div>
-
-        <TabsContent value="by-store">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-4">
-              <div>
-                <CardTitle className="text-lg">店舗別売上比較</CardTitle>
-                <CardDescription className="text-xs">
-                  店舗ごとの売上とトランザクション数の比較
-                </CardDescription>
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="flex items-center gap-1 h-8"
-                onClick={handleExportCSV}
-              >
-                <Download className="h-3 w-3" />
-                <span className="text-xs">CSV</span>
-              </Button>
+        
+        {highestRevenueProduct && (
+          <Card className="mb-4 bg-muted/20 border-primary/20">
+            <CardHeader className="pb-2 pt-3">
+              <CardTitle className="text-base flex justify-between items-center">
+                <span>最高売上商品</span>
+                <span className="text-primary font-bold">{formatCurrency(highestRevenueProduct.totalRevenue)}</span>
+              </CardTitle>
             </CardHeader>
-            <CardContent className="pt-2 pb-4">
-              <div className="rounded-md border overflow-auto">
-                <UITable className={tableClasses.table}>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className={tableClasses.header}>店舗名</TableHead>
-                      <TableHead className={tableClasses.header}>総売上</TableHead>
-                      <TableHead className={tableClasses.header}>取引数</TableHead>
-                      <TableHead className={tableClasses.header}>取引平均</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {storeData.map((store) => (
-                      <TableRow key={store.id}>
-                        <TableCell className={`font-medium ${tableClasses.cell}`}>{store.name}</TableCell>
-                        <TableCell className={tableClasses.cell}>{formatCurrency(store.totalSales)}</TableCell>
-                        <TableCell className={tableClasses.cell}>{store.transactions}件</TableCell>
-                        <TableCell className={tableClasses.cell}>{formatCurrency(store.averagePerTransaction)}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </UITable>
+            <CardContent className="pb-3">
+              <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-4">
+                <div className="flex items-center gap-4">
+                  <div>
+                    <span className="text-sm font-medium">{highestRevenueProduct.productName}</span>
+                    <span className="text-xs text-muted-foreground ml-2">({highestRevenueProduct.productCategory})</span>
+                  </div>
+                </div>
+                <div className="flex gap-4 mt-1 md:mt-0 md:ml-auto">
+                  <div className="text-xs">
+                    <span className="text-muted-foreground">最高売上店舗:</span>
+                    <span className="font-semibold ml-1">{highestRevenueProduct.highestStore.storeName}</span>
+                  </div>
+                  <div className="text-xs">
+                    <span className="text-muted-foreground">店舗売上:</span>
+                    <span className="font-semibold ml-1">{formatCurrency(highestRevenueProduct.highestStore.revenue)}</span>
+                  </div>
+                  <div className="text-xs">
+                    <span className="text-muted-foreground">数量:</span>
+                    <span className="font-semibold ml-1">{highestRevenueProduct.highestStore.quantity}個</span>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
+        )}
         
-        <TabsContent value="by-product">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-4">
-              <div>
-                <CardTitle className="text-lg">商品別店舗比較</CardTitle>
-                <CardDescription className="text-xs">
-                  商品ごとの店舗間販売実績の比較
-                </CardDescription>
-              </div>
-              <div className="flex items-center gap-2">
-                <select 
-                  className="text-xs border rounded px-2 py-1 h-8"
-                  value={itemsPerPage}
-                  onChange={(e) => {
-                    setItemsPerPage(Number(e.target.value));
-                    setCurrentPage(1);
-                  }}
+        <Tabs defaultValue="by-store" value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-3">
+            <TabsList className="mb-3 md:mb-0">
+              <TabsTrigger value="by-store" className="flex items-center gap-1 text-xs">
+                <Building className="h-3 w-3" />
+                <span>店舗別</span>
+              </TabsTrigger>
+              <TabsTrigger value="by-product" className="flex items-center gap-1 text-xs">
+                <BarChart3 className="h-3 w-3" />
+                <span>商品別</span>
+              </TabsTrigger>
+            </TabsList>
+            
+            <div className="flex items-center gap-1 flex-wrap">
+              <span className="text-xs text-muted-foreground">表示:</span>
+              <ToggleGroup type="single" value={viewMode} onValueChange={(val) => val && setViewMode(val as ViewMode)} size="sm">
+                <ToggleGroupItem value="table" aria-label="テーブル表示" title="テーブル表示" className="h-8 w-8">
+                  <Table className="h-4 w-4" />
+                </ToggleGroupItem>
+                <ToggleGroupItem value="card" aria-label="カード表示" title="カード表示" className="h-8 w-8">
+                  <Grid3X3 className="h-4 w-4" />
+                </ToggleGroupItem>
+                <ToggleGroupItem value="grid" aria-label="グリッド表示" title="グリッド表示" className="h-8 w-8">
+                  <List className="h-4 w-4" />
+                </ToggleGroupItem>
+              </ToggleGroup>
+              
+              <div className="flex bg-muted rounded-md p-0.5 ml-1">
+                <Button
+                  variant={viewSize === "compact" ? "default" : "ghost"}
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => setViewSize("compact")}
+                  title="コンパクト表示"
                 >
-                  <option value={3}>3件</option>
-                  <option value={5}>5件</option>
-                  <option value={10}>10件</option>
-                  <option value={filteredAndSortedProducts.length}>全て</option>
-                </select>
+                  <Columns3 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewSize === "default" ? "default" : "ghost"}
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => setViewSize("default")}
+                  title="標準表示"
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewSize === "expanded" ? "default" : "ghost"}
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => setViewSize("expanded")}
+                  title="拡大表示"
+                >
+                  <Rows3 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <TabsContent value="by-store">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-4">
+                <div>
+                  <CardTitle className="text-lg">店舗別売上比較</CardTitle>
+                  <CardDescription className="text-xs">
+                    店舗ごとの売上とトランザクション数の比較
+                  </CardDescription>
+                </div>
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -732,56 +675,117 @@ const StoreSalesComparison: React.FC<StoreSalesComparisonProps> = ({ toggleMenu,
                   <Download className="h-3 w-3" />
                   <span className="text-xs">CSV</span>
                 </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-2 pb-4">
-              <StoreSearchPanel
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                selectedCategory={selectedCategory}
-                setSelectedCategory={setSelectedCategory}
-                selectedStore={selectedStore}
-                setSelectedStore={setSelectedStore}
-                sortField={sortField}
-                sortOrder={sortOrder}
-                handleSort={handleSort}
-                handleResetFilters={handleResetFilters}
-                categories={uniqueCategories}
-                stores={storeData}
-              />
-            
-              {renderProductCount()}
-            
-              {paginatedProductData.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
-                  {paginatedProductData.map((product, index) => (
-                    <div key={index} className="pb-4 border-b last:border-b-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className={`font-medium ${viewSize === "compact" ? "text-xs" : viewSize === "expanded" ? "text-lg" : "text-sm"}`}>
-                          {product.productName}
-                          <span className="text-muted-foreground ml-2 text-xs">
-                            ({product.productCategory})
-                          </span>
-                        </h3>
-                      </div>
-                      
-                      {viewMode === "table" && renderTableView(product)}
-                      {viewMode === "card" && renderCardView(product)}
-                      {viewMode === "grid" && renderGridView(product)}
-                    </div>
-                  ))}
+              </CardHeader>
+              <CardContent className="pt-2 pb-4">
+                <div className="rounded-md border overflow-auto">
+                  <UITable className={tableClasses.table}>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className={tableClasses.header}>店舗名</TableHead>
+                        <TableHead className={tableClasses.header}>総売上</TableHead>
+                        <TableHead className={tableClasses.header}>取引数</TableHead>
+                        <TableHead className={tableClasses.header}>取引平均</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {storeData.map((store) => (
+                        <TableRow key={store.id}>
+                          <TableCell className={`font-medium ${tableClasses.cell}`}>{store.name}</TableCell>
+                          <TableCell className={tableClasses.cell}>{formatCurrency(store.totalSales)}</TableCell>
+                          <TableCell className={tableClasses.cell}>{store.transactions}件</TableCell>
+                          <TableCell className={tableClasses.cell}>{formatCurrency(store.averagePerTransaction)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </UITable>
                 </div>
-              ) : (
-                <div className="text-center py-6 text-muted-foreground text-sm">
-                  検索条件に一致する商品がありません。
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="by-product">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-4">
+                <div>
+                  <CardTitle className="text-lg">商品別店舗比較</CardTitle>
+                  <CardDescription className="text-xs">
+                    商品ごとの店舗間販売実績の比較
+                  </CardDescription>
                 </div>
-              )}
+                <div className="flex items-center gap-2">
+                  <select 
+                    className="text-xs border rounded px-2 py-1 h-8"
+                    value={itemsPerPage}
+                    onChange={(e) => {
+                      setItemsPerPage(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                  >
+                    <option value={3}>3件</option>
+                    <option value={5}>5件</option>
+                    <option value={10}>10件</option>
+                    <option value={filteredAndSortedProducts.length}>全て</option>
+                  </select>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex items-center gap-1 h-8"
+                    onClick={handleExportCSV}
+                  >
+                    <Download className="h-3 w-3" />
+                    <span className="text-xs">CSV</span>
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-2 pb-4">
+                <StoreSearchPanel
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                  selectedCategory={selectedCategory}
+                  setSelectedCategory={setSelectedCategory}
+                  selectedStore={selectedStore}
+                  setSelectedStore={setSelectedStore}
+                  sortField={sortField}
+                  sortOrder={sortOrder}
+                  handleSort={handleSort}
+                  handleResetFilters={handleResetFilters}
+                  categories={uniqueCategories}
+                  stores={storeData}
+                />
               
-              {renderPagination()}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                {renderProductCount()}
+              
+                {paginatedProductData.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6">
+                    {paginatedProductData.map((product, index) => (
+                      <div key={index} className="pb-4 border-b last:border-b-0">
+                        <div className="flex items-center justify-between mb-2">
+                          <h3 className={`font-medium ${viewSize === "compact" ? "text-xs" : viewSize === "expanded" ? "text-lg" : "text-sm"}`}>
+                            {product.productName}
+                            <span className="text-muted-foreground ml-2 text-xs">
+                              ({product.productCategory})
+                            </span>
+                          </h3>
+                        </div>
+                        
+                        {viewMode === "table" && renderTableView(product)}
+                        {viewMode === "card" && renderCardView(product)}
+                        {viewMode === "grid" && renderGridView(product)}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-6 text-muted-foreground text-sm">
+                    検索条件に一致する商品がありません。
+                  </div>
+                )}
+                
+                {renderPagination()}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 };

@@ -117,8 +117,7 @@ const SidebarMenu: React.FC<SidebarProps> = ({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent 
         side="left" 
-        className="w-64 p-4 bg-background border-r"
-        style={{ zIndex: 9999 }}
+        className="w-64 p-4 bg-background border-r z-[1000]"
       >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">メニュー</h2>
