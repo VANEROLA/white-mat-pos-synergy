@@ -8,6 +8,7 @@ import FreeItemDialog from "@/components/FreeItemDialog";
 import { addLogEntry } from "@/utils/api";
 import CartItemRow from "@/components/cart/CartItemRow";
 import CartSummary from "@/components/cart/CartSummary";
+import CartCheckoutButton from "@/components/cart/CartCheckoutButton";
 import EmptyCart from "@/components/cart/EmptyCart";
 
 interface CartProps {
@@ -43,49 +44,58 @@ const Cart: React.FC<CartProps> = ({
   };
   
   return (
-    <div className="glass rounded-xl p-6 h-full flex flex-col animate-fade-in">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold flex items-center gap-2">
-          <ShoppingCart size={18} /> カート
-        </h2>
-        <div className="text-sm text-muted-foreground">
-          {cart.items.length} {cart.items.length === 1 ? '商品' : '商品'}
+    <div className="relative h-full flex flex-col">
+      <div className="glass rounded-xl p-6 flex flex-col animate-fade-in flex-1 mb-20">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <ShoppingCart size={18} /> カート
+          </h2>
+          <div className="text-sm text-muted-foreground">
+            {cart.items.length} {cart.items.length === 1 ? '商品' : '商品'}
+          </div>
         </div>
+        
+        <Separator className="bg-muted/50 my-2" />
+        
+        {cart.items.length === 0 ? (
+          <EmptyCart />
+        ) : (
+          <>
+            <div className="flex-grow overflow-y-auto scrollbar-hide my-2 pr-2">
+              {cart.items.map((item) => (
+                <CartItemRow
+                  key={item.id}
+                  item={item}
+                  onUpdateQuantity={onUpdateQuantity}
+                  onRemoveItem={onRemoveItem}
+                />
+              ))}
+            </div>
+            
+            <CartSummary 
+              cart={cart}
+              taxRate={taxRate}
+              setTaxRate={setTaxRate}
+              onFreeItemClick={() => setIsFreeItemDialogOpen(true)}
+            />
+          </>
+        )}
+        
+        <FreeItemDialog 
+          open={isFreeItemDialogOpen}
+          onClose={() => setIsFreeItemDialogOpen(false)}
+          onApprove={handleFreeItemApproved}
+          cartItems={cart.items}
+        />
       </div>
       
-      <Separator className="bg-muted/50 my-2" />
-      
-      {cart.items.length === 0 ? (
-        <EmptyCart />
-      ) : (
-        <>
-          <div className="flex-grow overflow-y-auto scrollbar-hide my-2 pr-2">
-            {cart.items.map((item) => (
-              <CartItemRow
-                key={item.id}
-                item={item}
-                onUpdateQuantity={onUpdateQuantity}
-                onRemoveItem={onRemoveItem}
-              />
-            ))}
-          </div>
-          
-          <CartSummary 
-            cart={cart}
-            taxRate={taxRate}
-            setTaxRate={setTaxRate}
-            onCheckout={onCheckout}
-            onFreeItemClick={() => setIsFreeItemDialogOpen(true)}
-          />
-        </>
+      {cart.items.length > 0 && (
+        <CartCheckoutButton 
+          cart={cart}
+          taxRate={taxRate}
+          onCheckout={onCheckout}
+        />
       )}
-      
-      <FreeItemDialog 
-        open={isFreeItemDialogOpen}
-        onClose={() => setIsFreeItemDialogOpen(false)}
-        onApprove={handleFreeItemApproved}
-        cartItems={cart.items}
-      />
     </div>
   );
 };
