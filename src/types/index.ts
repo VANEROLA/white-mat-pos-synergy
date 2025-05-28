@@ -1,4 +1,11 @@
 // Product related types
+export interface ProductVariation {
+  id: string;
+  name: string;
+  price: number;
+  stockCount?: number;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -6,6 +13,7 @@ export interface Product {
   imageUrl: string;
   category: string;
   stockCount?: number;
+  variations?: ProductVariation[];
 }
 
 // Cart related types

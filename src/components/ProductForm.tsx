@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Product } from "@/types";
+import { Product, ProductVariation } from "@/types";
 import { addLogEntry } from "@/utils/api";
 import { Package, Tag } from "lucide-react";
 import FormField from "./product/FormField";
@@ -9,6 +8,7 @@ import ImageUploader from "./product/ImageUploader";
 import CategorySelect from "./product/CategorySelect";
 import FormActions from "./product/FormActions";
 import ProductFormHeader from "./product/ProductFormHeader";
+import VariationManager from "./product/VariationManager";
 import { Category } from "./CategoryManagement";
 
 interface ProductFormProps {
@@ -27,6 +27,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [categories, setCategories] = useState<Category[]>([]);
+  const [variations, setVariations] = useState<ProductVariation[]>([]);
 
   const loadCategories = () => {
     const storedCategories = localStorage.getItem("categories");
@@ -124,13 +125,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
       category: formData.category,
       imageUrl: imageUrlToUse,
       stockCount: formData.stockCount ? Number(formData.stockCount) : 0,
+      variations: variations.length > 0 ? variations : undefined,
     };
 
     onSubmit(productData);
 
     addLogEntry({
       action: "product_create_attempt",
-      details: `Attempted to create product: ${formData.name}`,
+      details: `Attempted to create product: ${formData.name}${variations.length > 0 ? ` with ${variations.length} variations` : ''}`,
     });
   };
 
@@ -187,6 +189,11 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmit, isSubmitting = fals
           icon={Package}
           error={errors.stockCount}
           required
+        />
+
+        <VariationManager
+          variations={variations}
+          onChange={setVariations}
         />
       </div>
 
