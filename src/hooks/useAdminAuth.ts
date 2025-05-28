@@ -15,8 +15,9 @@ export const useAdminAuth = (): AdminAuthState => {
   // 初回マウント時に認証状態をチェック
   useEffect(() => {
     console.log("AdminAuth: Initializing authentication state");
-    checkAuthStatus();
-    setIsLoading(false);
+    const authStatus = checkAuthStatus();
+    setIsAuthenticated(authStatus);
+    setIsLoading(false); // 初期チェック後はすぐにローディングを完了
   }, []);
 
   // 認証トークンのステータスを確認する関数
@@ -31,31 +32,30 @@ export const useAdminAuth = (): AdminAuthState => {
         console.log("AdminAuth: Token status check -", isValid ? "valid" : "expired");
         
         if (isValid) {
-          setIsAuthenticated(true);
           return true;
         } else {
           // 期限切れのトークンを削除
           console.log("AdminAuth: Token expired, removing");
           localStorage.removeItem("adminAuthToken");
-          setIsAuthenticated(false);
           return false;
         }
       } else {
         console.log("AdminAuth: No token found");
-        setIsAuthenticated(false);
         return false;
       }
     } catch (error) {
       console.error("AdminAuth: Error checking token", error);
       localStorage.removeItem("adminAuthToken");
-      setIsAuthenticated(false);
       return false;
     }
   }, []);
 
-  // 定期的に認証状態をチェック（30秒ごと）
+  // 定期的に認証状態をチェック（60秒ごとに変更 - 頻度を下げる）
   useEffect(() => {
-    const intervalId = setInterval(checkAuthStatus, 30000);
+    const intervalId = setInterval(() => {
+      const authStatus = checkAuthStatus();
+      setIsAuthenticated(authStatus);
+    }, 60000);
     return () => clearInterval(intervalId);
   }, [checkAuthStatus]);
 

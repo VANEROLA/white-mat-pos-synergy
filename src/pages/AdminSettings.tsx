@@ -13,22 +13,23 @@ const AdminSettings: React.FC = () => {
   const { staffList, addStaff, removeStaff, changeAdminPassword } = useStaffManagement();
   const [isPageLoading, setIsPageLoading] = useState(true);
   
-  // ページ読み込み時に少し待ってから認証状態を確認
+  // ページ読み込み時のディレイを大幅に短縮
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsPageLoading(false);
-    }, 300); // 300msのディレイを追加
+    }, 50); // 300msから50msに短縮
     
     return () => clearTimeout(timer);
   }, []);
   
-  // ローディング中は何も表示しない
+  // ローディング中は最小限の表示
   if (isLoading || isPageLoading) {
     console.log("AdminSettings: Loading...");
     return (
       <div className="flex justify-center items-center min-h-[80vh]">
         <div className="text-center">
-          <p>読み込み中...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+          <p className="text-sm text-muted-foreground">読み込み中...</p>
         </div>
       </div>
     );

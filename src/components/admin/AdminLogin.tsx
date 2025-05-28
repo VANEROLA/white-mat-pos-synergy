@@ -16,7 +16,7 @@ const AdminLogin: React.FC = () => {
   const navigate = useNavigate();
 
   // ログイン処理を実行
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!password) {
@@ -27,17 +27,20 @@ const AdminLogin: React.FC = () => {
     setIsLoggingIn(true);
     console.log("AdminLogin: Login form submitted");
     
-    // ログイン処理を実行し、成功したら即座にリダイレクト
-    if (login(password)) {
-      console.log("AdminLogin: Login successful, redirecting...");
-      toast.success("管理者画面にログインしました");
-      navigate("/admin", { replace: true });
-    } else {
-      console.log("AdminLogin: Login failed");
-      toast.error("パスワードが正しくありません");
-      setPassword("");
-      setIsLoggingIn(false);
-    }
+    // 少し遅延を入れて即座にログイン処理を実行
+    setTimeout(() => {
+      if (login(password)) {
+        console.log("AdminLogin: Login successful, redirecting...");
+        toast.success("ログインしました");
+        // 即座にリダイレクト（replaceを使用してhistoryを置き換え）
+        navigate("/admin", { replace: true });
+      } else {
+        console.log("AdminLogin: Login failed");
+        toast.error("パスワードが正しくありません");
+        setPassword("");
+        setIsLoggingIn(false);
+      }
+    }, 100); // 100msの最小遅延のみ
   };
 
   return (
@@ -64,6 +67,7 @@ const AdminLogin: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoFocus
+                disabled={isLoggingIn}
               />
             </div>
           </CardContent>
