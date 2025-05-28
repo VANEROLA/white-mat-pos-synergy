@@ -222,14 +222,15 @@ export const useCSVOperations = () => {
       // Get keys and create headers
       const headers = fieldsToExport.map(field => field.key);
       
-      // Create example row
+      // Create example row with all required Product properties
       const exampleValues: Record<keyof Product, string> = {
         id: "PROD-EXAMPLE-001",
         name: "サンプル商品",
         price: "500",
         category: "コーヒー",
         stockCount: "100",
-        imageUrl: "https://placehold.co/200x200?text=サンプル"
+        imageUrl: "https://placehold.co/200x200?text=サンプル",
+        variations: "[]" // Empty array as string representation
       };
       
       const exampleRow = headers.map(header => exampleValues[header as keyof Product]);
