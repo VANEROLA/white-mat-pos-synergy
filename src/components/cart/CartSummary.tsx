@@ -2,17 +2,27 @@
 import React from "react";
 import { CartState, CartItem } from "@/types";
 import { BadgePercent } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import TaxSelector from "./TaxSelector";
 
 interface CartSummaryProps {
   cart: CartState;
   taxRate: number;
+  setTaxRate: (rate: number) => void;
+  onCheckout: () => void;
+  onFreeItemClick: () => void;
 }
 
 const CartSummary: React.FC<CartSummaryProps> = ({
   cart,
   taxRate,
+  setTaxRate,
+  onCheckout,
+  onFreeItemClick,
 }) => {
+  const taxOptions = [0, 8, 10];
+  
   const calculateSubtotal = (items: CartItem[]): number => {
     return items.reduce((sum, item) => {
       if (item.originalPrice !== undefined) {
@@ -46,10 +56,24 @@ const CartSummary: React.FC<CartSummaryProps> = ({
           <span>¥{taxAmount.toLocaleString()}</span>
         </div>
         
-        <div className="flex justify-between font-semibold mb-2 bg-muted/20 p-2 rounded-md">
+        <TaxSelector 
+          taxRate={taxRate}
+          setTaxRate={setTaxRate}
+          taxOptions={taxOptions}
+          onFreeItemClick={onFreeItemClick}
+        />
+        
+        <div className="flex justify-between font-semibold mb-6 bg-muted/20 p-2 rounded-md">
           <span>合計:</span>
           <span className="text-lg">¥{totalWithTax.toLocaleString()}</span>
         </div>
+        
+        <Button 
+          className="w-full py-6 bg-primary hover:bg-primary/90 text-white font-medium shadow-sm transition-all"
+          onClick={onCheckout}
+        >
+          注文を確定する
+        </Button>
       </div>
     </>
   );
